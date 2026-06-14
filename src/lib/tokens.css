@@ -1,0 +1,171 @@
+/* ============================================================================
+ * Bananaworld-DC Design Tokens
+ *
+ * Aesthetic direction (binding per project_bananaworld_dc_aesthetic memory):
+ *   "Modern SaaS feel but still professional" — Linear / Stripe / Vercel / Notion.
+ *   NOT Material Design / gradients / skeuomorphism.
+ *
+ * Surface model (per UX-DS-001 + TECH-CON-002):
+ *   [data-surface="browser"]  Browser admin — neutral greys, Bananaworld accent yellow
+ *                             on primary CTAs only, dense 1280x800-and-up viewport.
+ *   [data-surface="tablet"]   Tablet PWA — high-contrast, larger control sizing for
+ *                             gloved-hand cold-room operability, same aesthetic family.
+ *
+ * Hard rule (per M006-DEC-006 + QUALITY-PROHIB-001):
+ *   This file contains design primitives ONLY. Banana colour stage names, container
+ *   type literals, class names are BUSINESS VALUES and live in masters, never here.
+ * ========================================================================== */
+
+:root,
+[data-surface="browser"] {
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  --font-sans: "Inter", "Inter Fallback", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+
+  /* ── Surface palette — near-white app bg, white surfaces, subtle separation */
+  --color-bg: #fafaf9;             /* app background (warm-neutral) */
+  --color-surface: #ffffff;        /* card / panel / sheet surface */
+  --color-surface-muted: #f5f5f4;  /* sidebar / sunken section */
+  --color-surface-sunken: #efefee; /* deeper sunken (table stripe, code blocks) */
+
+  /* ── Borders — crisp 1px lines, not shadows */
+  --color-border: #e7e5e4;
+  --color-border-strong: #d6d3d1;
+
+  /* ── Foreground (text) — confident hierarchy */
+  --color-fg: #18181b;             /* primary body text — near-black */
+  --color-fg-muted: #52525b;       /* secondary text, labels */
+  --color-fg-subtle: #71717a;      /* tertiary text, helper text */
+  --color-fg-on-accent: #18181b;   /* text on accent yellow (yellow has light luma) */
+
+  /* ── Accent — Bananaworld brand yellow (primary CTA only, never large fills) */
+  --color-accent: #fac80a;
+  --color-accent-hover: #e8b900;
+  --color-accent-subtle: #fef3c7;
+
+  /* ── Status palette — used as small badges, never hero blocks */
+  --color-success: #16a34a;
+  --color-success-subtle: #dcfce7;
+  --color-success-fg: #14532d;
+
+  --color-warning: #ea580c;        /* On Hold + Out-of-band + Out-of-tolerance */
+  --color-warning-subtle: #ffedd5;
+  --color-warning-fg: #7c2d12;
+
+  --color-danger: #dc2626;         /* Waste + error */
+  --color-danger-subtle: #fee2e2;
+  --color-danger-fg: #7f1d1d;
+
+  --color-info: #2563eb;           /* Posted */
+  --color-info-subtle: #dbeafe;
+  --color-info-fg: #1e3a8a;
+
+  --color-neutral: #71717a;        /* Draft + Voided + Reversed + Adjusted */
+  --color-neutral-subtle: #f4f4f5;
+  --color-neutral-fg: #3f3f46;
+
+  /* ── Focus ring — 2px Bananaworld-yellow halo, 1px gap (crisp, accessible) */
+  --color-ring: #fac80a;
+
+  /* ── Radii — 6–10px on inputs/buttons/cards (modern SaaS, never overly round) */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
+
+  /* ── Shadows — subtle, single-layer, low-alpha (most surfaces use border instead) */
+  --shadow-xs: 0 1px 0 rgba(24, 24, 27, 0.04);
+  --shadow-sm: 0 1px 2px rgba(24, 24, 27, 0.04), 0 1px 3px rgba(24, 24, 27, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(24, 24, 27, 0.06),
+    0 2px 4px -2px rgba(24, 24, 27, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(24, 24, 27, 0.08),
+    0 4px 6px -4px rgba(24, 24, 27, 0.05);
+  --shadow-focus: 0 0 0 1px var(--color-surface), 0 0 0 3px var(--color-ring);
+
+  /* ── Sizing — browser-density (Linear-density, not Salesforce-density) */
+  --control-h-sm: 28px;
+  --control-h-md: 36px;
+  --control-h-lg: 44px;
+  --control-px-md: 12px;
+  --control-py-md: 6px;
+  --font-size-body: 14px;
+  --font-size-label: 13px;
+  --font-size-helper: 12px;
+  --font-size-h1: 28px;
+  --font-size-h2: 22px;
+  --font-size-h3: 18px;
+  --font-size-h4: 16px;
+  --line-height-body: 1.5;
+  --line-height-heading: 1.25;
+  --letter-spacing-heading: -0.015em;
+
+  /* ── Layout */
+  --layout-sidebar-width: 240px;
+  --layout-content-max-width: 1440px;
+  --layout-header-height: 56px;
+
+  /* ── Motion (per UX-DS-009 + UX-DS-021 — 100ms ack, ≤300ms blocking) */
+  --motion-duration-fast: 120ms;
+  --motion-duration-default: 180ms;
+  --motion-duration-slow: 280ms;
+  --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Z-index scale */
+  --z-base: 0;
+  --z-sticky: 60;
+  --z-overlay: 70;
+  --z-modal: 80;
+  --z-toast: 90;
+  /* Portalled poppers (Select / dropdown menus / popovers) MUST sit above the overlay + modal:
+     they are routinely opened from inside the slide-over / modal master-edit forms (the EPIC-002-M003
+     pattern). Both portal to <body>, so a lower z paints the dropdown BEHIND the panel and it looks
+     dead (fixed EPIC-002-M005 staging hotfix). Kept just below --z-tooltip, which stays topmost. */
+  --z-dropdown: 95;
+  --z-tooltip: 100;
+}
+
+/* ── Tablet surface — high-contrast, larger sizing for gloved cold-room use ───*/
+[data-surface="tablet"] {
+  /* Higher contrast surface palette for bright cold-room lighting */
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f4f5;
+  --color-surface-sunken: #e4e4e7;
+
+  --color-border: #d4d4d8;
+  --color-border-strong: #a1a1aa;
+
+  --color-fg: #09090b;             /* darker than browser for higher contrast */
+  --color-fg-muted: #3f3f46;
+  --color-fg-subtle: #52525b;
+
+  /* Status colours — same hues, slightly more saturated for cold-room visibility */
+  --color-success: #15803d;
+  --color-warning: #c2410c;
+  --color-danger: #b91c1c;
+  --color-info: #1d4ed8;
+
+  /* Larger control sizing for gloved hands (UX-DS-003 / UX-DS-004 — 56px tablet) */
+  --control-h-sm: 44px;
+  --control-h-md: 56px;
+  --control-h-lg: 64px;
+  --control-px-md: 16px;
+  --control-py-md: 12px;
+
+  /* Larger typography for tablet readability (UX-DS-002) */
+  --font-size-body: 18px;
+  --font-size-label: 16px;
+  --font-size-helper: 14px;
+  --font-size-h1: 32px;
+  --font-size-h2: 26px;
+  --font-size-h3: 22px;
+  --font-size-h4: 18px;
+
+  /* Tablet layout — no sidebar, full-width body */
+  --layout-sidebar-width: 0px;
+  --layout-content-max-width: 100%;
+  --layout-header-height: 72px;
+}
