@@ -12,3 +12,16 @@ export {
   type PriceTier,
   type PriceUom,
 } from "./types";
+// The container-aware line pricing (multi-UOM → Kg + override), shared so a CRM quote line and a DC sales-
+// order line price identically for the same item + container + quantity + UOM.
+export {
+  priceLine,
+  kgPerUom,
+  quantityToKg,
+  roundCurrency,
+  roundKg,
+  type ContainerKg,
+  type PricedLine,
+  type PriceLineRequest,
+  type LinePricingStatus,
+} from "./line";
