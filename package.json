@@ -22,6 +22,10 @@
       "types": "./src/pricing/index.ts",
       "default": "./src/pricing/index.ts"
     },
+    "./sales-order": {
+      "types": "./src/sales-order/index.ts",
+      "default": "./src/sales-order/index.ts"
+    },
     "./tokens.css": "./src/lib/tokens.css"
   },
   "main": "./src/index.ts",
