@@ -1,0 +1,19 @@
+# @bananaworld/design-system Gitleaks configuration (COMP-03).
+# This is a pure UI + pure-logic library — it holds NO secrets by design (no network, no IO,
+# no credentials). The default ruleset is the guard against anything accidental; there are no
+# project-specific secret classes to add.
+
+title = "@bananaworld/design-system Gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Docs reference nothing secret; allow markdown."
+paths = [
+  '''(.+)?\.gitleaks\.toml$''',
+  '''README\.md$''',
+]
+regexes = [
+  '''(REPLACE_ME|YOUR_.+_HERE|<.+>|placeholder|example|sample-only)''',
+]
