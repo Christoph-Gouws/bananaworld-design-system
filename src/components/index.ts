@@ -29,6 +29,7 @@ export {
 export { Combobox, type ComboboxOption, type ComboboxProps } from "./Combobox";
 export { Checkbox } from "./Checkbox";
 export { RadioGroup, Radio } from "./Radio";
+export { ChoiceGroup, type ChoiceOption, type ChoiceGroupProps } from "./ChoiceGroup";
 export { ListCard, type ListCardProps } from "./ListCard";
 export {
   TableContainer,
