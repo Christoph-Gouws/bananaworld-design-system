@@ -32,6 +32,7 @@
   "types": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
@@ -58,13 +59,20 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "prettier": "^3.4.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.10"
   },
   "pnpm": {
     "//auditConfig": "GHSA-f88m-g3jw-g9cj (sharp <0.35.0, libvips CVEs) reaches this package ONLY through the `next` PEER dependency that pnpm auto-installs so tsc can typecheck. This library ships TypeScript source only (files:[\"src\"]) and no sharp; consumer apps (Bananaworld-DC / -CRM) provide and patch their own next+sharp. Ignored so `pnpm audit --prod` reflects what this library actually ships, not a peer's transitive tree. Revisit if next/sharp ever move out of peerDependencies. Owner-approved 2026-07-22 (Hard Rule 2, in writing).",
+    "//auditConfig-next-peer": "The five next/postcss advisories below (Next.js DoS GHSA-m99w-x7hq-7vfj + SSRF GHSA-89xv-2m56-2m9x / GHSA-p9j2-gv94-2wf4; PostCSS file-read GHSA-6g55-p6wh-862q + source-map path-traversal GHSA-r28c-9q8g-f849) reach this package ONLY through that same auto-installed `next` PEER (audit paths `.>next`, `.>next>postcss`); next@15.5.19 / postcss@8.4.31 are identical to origin/main and to the estate's other repos, and this library ships none of that code. Same basis as the sharp ignore above. Owner-approved 2026-07-26 (Hard Rule 2, in writing) as part of GL-204 MS-1. Revisit when the estate advisory batch bumps next, or if next moves out of peerDependencies.",
     "auditConfig": {
       "ignoreGhsas": [
-        "GHSA-f88m-g3jw-g9cj"
+        "GHSA-f88m-g3jw-g9cj",
+        "GHSA-m99w-x7hq-7vfj",
+        "GHSA-89xv-2m56-2m9x",
+        "GHSA-p9j2-gv94-2wf4",
+        "GHSA-6g55-p6wh-862q",
+        "GHSA-r28c-9q8g-f849"
       ]
     }
   }

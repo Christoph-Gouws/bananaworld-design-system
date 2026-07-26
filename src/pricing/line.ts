@@ -8,18 +8,8 @@
 // unit (the container type IS the box); a "pallet" is `units_per_pallet` boxes. Kg is the common bridge
 // between any two UOMs (DC PRD-FUNC-038/039, DEC-008/009/013).
 
-import { resolvePrice } from "./compute";
+import { resolvePrice, roundCurrency, roundKg } from "./compute";
 import type { CustomerPriceLine, PriceUom } from "./types";
-
-// Currency rounding: 2 decimals (ZAR). Matches the pricing engine.
-export function roundCurrency(value: number): number {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
-}
-
-// Kg rounding: 3 decimals (the DC Kg columns are numeric(_,3)).
-export function roundKg(value: number): number {
-  return Math.round((value + Number.EPSILON) * 1000) / 1000;
-}
 
 export interface ContainerKg {
   readonly nominal_kg: number;
@@ -87,7 +77,9 @@ export interface PriceLineRequest {
 export function priceLine(req: PriceLineRequest): PricedLine {
   const lineNetKg = quantityToKg(req.quantity, req.uom, req.container);
   if (lineNetKg === null) {
-    throw new Error("priceLine called for a pallets line without units_per_pallet — validate first.");
+    throw new Error(
+      "priceLine called for a pallets line without units_per_pallet — validate first.",
+    );
   }
 
   // Listed breakdown (when the item is on the customer's list). The discount band is earned on the quantity
@@ -103,7 +95,17 @@ export function priceLine(req: PriceLineRequest): PricedLine {
     const kgPerListUom = kgPerUom(req.priceLine.price_uom, req.container);
     if (kgPerListUom !== null && kgPerListUom > 0) {
       const qtyInListUom = lineNetKg / kgPerListUom;
-      const resolution = resolvePrice(req.priceLine, qtyInListUom);
+      // The Kg round-trip can leave a whole-number quantity a few ULPs shy of the integer (e.g.
+      // 99.999999999 for a 100-unit order), which would miss a tier whose threshold is exactly that
+      // quantity — the modal discounted order (A4 finding F5). Snap a quotient within 1e-9 of an
+      // integer back onto it before the band is chosen. `selectTier` keeps its exact `<=` semantics
+      // for callers that pass a clean list-UOM quantity directly (e.g. DC's price tester).
+      const nearestWhole = Math.round(qtyInListUom);
+      const tierQty =
+        Math.abs(qtyInListUom - nearestWhole) < 1e-9
+          ? nearestWhole
+          : qtyInListUom;
+      const resolution = resolvePrice(req.priceLine, tierQty);
       if (resolution.status === "listed") {
         listedUnitPrice = resolution.base_unit_price;
         appliedDiscountPct = resolution.applied_discount_pct;
@@ -133,7 +135,11 @@ export function priceLine(req: PriceLineRequest): PricedLine {
   }
 
   // List price after discount.
-  if (listedEffectiveUnitPrice !== null && listedPriceUom !== null && listedLineTotal !== null) {
+  if (
+    listedEffectiveUnitPrice !== null &&
+    listedPriceUom !== null &&
+    listedLineTotal !== null
+  ) {
     return {
       status: "priced",
       line_net_kg: lineNetKg,
