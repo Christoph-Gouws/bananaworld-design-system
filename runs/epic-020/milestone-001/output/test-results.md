@@ -65,6 +65,24 @@ produce-container weights, and A4's hand-probes at realistic weights (13.3, 18.1
 IEEE rounding. So the **live** risk at today's master data is low; the snap's value is **certifying the
 whole (weight, qty) space** so no future container weight can silently drop a tier. Reverted; restored.
 
+## ⚠ CI: Dependency Audit is RED — pre-existing, not from this milestone
+
+On PR #5 the new **Test job passes on CI** (18s), as do Typecheck, SAST, and Gitleaks. The
+**Dependency Audit** job fails: `pnpm audit --prod --audit-level=high` reports **6 high / 6 moderate**
+(1 ignored). **This is pre-existing estate advisory debt, surfaced not caused by MS-1:**
+
+- All 6 high are in the auto-installed **`next` peer** tree (paths `.>next` and `.>next>postcss`):
+  Next.js DoS `GHSA-m99w-x7hq-7vfj`, SSRF `GHSA-89xv-2m56-2m9x` / `GHSA-p9j2-gv94-2wf4`, PostCSS
+  `GHSA-6g55-p6wh-862q` / `GHSA-r28c-9q8g-f849`.
+- `next@15.5.19` and `postcss@8.4.31` are **byte-identical to `main`** — so `main` fails this same audit
+  today. This milestone's lockfile change added **only vitest's dev subtree** (`@rolldown/*`,
+  `@emnapi/*`); the `--prod` tree is unchanged, and the audit ignore list was **not** touched.
+- Same category as the owner-ratified sharp ignore (2026-07-22): the library ships **no** next/postcss
+  (`files:["src"]`); consumers provide and patch their own next.
+
+**Disposition is an owner call (Hard Rule 2 — extending a security-gate ignore needs written approval)
+and is tracked in the go-live register.** MS-1's code + tests are complete and green on every code gate.
+
 ## Notes
 
 - Tests live under `tests/` (outside `src/`), so `package.json` `files:["src"]` never publishes them.
