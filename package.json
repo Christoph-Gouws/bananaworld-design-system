@@ -32,6 +32,7 @@
   "types": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
@@ -58,7 +59,8 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "prettier": "^3.4.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.10"
   },
   "pnpm": {
     "//auditConfig": "GHSA-f88m-g3jw-g9cj (sharp <0.35.0, libvips CVEs) reaches this package ONLY through the `next` PEER dependency that pnpm auto-installs so tsc can typecheck. This library ships TypeScript source only (files:[\"src\"]) and no sharp; consumer apps (Bananaworld-DC / -CRM) provide and patch their own next+sharp. Ignored so `pnpm audit --prod` reflects what this library actually ships, not a peer's transitive tree. Revisit if next/sharp ever move out of peerDependencies. Owner-approved 2026-07-22 (Hard Rule 2, in writing).",

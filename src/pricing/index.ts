@@ -3,7 +3,7 @@
 //
 //     import { resolvePrice, type CustomerPriceLine } from "@bananaworld/design-system/pricing";
 //
-export { resolvePrice, selectTier } from "./compute";
+export { resolvePrice, selectTier, roundCurrency, roundKg } from "./compute";
 export {
   isPriceUom,
   PRICE_UOMS,
@@ -18,8 +18,6 @@ export {
   priceLine,
   kgPerUom,
   quantityToKg,
-  roundCurrency,
-  roundKg,
   type ContainerKg,
   type PricedLine,
   type PriceLineRequest,
