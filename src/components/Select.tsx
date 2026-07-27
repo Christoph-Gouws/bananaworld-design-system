@@ -1,8 +1,13 @@
 "use client";
 
-import { forwardRef, type ComponentPropsWithoutRef, type ElementRef } from "react";
+import {
+  forwardRef,
+  type ComponentPropsWithoutRef,
+  type ElementRef,
+  type ReactElement,
+} from "react";
 import * as RadixSelect from "@radix-ui/react-select";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "../lib";
 
 /**
@@ -55,6 +60,19 @@ export const SelectTrigger = forwardRef<
   );
 });
 
+// Radix renders these only when there is actually more content in that direction, so they double as
+// the "there is more" signal — a better one than a scrollbar on a touch screen. Not exported: it is
+// an implementation detail of SelectContent, and keeping it internal means zero API change.
+function ScrollButton({ direction }: { readonly direction: "up" | "down" }): ReactElement {
+  const Chevron = direction === "up" ? ChevronUp : ChevronDown;
+  const Button = direction === "up" ? RadixSelect.ScrollUpButton : RadixSelect.ScrollDownButton;
+  return (
+    <Button className="flex h-6 shrink-0 cursor-default items-center justify-center bg-surface text-fg-muted [[data-surface=tablet]_&]:h-9">
+      <Chevron className="h-4 w-4 [[data-surface=tablet]_&]:h-5 [[data-surface=tablet]_&]:w-5" />
+    </Button>
+  );
+}
+
 export const SelectContent = forwardRef<
   ElementRef<typeof RadixSelect.Content>,
   ComponentPropsWithoutRef<typeof RadixSelect.Content>
@@ -66,6 +84,15 @@ export const SelectContent = forwardRef<
         position={position}
         className={cn(
           "z-[var(--z-dropdown)] overflow-hidden",
+          // THIS LINE is what makes a long list scrollable at all. Radix's popper publishes the
+          // room available as a CSS variable and deliberately does not apply it, leaving that to
+          // the consumer — and nothing here was reading it, so the content rendered at its full
+          // natural height. With no height cap the viewport's scrollHeight equals its clientHeight,
+          // and a box with no overflow has nothing to scroll; `overflow-hidden` above then quietly
+          // clipped the remainder, so a long list simply looked like it ended (CR-DC-008 AC-5).
+          // The Viewport's own `flex: 1` + `overflow: hidden auto` were already correct and already
+          // live — Radix sets `display:flex; flex-direction:column` on this element inline itself.
+          "max-h-[var(--radix-select-content-available-height)]",
           "bg-surface border border-border rounded-md shadow-lg",
           "min-w-[var(--radix-select-trigger-width)]",
           "animate-fade-in",
@@ -73,7 +100,13 @@ export const SelectContent = forwardRef<
         )}
         {...props}
       >
+        {/* Radix hides the viewport's native scrollbar outright and expects these buttons to be the
+            affordance instead. Rendering neither is why a too-long list simply looked like it ended.
+            Kept INTERNAL to SelectContent: no export-surface change, so all 40 DC call sites and the
+            CRM/RMS consumers inherit this without being edited (CR-DC-008 AC-4). */}
+        <ScrollButton direction="up" />
         <RadixSelect.Viewport className="p-1">{children}</RadixSelect.Viewport>
+        <ScrollButton direction="down" />
       </RadixSelect.Content>
     </RadixSelect.Portal>
   );
