@@ -63,9 +63,22 @@ export interface ComboboxProps {
 
 interface AnchorRect {
   readonly left: number;
-  readonly top: number;
   readonly width: number;
+  readonly placement: "above" | "below";
+  // Distance from the viewport edge on the CHOSEN side: a `top` when below, a `bottom` when above.
+  // Anchoring the flipped case from the bottom edge avoids a measure-then-correct flicker.
+  readonly offset: number;
+  // Room actually available on the chosen side, capped. Drives the listbox's scroll height.
+  readonly maxHeight: number;
 }
+
+// Gap between the field and the list, and the breathing room kept against the viewport edge.
+const GAP_PX = 4;
+const EDGE_MARGIN_PX = 8;
+// The historical max-h-72 ceiling. Kept as a cap so no list gets TALLER than it is today (AC-8).
+const MAX_LIST_HEIGHT_PX = 288;
+// Below this, "below" is too cramped to be worth staying on — flip if above is roomier.
+const MIN_USABLE_HEIGHT_PX = 144;
 
 // Every whitespace-separated part of the query must appear somewhere in the option's searchable text —
 // "car 7" matches "Banana Carton 7kg". Case-insensitive.
@@ -114,7 +127,32 @@ export function Combobox({
     const el = inputRef.current;
     if (el === null) return;
     const r = el.getBoundingClientRect();
-    setAnchor({ left: r.left, top: r.bottom + 4, width: r.width });
+
+    // MIND THE TWO VIEWPORTS. The portal is `position: fixed`, so its coordinates are resolved
+    // against the LAYOUT viewport — that is why `offset` below is computed from window.innerHeight
+    // and from a raw getBoundingClientRect, both layout-relative. But the on-screen keyboard does
+    // not shrink the layout viewport; it only shrinks the VISUAL one. So the visual viewport is
+    // used to measure available SPACE, never as a coordinate. Conflating the two puts the list
+    // behind the tablet keyboard while every jsdom test still passes.
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    const visibleTop = vv?.offsetTop ?? 0;
+    const visibleBottom = visibleTop + (vv?.height ?? window.innerHeight);
+
+    const spaceBelow = visibleBottom - r.bottom - GAP_PX - EDGE_MARGIN_PX;
+    const spaceAbove = r.top - visibleTop - GAP_PX - EDGE_MARGIN_PX;
+
+    // Prefer below — the familiar behaviour — and flip only when below cannot seat a usable list
+    // AND above is genuinely roomier (owner decision OD-008-A, CR-DC-008).
+    const flip = spaceBelow < MIN_USABLE_HEIGHT_PX && spaceAbove > spaceBelow;
+    const available = flip ? spaceAbove : spaceBelow;
+
+    setAnchor({
+      left: r.left,
+      width: r.width,
+      placement: flip ? "above" : "below",
+      offset: flip ? window.innerHeight - r.top + GAP_PX : r.bottom + GAP_PX,
+      maxHeight: Math.max(0, Math.min(MAX_LIST_HEIGHT_PX, available)),
+    });
   }, []);
 
   useEffect(() => {
@@ -125,14 +163,25 @@ export function Combobox({
   useEffect(() => {
     if (open === false) return;
     updateAnchor();
-    function onReposition(): void {
+    function onReposition(event: Event): void {
+      // The scroll listener is capture-phase, so it also sees scrolls ORIGINATING INSIDE the
+      // listbox. Repositioning on those re-renders once per frame while the operator scrolls —
+      // on the exact interaction this component exists to make good. Ignore them.
+      const target = event.target as Node | null;
+      if (target !== null && listRef.current?.contains(target) === true) return;
       updateAnchor();
     }
     window.addEventListener("scroll", onReposition, true);
     window.addEventListener("resize", onReposition);
+    // The keyboard moves only the visual viewport, so window resize alone cannot see it.
+    const vv = window.visualViewport ?? null;
+    vv?.addEventListener("resize", onReposition);
+    vv?.addEventListener("scroll", onReposition);
     return () => {
       window.removeEventListener("scroll", onReposition, true);
       window.removeEventListener("resize", onReposition);
+      vv?.removeEventListener("resize", onReposition);
+      vv?.removeEventListener("scroll", onReposition);
     };
   }, [open, updateAnchor]);
 
@@ -217,7 +266,13 @@ export function Combobox({
             // keyboard-selectable (focus stays in the input) but NOT clickable. Re-enabling pointer events
             // here restores mouse/touch selection. (EPIC-009-M010 follow-up — owner-reported click bug.)
             className="pointer-events-auto fixed z-[var(--z-dropdown)] overflow-hidden rounded-md border border-border bg-surface shadow-lg"
-            style={{ left: anchor.left, top: anchor.top, width: anchor.width }}
+            style={{
+              left: anchor.left,
+              width: anchor.width,
+              ...(anchor.placement === "below"
+                ? { top: anchor.offset }
+                : { bottom: anchor.offset }),
+            }}
           >
             {filtered.length === 0 ? (
               <div className="px-3 py-2 text-sm text-fg-muted">{emptyMessage}</div>
@@ -226,7 +281,14 @@ export function Combobox({
                 id={listId}
                 ref={listRef}
                 role="listbox"
-                className="max-h-72 overflow-y-auto py-1"
+                // The height follows the room ACTUALLY available (see updateAnchor) instead of a
+                // flat 288px. That is what makes the scroll area real: a fixed cap taller than the
+                // remaining space put the scroll container — and most of its scrollbar — off the
+                // bottom edge of the screen, so only a sliver of the list was ever reachable.
+                // The native scrollbar is deliberately NOT suppressed: it is the "there is more"
+                // affordance on the desk (CR-DC-008 AC-3/AC-4).
+                className="overflow-y-auto overscroll-contain py-1"
+                style={{ maxHeight: anchor.maxHeight }}
               >
                 {filtered.map((option, index) => {
                   const isSelected = option.value === value;
