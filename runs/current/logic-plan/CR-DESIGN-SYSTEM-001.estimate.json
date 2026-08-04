@@ -1,0 +1,15 @@
+{
+  "files": 2,
+  "lines": 200,
+  "steps": 2,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Design system writes the chip contract; Bananaworld-DC reads it and bumps its own pin later, not here",
+    "CRM, RMS, org-admin and Mangaverde sit on older pins - untouched until each bumps itself",
+    "Colour values stay DC master data; the shared control only renders what a caller hands it",
+    "Field names swatch + description are frozen now for the DC follow-up change to compile against"
+  ],
+  "migrationExpected": false
+}

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CR-DESIGN-SYSTEM-001 — three ways to show the colour on a button</title>
+<style>
+  :root {
+    --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --color-bg: #fafaf9;
+    --color-surface: #ffffff;
+    --color-surface-muted: #f5f5f4;
+    --color-border: #e7e5e4;
+    --color-border-strong: #d6d3d1;
+    --color-fg: #18181b;
+    --color-fg-muted: #52525b;
+    --color-fg-subtle: #71717a;
+    --color-accent: #fac80a;
+    --color-accent-subtle: #fef3c7;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 20px;
+    font-family: var(--font-sans);
+    background: var(--color-bg); color: var(--color-fg);
+    -webkit-font-smoothing: antialiased;
+  }
+  header { max-width: 1180px; margin: 0 auto 20px; }
+  h1 { font-size: 24px; letter-spacing: -0.015em; margin: 0 0 8px; }
+  .lede { color: var(--color-fg-muted); font-size: 14px; line-height: 1.6; margin: 0 0 6px; max-width: 70ch; }
+  .lede strong { color: var(--color-fg); }
+  .today {
+    max-width: 1180px; margin: 0 auto 22px; background: var(--color-surface);
+    border: 1px solid var(--color-border); border-left: 4px solid var(--color-border-strong);
+    border-radius: var(--radius-lg); padding: 16px 18px;
+  }
+  .today h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-fg-subtle); margin: 0 0 10px; font-weight: 700; }
+  .today p { font-size: 13px; color: var(--color-fg-subtle); line-height: 1.5; margin: 10px 0 0; }
+
+  .grid { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  .col { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 18px; }
+  .col h2 { font-size: 17px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .col .what { font-size: 13px; color: var(--color-fg-muted); line-height: 1.55; margin: 0 0 16px; min-height: 62px; }
+  .block { margin-bottom: 16px; }
+  .block:last-child { margin-bottom: 0; }
+  .cap { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-fg-subtle); margin: 0 0 8px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+  .chip {
+    display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+    height: 32px; padding: 0 12px; font-size: 14px; font-weight: 500;
+    border: 1px solid var(--color-border-strong); border-radius: var(--radius-md);
+    background: var(--color-surface); color: var(--color-fg-muted);
+    user-select: none; overflow: hidden;
+  }
+  .chip[data-checked] { border-color: var(--color-accent); background: var(--color-accent-subtle); color: var(--color-fg); font-weight: 600; }
+  .chip[data-disabled] { opacity: 0.5; }
+
+  .tablet { --color-border-strong: #a1a1aa; --color-border: #d4d4d8; --color-fg: #09090b; --color-fg-muted: #3f3f46; }
+  .tablet .chip { min-height: 48px; padding: 0 16px; font-size: 18px; }
+
+  /* A — small square */
+  .a .sw { width: 16px; height: 16px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); margin-right: 8px; flex: 0 0 auto; }
+  .a .tablet .sw { width: 20px; height: 20px; margin-right: 10px; }
+  /* B — full-height stripe */
+  .b .chip:has(.sw) { padding-left: 0; }
+  .b .sw { width: 7px; align-self: stretch; margin-right: 10px; flex: 0 0 auto; border: 0; }
+  .b .tablet .sw { width: 10px; margin-right: 14px; }
+  /* C — larger round dot */
+  .c .chip:has(.sw) { padding-left: 10px; }
+  .c .sw { width: 20px; height: 20px; border-radius: 999px; border: 1px solid var(--color-border); margin-right: 8px; flex: 0 0 auto; }
+  .c .tablet .chip:has(.sw) { padding-left: 12px; }
+  .c .tablet .sw { width: 28px; height: 28px; margin-right: 12px; }
+
+  .note { font-size: 12px; color: var(--color-fg-subtle); line-height: 1.5; margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--color-border); }
+  footer { max-width: 1180px; margin: 22px auto 0; font-size: 12px; color: var(--color-fg-subtle); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Which colour block do you prefer?</h1>
+  <p class="lede">The receiving screen needs a row of tappable buttons for the banana colour stage, so a receiver
+  in gloves picks one in a single tap. The button shape is <strong>already settled</strong> — a colour block
+  next to the short code, never text printed on the colour. The only question here is
+  <strong>what the colour block looks like</strong>. Each column shows the same seven stages, first as they
+  appear on the tablet, then on a desk browser.</p>
+  <p class="lede">Hovering a button on a desk browser shows the full stage name; on either screen, someone using
+  a screen reader hears the full name rather than just the code.</p>
+</header>
+
+<div class="today">
+  <h2>Unchanged — every button row that exists today</h2>
+  <div class="row">
+    <span class="chip">Small</span>
+    <span class="chip">Medium</span>
+    <span class="chip" data-checked>Large</span>
+    <span class="chip">Extra Large</span>
+    <span style="width:12px"></span>
+    <span class="chip" data-checked>Class 1</span>
+    <span class="chip">Class 2</span>
+    <span class="chip" data-disabled>Class 3</span>
+  </div>
+  <p>Size, class and container buttons pass neither of the two new extras, so they look exactly as they do
+  now — in all five systems, whichever option you choose. That is the requirement, and proving it is part of
+  the work.</p>
+</div>
+
+<div class="grid">
+
+  <!-- ─────────────── OPTION A ─────────────── -->
+  <section class="col a">
+    <h2>Option A — small square</h2>
+    <p class="what">A small square of colour before the code, in the same shape language as the rest of the
+    system. The most restrained of the three.</p>
+
+    <div class="block tablet">
+      <p class="cap">Tablet — receiving</p>
+      <div class="row">
+        <span class="chip" title="CS1 · All green"><span class="sw" style="background:#1f4d21"></span>CS1</span>
+        <span class="chip" title="CS2 · Green with trace of yellow"><span class="sw" style="background:#3f7a2e"></span>CS2</span>
+        <span class="chip" data-checked title="CS3 · More green than yellow"><span class="sw" style="background:linear-gradient(135deg,#7fae3a 0%,#c9d94a 100%)"></span>CS3</span>
+        <span class="chip" title="CS4 · More yellow than green"><span class="sw" style="background:#d7d64a"></span>CS4</span>
+        <span class="chip" title="CS5 · Green tips only"><span class="sw" style="background:#f5e04f"></span>CS5</span>
+        <span class="chip" title="CS6 · All yellow"><span class="sw" style="background:#f8d21a"></span>CS6</span>
+        <span class="chip" title="CS7 · Yellow flecked with brown"><span class="sw" style="background:linear-gradient(135deg,#f0c419 0%,#8a5a2b 100%)"></span>CS7</span>
+      </div>
+    </div>
+
+    <div class="block">
+      <p class="cap">Desk browser</p>
+      <div class="row">
+        <span class="chip" title="CS1 · All green"><span class="sw" style="background:#1f4d21"></span>CS1</span>
+        <span class="chip" title="CS2 · Green with trace of yellow"><span class="sw" style="background:#3f7a2e"></span>CS2</span>
+        <span class="chip" title="CS3 · More green than yellow"><span class="sw" style="background:linear-gradient(135deg,#7fae3a 0%,#c9d94a 100%)"></span>CS3</span>
+        <span class="chip" data-checked title="CS4 · More yellow than green"><span class="sw" style="background:#d7d64a"></span>CS4</span>
+        <span class="chip" title="CS5 · Green tips only"><span class="sw" style="background:#f5e04f"></span>CS5</span>
+        <span class="chip" title="CS6 · All yellow"><span class="sw" style="background:#f8d21a"></span>CS6</span>
+        <span class="chip" data-disabled title="CS7 · Yellow flecked with brown"><span class="sw" style="background:linear-gradient(135deg,#f0c419 0%,#8a5a2b 100%)"></span>CS7</span>
+      </div>
+    </div>
+
+    <p class="note">Quietest, tightest row, most like everything else on the screen. The colour is smallest, so
+    two neighbouring stages are the hardest to tell apart from a step back.</p>
+  </section>
+
+  <!-- ─────────────── OPTION B ─────────────── -->
+  <section class="col b">
+    <h2>Option B — full-height stripe</h2>
+    <p class="what">The colour runs the whole height of the button, flush to its left edge, with the code beside
+    it. Reads as a colour-coded row from across a room.</p>
+
+    <div class="block tablet">
+      <p class="cap">Tablet — receiving</p>
+      <div class="row">
+        <span class="chip" title="CS1 · All green"><span class="sw" style="background:#1f4d21"></span>CS1</span>
+        <span class="chip" title="CS2 · Green with trace of yellow"><span class="sw" style="background:#3f7a2e"></span>CS2</span>
+        <span class="chip" data-checked title="CS3 · More green than yellow"><span class="sw" style="background:linear-gradient(135deg,#7fae3a 0%,#c9d94a 100%)"></span>CS3</span>
+        <span class="chip" title="CS4 · More yellow than green"><span class="sw" style="background:#d7d64a"></span>CS4</span>
+        <span class="chip" title="CS5 · Green tips only"><span class="sw" style="background:#f5e04f"></span>CS5</span>
+        <span class="chip" title="CS6 · All yellow"><span class="sw" style="background:#f8d21a"></span>CS6</span>
+        <span class="chip" title="CS7 · Yellow flecked with brown"><span class="sw" style="background:linear-gradient(135deg,#f0c419 0%,#8a5a2b 100%)"></span>CS7</span>
+      </div>
+    </div>
+
+    <div class="block">
+      <p class="cap">Desk browser</p>
+      <div class="row">
+        <span class="chip" title="CS1 · All green"><span class="sw" style="background:#1f4d21"></span>CS1</span>
+        <span class="chip" title="CS2 · Green with trace of yellow"><span class="sw" style="background:#3f7a2e"></span>CS2</span>
+        <span class="chip" title="CS3 · More green than yellow"><span class="sw" style="background:linear-gradient(135deg,#7fae3a 0%,#c9d94a 100%)"></span>CS3</span>
+        <span class="chip" data-checked title="CS4 · More yellow than green"><span class="sw" style="background:#d7d64a"></span>CS4</span>
+        <span class="chip" title="CS5 · Green tips only"><span class="sw" style="background:#f5e04f"></span>CS5</span>
+        <span class="chip" title="CS6 · All yellow"><span class="sw" style="background:#f8d21a"></span>CS6</span>
+        <span class="chip" data-disabled title="CS7 · Yellow flecked with brown"><span class="sw" style="background:linear-gradient(135deg,#f0c419 0%,#8a5a2b 100%)"></span>CS7</span>
+      </div>
+    </div>
+
+    <p class="note">Easiest to read at a distance and in gloves. Slightly bolder than the rest of the system,
+    and the pale "chosen" shading has a little less room to show.</p>
+  </section>
+
+  <!-- ─────────────── OPTION C ─────────────── -->
+  <section class="col c">
+    <h2>Option C — round dot</h2>
+    <p class="what">A larger round dot of colour before the code — more colour to judge than option A, in the
+    roundest shape the system uses.</p>
+
+    <div class="block tablet">
+      <p class="cap">Tablet — receiving</p>
+      <div class="row">
+        <span class="chip" title="CS1 · All green"><span class="sw" style="background:#1f4d21"></span>CS1</span>
+        <span class="chip" title="CS2 · Green with trace of yellow"><span class="sw" style="background:#3f7a2e"></span>CS2</span>
+        <span class="chip" data-checked title="CS3 · More green than yellow"><span class="sw" style="background:linear-gradient(135deg,#7fae3a 0%,#c9d94a 100%)"></span>CS3</span>
+        <span class="chip" title="CS4 · More yellow than green"><span class="sw" style="background:#d7d64a"></span>CS4</span>
+        <span class="chip" title="CS5 · Green tips only"><span class="sw" style="background:#f5e04f"></span>CS5</span>
+        <span class="chip" title="CS6 · All yellow"><span class="sw" style="background:#f8d21a"></span>CS6</span>
+        <span class="chip" title="CS7 · Yellow flecked with brown"><span class="sw" style="background:linear-gradient(135deg,#f0c419 0%,#8a5a2b 100%)"></span>CS7</span>
+      </div>
+    </div>
+
+    <div class="block">
+      <p class="cap">Desk browser</p>
+      <div class="row">
+        <span class="chip" title="CS1 · All green"><span class="sw" style="background:#1f4d21"></span>CS1</span>
+        <span class="chip" title="CS2 · Green with trace of yellow"><span class="sw" style="background:#3f7a2e"></span>CS2</span>
+        <span class="chip" title="CS3 · More green than yellow"><span class="sw" style="background:linear-gradient(135deg,#7fae3a 0%,#c9d94a 100%)"></span>CS3</span>
+        <span class="chip" data-checked title="CS4 · More yellow than green"><span class="sw" style="background:#d7d64a"></span>CS4</span>
+        <span class="chip" title="CS5 · Green tips only"><span class="sw" style="background:#f5e04f"></span>CS5</span>
+        <span class="chip" title="CS6 · All yellow"><span class="sw" style="background:#f8d21a"></span>CS6</span>
+        <span class="chip" data-disabled title="CS7 · Yellow flecked with brown"><span class="sw" style="background:linear-gradient(135deg,#f0c419 0%,#8a5a2b 100%)"></span>CS7</span>
+      </div>
+    </div>
+
+    <p class="note">More colour than A without changing the button's edge. Takes the most width, so a row of
+    seven is the tightest fit on a desk browser.</p>
+  </section>
+
+</div>
+
+<footer>
+  Colours shown are illustrative examples of the stage colours set in the master list; the buttons always show
+  whatever is configured there, and nothing is ever printed on top of a colour. Two stages are drawn as a blend
+  of two colours (CS3 and CS7) to show how a two-tone stage looks. One button in each browser row is drawn as
+  already chosen, and one greyed out, so every state can be judged. If you do not pick, the work proceeds with
+  <strong>Option A</strong>.
+</footer>
+
+</body>
+</html>
