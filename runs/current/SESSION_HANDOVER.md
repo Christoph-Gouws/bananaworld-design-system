@@ -11,9 +11,9 @@
 | Branch | `change/cr-design-system-002`, off `origin/main` @ `365be65` |
 | Approved layout | **n/a — not UI-bearing** (D-9) |
 | Ship mode | **on-green** |
-| Status | **Built, tested green, closed out, PR opened.** Merge is the conductor's job. |
+| Status | **Built, tested green, closed out, PR #10 open — but BLOCKED at CI on an unrelated dependency advisory.** `NEEDS_OWNER: decision` raised 2026-08-14 (D-12). |
 | Archive | `runs/change-02/` |
-| Open defects | **0** |
+| Open defects | **0** · one open **decision**: D-12 |
 
 ### What it did
 
@@ -40,6 +40,20 @@ remains in DC's component. Had it still been there, this change would have stopp
 | Migration | none — this package has no database |
 | Throwaway Postgres | never started; nothing left behind |
 | Context-usage row | logged ✅ (`--project bananaworld-design-system`) |
+
+### 🔴 Open decision D-12 — CI's `dependency-audit` refuses PR #10
+
+**Nothing to do with this change.** `package.json` and `pnpm-lock.yaml` are untouched on this branch,
+so the same job fails on any PR opened against this repo today. Two new **high** advisories —
+`GHSA-28wg-ghj8-5hjv` and `GHSA-2v37-7h3g-55p8`, both `nanoid` — arrive via
+`. > next > postcss@8.4.31 > nanoid@3.3.12`, the same auto-installed `next` peer route as the six
+GHSAs the owner already approved ignoring on 2026-07-22 and 2026-07-26.
+
+Not self-decided: extending `ignoreGhsas` is a written security trade-off reserved to the owner under
+Hard Rule 2, and the alternative (a `pnpm.overrides` bump to nanoid `^3.3.18`) needs `pnpm-lock.yaml`
+regenerated, which this session cannot do — `pnpm` is permission-blocked.
+
+Owner card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-002.md`. Detail: `known-issues.md` §0.
 
 ## State of the repository
 
@@ -74,9 +88,13 @@ remains in DC's component. Had it still been there, this change would have stopp
    The `swatch` / `description` field names remain frozen.
 7. **Pre-existing repo drift, all out of lane:** `pnpm format:check` fails on 44 files (all three
    barrels this change edited already failed at `HEAD`, verified by stash); there is **no `lint`
-   script and no eslint config**; `ci.yml`'s test job label is stale. `pnpm audit` is blocked inside
-   the build session — CI's `dependency-audit` job is the real gate, and this change adds no
-   dependency. Recorded in `runs/change-02/output/known-issues.md`.
+   script and no eslint config**; `ci.yml`'s test job label is stale. Recorded in
+   `runs/change-02/output/known-issues.md`.
+8. 🔴 **`pnpm` cannot be run inside the build session** (permission-blocked), so `pnpm audit` was
+   reproduced in Node against npm's bulk advisory endpoint. **Do not infer audit health from an
+   unchanged dependency tree** — this change did exactly that and CI proved it wrong: the tree was
+   identical to `main`, but two new advisories had been published against it. Reproduce it, don't
+   assume it. See D-12 above.
 
 ## Where the paper trail is
 

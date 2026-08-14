@@ -59,7 +59,7 @@ will actually meet it. No fence was removed, weakened or stripped of its anchor.
 | File | Why not |
 |---|---|
 | `package.json` | **No new dependency.** `useId` is React. Every Tailwind token used already exists in `tokens.css` and is already used by shipped primitives — verified: `text-2xs` (Table:143, DataTableToolbar:216), `warning-subtle`/`warning-fg` (tokens.css:54–55), `danger`/`danger-fg` (57–59), `info`/`info-fg` (61–63), `surface-muted` (30), `fg-muted`/`fg-subtle` (39–40) |
-| `pnpm-lock.yaml` | Follows from the above. **No new advisory can be introduced by a change that adds no dependency** |
+| `pnpm-lock.yaml` | Follows from the above — still untouched, still byte-identical to `main`. ⚠ **The reasoning originally recorded here was wrong** and is corrected rather than deleted: it read *"no new advisory can be introduced by a change that adds no dependency"*. True of the **tree**, false of the **audit** — advisories are published against a tree that never moved, and CI's `dependency-audit` refused PR #10 on exactly that. See `known-issues.md` §0 (E-1) and decision **D-12** |
 | `vitest.config.ts` | Both new suites fall under the existing `components` glob. Preferred over widening a glob — see §2 |
 | `tsconfig.json` | `include` already covers `src/**` and `tests/**`. Nothing to add |
 | `.github/workflows/ci.yml` | Nothing new to run. Its `test` job label still says "pricing & sales-order engines" — inaccurate since CR-DESIGN-SYSTEM-001 added component tests, but it is a **label**, not behaviour, and fixing it is out of this lane (`known-issues.md` C-3) |
@@ -69,6 +69,20 @@ will actually meet it. No fence was removed, weakened or stripped of its anchor.
 | **Anything under `bananaworld-dc/`** | Not this repo, not this lane. DC bumps its own pin in its own change, against the merged sha |
 | **Anything under `runs/epic-*/` or `runs/current/epic-plan/`** | A closed epic is immutable, and the Epic Runner wedges on a stray `epic-NN` folder. `runs/epic-020/` is pre-existing on `main`; **this change created nothing under it**. `runs/current/epic-plan/` does not exist and was not created |
 | Consumer pins (DC, CRM, RMS, org-admin, Mangaverde) | **Never from here.** Each consumer moves its own pin, in its own change, against the merged `main` sha |
+
+## 4b. Files changed in the CI-remediation round (2026-08-14, after PR #10 went red)
+
+No source file changed — `src/` and `tests/` are untouched by this round, so every claim in §1–§3
+stands unaltered. Only the paper trail moved:
+
+| File | Change |
+|---|---|
+| `runs/change-02/output/known-issues.md` | New §0 / **E-1** — the blocking advisory finding; B-4 rewritten to record that its earlier inference was wrong |
+| `runs/change-02/output/changed-files.md` | This section, plus the `pnpm-lock.yaml` correction in §4 |
+| `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` | **D-12** added as **PROPOSED**; entry Status notes the open decision |
+| `runs/current/decisions-pending/CR-DESIGN-SYSTEM-002.md` | New — the owner-facing decision card |
+| `runs/current/SESSION_HANDOVER.md` | D-12 section + note 8 (don't infer audit health from an unchanged tree) |
+| `runs/current/active-milestone.md` | Status and Remaining now name D-12 |
 
 ## 5. Paper trail written by this change (not source)
 

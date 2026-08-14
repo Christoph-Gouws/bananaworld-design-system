@@ -3,7 +3,7 @@
 > This is a FILE, not a unit folder. It records what is currently in flight.
 > Updated 2026-08-14.
 
-## Current: CR-DESIGN-SYSTEM-002 — **CLOSED OUT, PR open, awaiting conductor merge**
+## Current: CR-DESIGN-SYSTEM-002 — **CLOSED OUT, PR #10 open, BLOCKED on owner decision D-12**
 
 | Field | Value |
 |---|---|
@@ -14,7 +14,7 @@
 | Approved layout | **n/a — not UI-bearing** (D-9: defined by byte-identical rendering) |
 | Ship mode | **on-green** |
 | Build status | **Complete.** `pnpm typecheck` clean · `pnpm test` 115 passed / 9 files · 0 open defects · 34 insertions / **0 deletions** in `src/` |
-| Remaining | **Conductor merges on green.** This session does not wait for CI and does not merge. |
+| Remaining | 🔴 **Owner decision D-12.** CI's `dependency-audit` refuses PR #10 on two new `nanoid` advisories that arrive via the `next` peer — **unrelated to this change**, which touches no dependency file. Card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-002.md`. Once answered, the fix pushes to the same branch and the conductor merges on green. |
 
 ## Previous unit
 
