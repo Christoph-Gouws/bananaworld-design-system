@@ -5,6 +5,116 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-002 — the document header moves into the shared package
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **ACCEPTED** — plan approved at the plan gate, built on branch `change/cr-design-system-002`. **One decision open: D-12** (unrelated CI dependency advisory) |
+| Date | 2026-08-14 |
+| Branch point | `origin/main` @ `365be65` |
+| Approved layout | **n/a — not UI-bearing** (D-9) |
+| Ship mode | **on-green** |
+| Archive | `runs/change-02/` |
+
+### What was asked
+
+Move Bananaworld-DC's four-slot document header — Date, DC, Raised by, Document no. — out of DC and
+into this package, so that the CRM's numbered documents can wear the **same** header rather than a
+second hand-built one that drifts.
+
+The driver: DC put this header on fourteen forms in EPIC-023 and its flag went on in production on
+2026-08-10. There are two ways to make the CRM match and only one survives contact with time. This
+estate already has the scar — DC's own `DocumentPdf` comment records ten surfaces each spelling
+their own label as *"exactly the drift this milestone exists to stop"*.
+
+The request carried a hard precondition: the component was app-coupled until **CR-DC-039** removed
+its `useAuth()` session read, and a coupled component may not enter this package (TECH-CON-004 /
+TECH-COMP-003). **Verified before any code was written: CR-DC-039 landed, no `useAuth` import or
+call remains, DC's own guard at `transaction-form-standard.test.ts:885` asserts the same.**
+
+### Clarify questions and answers
+
+**No `[clarify]` questions were raised or answered on this change.** The single owner response on
+record is the plan-gate approval below. The plan's own owner brief carried one *confirm point* rather
+than a question — see D-2 — and the plan was approved with it in place.
+
+### What was decided at the plan gate
+
+**The plan was APPROVED, ship mode on-green, layout n/a.**
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-1 | **The header is ADDED to this package. DC is not touched.** | Additive-only is the lane rule: five repos pin this package by git sha. Consumers move their own pins in their own changes, against the **merged** sha (never a branch sha — KI-M001E19-002). The move is two halves in two repos, and between them the header exists in both trees. |
+| D-2 | **The eight transitional pieces are NOT re-created.** | The request asked that `PRE_EPIC_HEADER_SLOTS` and `renderedBeforeThisEpic` be carried across as the flag-OFF rollback. **They no longer exist** — deleted by CR-DC-046 on 2026-08-12 under the owner's own ruling **DECISION-358**, which made numbering permanent and ON; `renderedBeforeThisEpic` has zero occurrences in DC's `src/`. Re-adding owner-deleted rollback code to a shared package is a regression, not fidelity. **Surfaced to the owner in the plan's brief as a confirm point, not decided silently**, and repeated in `user-verification-steps.md`. |
+| D-3 | **No flag prop is added.** | The request named the feature flag as "the one honest coupling to solve" and expected a prop. There is no longer a question for a prop to answer: CR-DC-046 also removed `useDocumentNumbering` and `DocumentNumberingProvider` from the component. Adding one now would be the "configurability added in anticipation" the request forbids. **No app import was smuggled in to avoid the question** — guarded by `tsc --noEmit` and by a source scan. |
+| D-4 | **Only the pure day-line describer crosses (`src/lib/document-date.ts`); DC's SQL fragments, column map, row readers and validator stay in DC.** | The describer is presentation — two calendar-day strings in, a mood and two sentences out; it picks a colour and a sentence and never blocks a save. The rest is business rules and database shape, excluded by TECH-COMP-003. The rejected alternative (the app computes the sentences and hands them in) is "purer" but puts the wording and the threshold back into each app — the second copy that drifts, i.e. the exact thing this change exists to prevent. |
+| D-5 | **The 60-day threshold moves with it, unconfigurable.** | Uniformity across the apps is the point of the change. An override prop is an additive change later, if ever needed. |
+| D-6 | **All 🔴/⚠ fences travel verbatim with their DC anchors.** | They are the record of why the discriminant stays, why `auto` is a value and not a disabled input, why `<dl>` was chosen. **Four were adapted** because their subject was the file's old location and they would otherwise have been false statements in the new home — including one instructing the reader not to perform the move that the file *is*. Each is listed individually in `changed-files.md` §3. |
+| D-7 | **`DocumentDateSlotState` is added to the barrel** although DC's own barrel does not re-export it today. | DC's `use-document-date.ts:28` reaches it by deep path; after adoption that path is gone and its follow-up needs somewhere to point. Additive, and it costs nothing. |
+| D-8 | **`epicRecommended: false`.** | Two new files and three barrel edits. No service, no integration, no tenancy or authorisation model. It does not decompose into five controlled units of work. |
+| D-9 | **`uiBearing: false`.** | The change is *defined* by byte-identical rendering. No operator, in any of the five consumers, reads or picks anything different. There is nothing to mock up: the approved design is the shipped screen. |
+| D-10 | **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` is not created.** | It does not exist and there is no `governance/` directory. Creating one is a governance decision, not part of this change. **Second consecutive change to raise it** (CR-DESIGN-SYSTEM-001 D-12). Flagged, not invented. |
+
+### Decided during the build
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-11 | **`src/index.ts` is also edited (+7 / −0)**, beyond the plan's four-file table. | That file enumerates its `./lib` re-exports by name rather than starring them, so the describer would have existed in the package and been **unreachable from the package root**. The approved approach required it; the plan's §7 table was one file short of its own §7.1 intent. Logged as defect D-1 — unfixed it would have surfaced in DC's lane weeks later as this change's problem. |
+
+### Open — awaiting owner
+
+| # | Decision | Status |
+|---|---|---|
+| D-12 | **How to clear two new `nanoid` advisories that fail CI's `dependency-audit` job.** | **PROPOSED — `NEEDS_OWNER: decision` raised 2026-08-14.** Owner card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-002.md`. |
+
+**Not attributable to this change.** `package.json` and `pnpm-lock.yaml` are untouched on this branch
+(`git diff --name-only origin/main...HEAD -- package.json pnpm-lock.yaml` → empty), so the dependency
+tree is byte-identical to `main`. The same job would fail on any PR opened against this repo today.
+
+**What was found.** CI runs `pnpm audit --prod --audit-level=high`. That command is blocked by this
+session's permissions, so it was reproduced faithfully in Node against the same npm bulk advisory
+endpoint pnpm uses, over the prod closure resolved from `pnpm-lock.yaml` (106 packages). Two **high**
+advisories are unignored and therefore blocking:
+
+- `GHSA-28wg-ghj8-5hjv` — nanoid `<3.3.16`, non-secure generators can loop indefinitely on negative size
+- `GHSA-2v37-7h3g-55p8` — nanoid `<3.3.18`, custom generators can loop indefinitely when size is zero
+
+**The path is the already-ruled-on one.** Both reach this package solely via
+`. > next@15.5.19 > postcss@8.4.31 > nanoid@3.3.12` — the auto-installed `next` **peer**
+(`autoInstallPeers: true`), the identical route as the six GHSAs the owner already approved ignoring
+on 2026-07-22 (sharp) and 2026-07-26 (next/postcss). Those approvals set the revisit trigger
+*"when the estate advisory batch bumps next"*; this is that trigger firing. This library ships
+TypeScript source only (`files: ["src"]`) and never calls nanoid.
+
+**Why this is not decided here.** Adding an advisory suppression is a written security trade-off, and
+Hard Rule 2 reserves that to the owner — the file's own convention gives every prior batch its own
+dated *"Owner-approved … (Hard Rule 2, in writing)"* citation, and this session cannot manufacture
+one. The alternative fix (a `pnpm.overrides` bump of nanoid to `^3.3.18`, semver-compatible with
+postcss's `^3.3.11`) is **mechanically impossible in this session**: it requires regenerating
+`pnpm-lock.yaml`, and `pnpm` is permission-blocked — an override added without regenerating the lock
+would fail CI at `pnpm install --frozen-lockfile` instead, which is worse. Recommendation on the card
+is the ignore now, the override as an estate-wide follow-up.
+
+### The contract this creates for consumers
+
+**A forward API contract, frozen:** the eight component exports and the four describer exports listed
+in `evidence/developer-handover.md` §2 are the names DC's adoption change compiles against. They were
+carried over from DC unchanged **deliberately**, so DC's follow-up is a change of import path only,
+never of call sites. Renaming any of them here would be a second migration DC absorbs invisibly.
+
+**And a shared-wording contract:** the day-line sentences and the 60-day threshold now bind the CRM
+too (seam S-3). That is the intended uniformity, recorded here so it is a decision rather than a side
+effect nobody noticed.
+
+### Verification
+
+`pnpm typecheck` clean · `pnpm test` **115 passed / 9 files** (baseline 79 / 7) · **0 open defects** ·
+`git diff --numstat -- src/` → **34 insertions, 0 deletions** · byte identity vs DC's `main`:
+**282 / 282 code lines, 2 differing, both import specifiers**.
+
+---
+
 ## CR-DESIGN-SYSTEM-001 — a colour swatch and an accessible name on a ChoiceGroup chip
 
 | Field | Value |

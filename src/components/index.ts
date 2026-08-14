@@ -120,3 +120,20 @@ export {
   type RowActionsProps,
   type RowActionItemProps,
 } from "./RowActions";
+// 🔴 THE DOCUMENT HEADER, PROMOTED OUT OF Bananaworld-DC AT CR-DESIGN-SYSTEM-002. This re-export is the
+//    line between "not one of DC's fourteen import lines changes" and fourteen broken forms: DC keeps
+//    importing from its own `@/components/ui`, whose barrel re-exports this package exactly as it
+//    already re-exports every other shared primitive here.
+// ⚠ `DocumentDateSlotState` IS EXPORTED THOUGH DC'S BARREL DOES NOT RE-EXPORT IT TODAY (decision D-7).
+//   DC's `use-document-date.ts` reaches it by deep path into DC's own tree; after DC adopts, that path
+//   is gone and its follow-up needs somewhere to point. Additive, and it costs nothing.
+export {
+  DocumentHeader,
+  DOCUMENT_HEADER_SLOTS,
+  DOCUMENT_NUMBER_WHERE_TO_SET,
+  type DocumentHeaderProps,
+  type DocumentHeaderSlot,
+  type DocumentNumberSlotState,
+  type DocumentDateSlotState,
+  type DocumentOrigin,
+} from "./DocumentHeader";

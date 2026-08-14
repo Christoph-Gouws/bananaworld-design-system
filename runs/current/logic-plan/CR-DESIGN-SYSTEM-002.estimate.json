@@ -1,0 +1,17 @@
+{
+  "files": 4,
+  "lines": 620,
+  "steps": 3,
+  "uiBearing": false,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Design system writes the header; DC reads it only after bumping its own pin, in its own change.",
+    "DC's form-standard test asserts this move has NOT happened; DC must re-point it when it adopts.",
+    "The date day-line rule (60 days, its wording) moves into the shared kit, so the CRM inherits it.",
+    "DC keeps its own copy until it bumps; two copies co-exist by design, not by drift.",
+    "CRM, RMS, org-admin and Mangaverde read nothing new; adds only, removes nothing.",
+    "CRM adoption is its own later change; nothing here writes to or anticipates the CRM."
+  ],
+  "migrationExpected": false
+}
