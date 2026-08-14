@@ -44,6 +44,14 @@ export {
   type TableCellProps,
   type SortDirection,
 } from "./Table";
+// The paging bar for a long list (CR-DESIGN-SYSTEM-004). It sits BESIDE the Table block above — the
+// table is not forked, not wrapped, and gains no prop. Additive: no name here begins `TablePage`
+// today, so nothing is shadowed and nothing moves.
+export {
+  TablePagination,
+  type TablePaginationProps,
+  type TablePaginationPlacement,
+} from "./TablePagination";
 export {
   SlideOver,
   SlideOverTrigger,

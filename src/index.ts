@@ -36,4 +36,11 @@ export {
   filterValueFromStored,
   storedFromFilterValue,
   type StoredFilterReading,
+  // The paging arithmetic (CR-DESIGN-SYSTEM-004). `TablePagination` itself arrives through the
+  // `export * from "./components"` above; these live in ./lib, so they have to be named here as well
+  // or a consumer cannot reach them from the package root at all.
+  TABLE_PAGE_SIZES,
+  tablePageRange,
+  type TablePageState,
+  type TablePageRange,
 } from "./lib";

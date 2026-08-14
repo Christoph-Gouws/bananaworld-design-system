@@ -5,6 +5,137 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-004 — a shared paging control for long lists
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **ACCEPTED** — plan approved at the plan gate (after one REVISE round), built on branch `change/cr-design-system-004`. All decisions closed; **0 open** |
+| Date | 2026-08-14 |
+| Branch point | `origin/main` @ `fc2c5b8` |
+| Approved layout | **A** — `Showing 1–25 of 312` at the top left; `Rows per page` + Previous/Next at the top right; the arrows again at the bottom right |
+| Approved option | **(a)** — the control is presentation only; the client-side-narrowing trap is answered by a written contract |
+| Ship mode | **on-green** |
+| Archive | `runs/change-04/` |
+
+### What was asked
+
+Every app has unbounded lists that show everything at once. Add a **shared paging control** to
+`@bananaworld/design-system` — a page-size picker (25/50/100/200), previous/next, and an honest
+"showing X–Y of N" — so that sixteen lists page from one implementation instead of sixteen.
+
+The request was explicit on three points. **It is not a performance fix** — nothing is slow today and
+the owner said so plainly, so no artefact may claim otherwise. **It must be additive** — DC imports
+`DataTableToolbar` in roughly eleven files and `useTableControls` in seven, every one of those screens
+is live, and none of them asks for paging. And **shipping it is two steps** — consumers pin this
+package by exact sha, so CR-DC-052 is not unblocked until this merges *and* DC's pin bump merges.
+
+It also named the one thing that makes this more than a button pair: `useTableControls` narrows
+client-side over the rows it holds. Wire that to server paging naively and the operator gets a search
+box that searches the 25 rows on screen and silently reports "no match" for a record that exists.
+
+### What was decided at the plan gate
+
+The plan put **both readings of the trap** on the card with the trade-off named, and offered three
+layouts. The owner answered twice.
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-1 | **This is not a performance change and no artefact may claim it is.** | Nothing is slow today; the owner said so. An unverifiable claim cannot pass the close gate. Checked at Stage 05: no artefact in the pack claims one, and nothing measuring speed was run. |
+| D-2 | **Option (a): the control is presentation only (TECH-COMP-003); the trap is answered by a written contract.** | (b) — a controlled/server mode on `DataTableToolbar` / `useTableControls` — redesigns a live shared toolbar driven by ~11 call sites across three apps, for a consumer **that does not yet exist**, and cannot answer what `optionsFor` derives its options from when the rows on screen are one page. That question has no good answer without a real caller. Adding (b) later is **itself additive**, so nothing is foreclosed. **Cost, stated rather than softened:** the package cannot enforce the contract, so if a consumer ignores it the defect ships there. |
+| D-3 | **(a) and (b) are never mixed.** | A half-controlled toolbar — some narrowing local, some emitted — is the worst of the three and the hardest defect to see. Held: `DataTableToolbar.tsx` and `table-controls.ts` are untouched; there is no partial mode and no unused flag. |
+| D-4 | **New files only. `Table.tsx`, `DataTableToolbar.tsx` and `table-controls.ts` are not edited.** | The strongest available additive proof: no existing symbol is called, widened or defaulted differently. Realised as `git diff --numstat -- src/` = **+24 / −0**. |
+| D-5 | **One callback, `onChange({ page, pageSize })`, not two.** | Two callbacks let a consumer reach page 9 with a size of 200 against a total of 312 — a state the control would then have to render as "showing nothing". One callback makes it unrepresentable and gives the consumer's fetch effect one dependency. No existing caller constrains the shape. |
+| D-6 | **Changing the page size returns to page 1.** | Keeping the first visible row in view needs stable row identity, which a server re-query does not give. Predictable beats clever in a control four apps share. |
+| D-7 | **The control clamps for rendering and never calls back to correct its parent.** | A callback fired during render is a re-render loop and a lie about who owns the state. Pinned by a no-callback-on-mount spec so nobody "helpfully" adds one. |
+| D-8 | **`Showing 312–312 of 312` is left literal, not collapsed.** | `Showing 312 of 312` reads as a **count**, not a **position**. Ambiguity in a shared control is worse than an ugly dash. |
+| D-9 | **Disabled arrows carry no tooltip; the adjacent status text is the reason.** | UX-DS-003's tooltip rule is met by text inches away that a screen reader reads. A tooltip on a disabled button needs a pointer-event wrapper this control should not grow. Recorded rather than skipped silently. |
+| D-10 | **`role="status"` on the range text, whose announced text equals its visible text.** | Paging replaces rows silently; the range is the acknowledgement. Same string both ways — the opposite of an aria afterthought. Asserted, including the absence of any `aria-label`. |
+| D-11 | **The picker is this package's Radix `Select`; the arrows are `Button`.** | No new dependency, no second idiom, nothing hand-rolled. **Radix ships no pagination primitive**, so the project's Radix rule bites only on the picker — and that is Radix, unchanged. |
+| D-12 | **`offset` is part of `TablePageRange`.** | One place computes what the bar says and what the query asks for, so they cannot disagree. Sixteen hand-rolled `(page-1)*size` are sixteen off-by-ones, in the one place where an off-by-one looks like a missing record. `offset + 1 === from` is an asserted invariant. |
+| D-13 | **No `variant` prop — one layout is built.** The component does take a `placement` (`"top"` \| `"bottom"`, default `"top"`). | A style variant would be anticipatory configurability and Stage 05 would remove it. `placement` is different in kind: the owner's approved layout **has** two positions, so the component must know which it is drawing. |
+| D-14 | **Per-user / per-list page-size memory is NOT built.** | Explicitly out of scope. Raised as a question at the gate rather than smuggled in. Nothing was left half-built for it. |
+| D-15 | **`uiBearing: true`** | An operator reads a new line of text and picks a page size. Three mockups plus a comparison page. |
+| D-16 | **`epicRecommended: false`** | One control, one pure helper, five files. No new service, integration, tenancy or authorisation model; it does not decompose into five controlled units of work. |
+| D-17 | **No consumer pin is bumped and no consumer file is edited.** | Consumers move their own pins, in their own changes, against the **merged** sha — never a branch sha (KI-M001E19-002). |
+| D-18 | **The two bars are one component rendered twice, not two exports and not a table wrapper.** | Same props object, so the bars cannot disagree about the page; one copy of the arithmetic; `Table` keeps its neighbours out of its business. |
+| D-19 | 🔴 **Exactly one live region per list — only `placement="top"` carries `role="status"`.** | Two bars announcing the same range would speak every page change twice. Asserted by count, not left to care. |
+| D-20 | **The picker renders only in the top bar; the bottom bar is arrows only.** | The owner put the picker at the top right. Two pickers would be two sources of truth for one number. Asserted **by absence**, so a tidy-up cannot add one. |
+| D-21 | **The top bar is a sibling row between the toolbar and the table — `DataTableToolbar` gains no slot and no prop.** | Putting it in the toolbar would edit the most-depended-upon component in the package (~11 call sites, three apps) to achieve a layout that right-alignment achieves for free. |
+
+### Clarify questions and answers
+
+The plan raised **two** decide-points for the owner, and both were answered. The owner responses
+recorded for this change were:
+
+- **`[plan]` — plan REVISE:** *"Let's put the rows per page picker at the top right of the list please
+  with the next and previous page arrows at the top and bottom right of the list."*
+- **`[plan]` — plan APPROVED (layout A) — ship on-green.**
+
+**The first response is a material design decision and is treated as one.** Revision 1 of the plan
+drew a single paging strip **under** the list. The owner replaced that arrangement outright: the
+picker once, at the **top right**; the arrows **twice**, top right and bottom right. Revision 2
+redrew all three mockups to that arrangement and reduced the remaining open question to where the
+`Showing 1–25 of 312` line sits — A (top left), B (in the right-hand cluster) or C (at both ends).
+
+That instruction is also what forced D-18, D-19 and D-20 into existence: rendering the control twice
+around one list creates a duplicate-live-region hazard and a two-pickers hazard that a single strip
+never had. Both are now rules with specs behind them.
+
+**The second response settled decide-point 1: layout A**, which the plan recommended. It also, by
+approving the plan **as written**, settled decide-point 2 — the plan states in §2 that *"this plan is
+written to do option (a)"* and the owner gave no instruction to switch. Option (a) is therefore what
+was built (D-2), and it was not silently mixed with (b) (D-3).
+
+Plan open questions 3 (remembered page size), 4 (the CRM discrepancy) and 5 (the missing cross-system
+register) were flagged as non-blocking and were not answered; they are carried forward as D-14,
+`known-issues.md` D-3 and `known-issues.md` C-3 respectively.
+
+**No further clarification was requested and none was needed** — no new decision arose during the
+build that the approved plan had not already answered, so no `NEEDS_OWNER: decision` gate was hit.
+
+### The new contract this change creates
+
+A consumer obligation, binding on CR-DC-052 first, written in three places (the fenced comment atop
+`src/components/TablePagination.tsx`, `runs/change-04/evidence/developer-handover.md` §2, and
+`runs/change-04/technical-debt.md`):
+
+> A table whose rows are paged **by the server** must not use `useTableControls` for searching or
+> filtering. `useTableControls` narrows only the rows it holds, which is one page. Send the search
+> text and the filter values to the server and let it decide both the rows and the total; feed the
+> total back into `TablePagination.totalCount`. Using both together produces a search that hides
+> matching records with no indication that it has.
+
+And with it: `totalCount` must be the count of rows **that person may see** — the same scope filter as
+the page query — or a number leaks the existence of records (RBAC-PRINCIPLE-001).
+
+### Deviation from the approved plan
+
+**One, and it is a path rather than a premise.** The plan puts the arithmetic spec at
+`tests/lib/table-paging.test.ts`; `vitest.config.ts` globs only `tests/pricing/**`,
+`tests/sales-order/**` and `tests/components/**/*.test.tsx`, so a file there would never have run.
+The repo's own precedent — `table-controls.ts` is a `src/lib` module tested at
+`tests/components/table-controls.test.tsx` — was followed instead, leaving `vitest.config.ts`
+untouched as the plan requires. `known-issues.md` A-1.
+
+Everything else the plan cites was spot-checked against the code before building and was **exact**:
+9 of 9 facts, nothing stale, `main` had not moved.
+
+### Outcome
+
+Built as approved. `pnpm typecheck` clean; `pnpm test` **235 passed / 13 files** (baseline **189 / 11**
+before any edit, so **+46** new specs and **0** existing specs edited). Source diff **+24 / −0** —
+zero deletions and zero modified lines; the committed `DataTableToolbar` snapshot hash is unchanged
+(`ce7bd849…`). Dependency audit: 6 highs, all six on the standing owner-approved ignore list, 0 new.
+No migration (this package has no database) and no throwaway Postgres started. **0 open defects, 0
+open decisions.** Two technical-debt items recorded, both with a named owner and a revisit trigger.
+Full evidence in `runs/change-04/`.
+
+🔴 **CR-DC-052 is not unblocked by this change alone** — only by this **and** DC's pin bump, in that
+order, against the merged sha on `main`.
+
+---
+
 ## CR-DESIGN-SYSTEM-003 — a toolbar filter may hold several values
 
 | Field | Value |
