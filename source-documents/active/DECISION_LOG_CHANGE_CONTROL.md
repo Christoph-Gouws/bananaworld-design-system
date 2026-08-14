@@ -5,6 +5,90 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-003 — a toolbar filter may hold several values
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **ACCEPTED** — plan approved at the plan gate, built on branch `change/cr-design-system-003`. All decisions closed; **0 open** |
+| Date | 2026-08-14 |
+| Branch point | `origin/main` @ `9aa20f7` |
+| Approved layout | **A** — the closed trigger reads `Cape Town +2` |
+| Ship mode | **on-green** |
+| Archive | `runs/change-03/` |
+
+### What was asked
+
+A toolbar filter models a filter as a single value (`FilterValue { kind: "select", value: string }`)
+rendered as a Radix Select with an "All" sentinel. One choice replaces the last; there is no way to
+express "these two". From the CRM availability screen, a rep wants two rooms, or three depots.
+
+**Add a multi-select filter kind beside the existing one.** A filter definition declares which kind it
+is; a screen that wants one value keeps declaring exactly what it declares today and behaves
+identically. The request was explicit that this is additive or it is wrong: no existing caller changes
+a line and none changes behaviour — and that if the design pulls toward reshaping the single-select to
+make room, the answer is to stop and say so rather than migrate nine screens inside a package change.
+
+Excluded by the request: new filter types beyond multi-select, search inside the filter list, grouping,
+"select all matching", and any change to the search box, the date-range filter or the toolbar layout.
+
+### Clarify questions and answers
+
+**No `[clarify]` questions were raised or answered on this change.** The owner responses on record are
+a single line: *plan APPROVED (layout A) — ship on-green*. The plan's brief asked exactly one question
+— how a filter holding several choices should read when closed — and it is answered by that approval;
+it is recorded as D-16 below.
+
+### What was decided at the plan gate
+
+**The plan was APPROVED, ship mode on-green, layout A.**
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-1 | **`multiSelect` is ADDED as a third kind. `select` is not reshaped, not deprecated, not migrated.** | Additive-only is the lane rule. Reshaping would migrate eleven call sites across three repos inside a package change — the epic the request forbids. The tempting alternative (a `multiple?: boolean` on the existing def) was considered again during the build and rejected in writing. |
+| D-2 | **`values: []` means All**, mirroring `select`'s `value: null`. | One mental model for both kinds; `clear()` and `emptyFilterValue` then need no special case. |
+| D-3 | **Union, never intersection**, and no option to choose between them. | A row holds one value per filter, so "and" is always empty. An option would be anticipatory configurability for a case that cannot occur. |
+| D-4 | **Radix `DropdownMenu.CheckboxItem`** — not a new Popover dependency, not a hand-rolled list. | Keyboard, focus and screen-reader behaviour are why the primitive exists (project rule). Already a dependency, already shipped in `RowActions`, so no new dependency and no second dropdown idiom. |
+| D-5 | **`onSelect` preventDefault keeps the menu open across toggles.** | Otherwise the menu closes per value and the change fails at the thing it exists to do. Mutation-tested at build time rather than trusted. |
+| D-6 | **The "All" wording is reused verbatim from the Select sentinel.** | An unset filter must read identically whichever kind it is, or the toolbar has two vocabularies. Implemented as one shared `allOptionLabel` function so it is structural rather than a promise. |
+| D-7 | **The stored shape is a bare `string` for one value and `string[]` for two or more.** | Maximises what a build on an older pin reads correctly: a single-value multi-select is invisible to it, so only the genuinely multi-value case needs new reader code. **This is a new contract consumers must follow** (see below). |
+| D-8 | **Two pure stored-shape helpers ship, with a `widened` flag; the wording of any notice stays in the app.** | The package supplies the fact; "the depot filter now shows every depot" is app vocabulary (TECH-COMP-003). |
+| D-9 | **The filter def/value types are added to the barrels.** | Their absence is already recorded as a wart in CRM's own source (`AvailabilityView.tsx:118` pins the shape with `as const` because `FilterDef` was unreachable). A consumer writing a two-shape reconciler must be able to *name* `MultiSelectFilterValue` or it re-declares it locally and drifts. Additive; same reasoning as CR-002's D-7. |
+| D-10 | **The multi-select control stays private to `DataTableToolbar.tsx`**, like the other two controls. | Exporting it as a standalone primitive is anticipatory — org-admin, which renders its own controls over the shared engine, has not asked. |
+| D-11 | **Characterisation tests for the existing kinds are written BEFORE any source edit.** | There was **no test for this engine at all**, so a green suite proved nothing about the existing screens and citing it as the additive proof would have been hollow. This is the request's *"prove it, do not assert it"* read literally. |
+| D-12 | **`uiBearing: true`** — three mockups plus a comparison page. | A rep reads and picks something genuinely new the first time a screen adopts it, and the owner had to choose the closed-state reading. |
+| D-13 | **`epicRecommended: false`.** | One filter kind, one control, five files. No new service, integration, tenancy or authorisation model. It does not decompose into five controlled units of work. |
+| D-14 | **No consumer pin is bumped and no consumer file is edited.** | Consumers move their own pins in their own changes, against the **merged** sha on `main` — never a branch sha (KI-M001E19-002). |
+| D-15 | **DC's stale private copy of `table-controls.ts` is not touched.** | Another repo, another lane. Named as seam S-4 debt for DC's own change. |
+| **D-16** | **LAYOUT A — the closed trigger names the first chosen value and counts the rest: `Cape Town +2`.** | **The owner's decision at the plan gate**, from three drawn options (A: first + more · B: count only, `3 of 7 depots` · C: tags in the trigger). A names something real, holds one line, truncates predictably and keeps a stable width in a narrow toolbar. It was the plan's recommendation and the owner took it. |
+| D-17 | **The blast radius is eleven call sites across three apps, not the nine across two the request assumed.** | Recorded rather than corrected silently: six DC toolbar screens (not eight — two files name `DataTableToolbar` only in comments), one CRM, plus **four org-admin screens that drive the shared engine without the toolbar and that the request did not know about**. No scope change: all eleven are proved unaffected. |
+
+### Decided during the build
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-18 | **The menu caps its height to the room Radix reports and scrolls inside it** — not in the plan. | CR-DC-008 is exactly this bug on `Select`: with no height cap nothing overflows, so a long list silently looks like it ends. One class, applied before a fifty-item customer list can repay for the lesson. Affects only the new control. |
+| D-19 | **`allOptionLabel` is extracted and the existing `SelectFilterControl` calls it too**, touching one pre-existing render line. | D-6 made structural instead of duplicated. Because it touches an existing line it was **proved, not argued**: the seven screens' DOM snapshot hash is unchanged (`ce7bd849…`). Had it moved, the refactor would have been reverted. |
+| D-20 | **The stored-shape contract deliberately does not carry date ranges.** | `string \| string[]` cannot express two bounds, so a `dateRange` reads back cleared and reports `widened: true` rather than pretending. Documented in the source; CRM's availability screen has no date filter. |
+
+### The contract this creates for consumers
+
+**A filter value is stored as a bare `string` when it holds one value, and as a `string[]` only when
+it holds two or more**, and `filterValueFromStored` reports `widened: true` whenever a stored shape
+could not be represented. This binds CRM's saved availability views first (CR-CRM-011): the full
+seven-point obligation is in `runs/change-03/evidence/developer-handover.md` §3, and **until all seven
+are done CRM must not declare any availability filter as `multiSelect`.**
+
+### Verification
+
+`pnpm typecheck` clean · `pnpm test` **189 passed / 11 files** (baseline before any edit: 115 / 9;
++74 new specs, **0 existing specs edited**) · the seven toolbar screens' DOM snapshot hash **unchanged**
+across the source edit · `src/` **+347 / −26** with every deletion itemised · dependency audit
+reproduced in Node: 6 highs, all six already on the standing owner-approved ignore list, **0 new** ·
+no migration and no database · 0 open defects.
+
+---
+
 ## CR-DESIGN-SYSTEM-002 — the document header moves into the shared package
 
 | Field | Value |

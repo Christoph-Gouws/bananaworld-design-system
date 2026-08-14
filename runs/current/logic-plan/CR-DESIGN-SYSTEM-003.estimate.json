@@ -1,0 +1,16 @@
+{
+  "files": 5,
+  "lines": 240,
+  "steps": 4,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Design system writes the new filter kind; DC, CRM and org-admin read it only when each bumps its own pin",
+    "CRM saved availability views store filter values; the stored shape must read as one value or several",
+    "org-admin drives useTableControls from its own controls and never renders the package toolbar",
+    "No consumer pin moves here: DC and CRM are on 365be65, org-admin and RMS on ecba2218",
+    "DC keeps a stale private copy of the filter engine; not this lane, recorded as DC debt"
+  ],
+  "migrationExpected": false
+}

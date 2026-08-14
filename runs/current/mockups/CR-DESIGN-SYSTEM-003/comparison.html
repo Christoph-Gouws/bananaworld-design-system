@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-003 — a filter that holds several choices · A · B · C</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-accent:#fac80a; --color-accent-subtle:#fef3c7;
+    --color-success:#16a34a; --color-success-subtle:#dcfce7; --color-success-fg:#14532d;
+    --color-info-subtle:#dbeafe; --color-info-fg:#1e3a8a;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+    --shadow-xs:0 1px 0 rgba(24,24,27,.04);
+    --shadow-lg:0 10px 15px -3px rgba(24,24,27,.08),0 4px 6px -4px rgba(24,24,27,.05);
+    --shadow-focus:0 0 0 1px #fff,0 0 0 3px var(--color-accent);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .page{max-width:1180px;margin:0 auto;padding:32px 20px 88px}
+  header p{margin:0}
+  h1{font-size:26px;line-height:1.25;letter-spacing:-.015em;margin:0 0 8px}
+  .lede{color:var(--color-fg-muted);max-width:70ch;margin:0 0 4px}
+  .ask{margin:20px 0 8px;padding:14px 16px;background:var(--color-accent-subtle);border:1px solid var(--color-accent);
+    border-radius:var(--radius-lg);font-weight:600;color:#7c2d12}
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--color-fg-subtle);
+    margin:40px 0 14px;font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  .col{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);
+    padding:18px;box-shadow:var(--shadow-xs);display:flex;flex-direction:column}
+  .col.pick{border-color:var(--color-accent);box-shadow:0 0 0 3px var(--color-accent-subtle)}
+  .name{font-size:17px;font-weight:700;letter-spacing:-.01em;margin:0}
+  .rec{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;
+    background:var(--color-success-subtle);color:var(--color-success-fg);vertical-align:2px}
+  .what{color:var(--color-fg-muted);font-size:14px;margin:6px 0 16px;min-height:44px}
+  .cap{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--color-fg-subtle);margin:14px 0 6px}
+
+  /* the control */
+  .trigger{height:36px;width:100%;display:inline-flex;align-items:center;justify-content:space-between;gap:8px;
+    border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);
+    box-shadow:var(--shadow-xs);padding:0 12px;font-size:14px;color:var(--color-fg);text-align:left}
+  .trigger .val{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .trigger.tags{gap:6px;padding-left:6px}
+  .trigger.tags .val{display:flex;align-items:center;gap:4px;overflow:hidden}
+  .placeholder{color:var(--color-fg-subtle)}
+  .more,.count{color:var(--color-fg-muted);font-variant-numeric:tabular-nums}
+  .chip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-sm);
+    background:var(--color-accent-subtle);border:1px solid var(--color-accent);color:var(--color-fg);
+    font-size:12px;font-weight:600;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;flex:none}
+  .chip.rest{background:var(--color-surface-muted);border-color:var(--color-border-strong);color:var(--color-fg-muted)}
+  .chev{color:var(--color-fg-muted);flex:none}
+  ul.pc{list-style:none;padding:0;margin:16px 0 0;border-top:1px solid var(--color-border);padding-top:12px}
+  ul.pc li{display:flex;gap:8px;font-size:13.5px;color:var(--color-fg-muted);margin-bottom:7px}
+  ul.pc li b{color:var(--color-fg);font-weight:600}
+  .yes{color:var(--color-success);font-weight:700;flex:none}
+  .no{color:#dc2626;font-weight:700;flex:none}
+
+  /* shared block */
+  .shared{display:grid;grid-template-columns:300px 1fr;gap:28px;background:var(--color-surface);
+    border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--shadow-xs)}
+  @media (max-width:900px){.shared{grid-template-columns:1fr;gap:18px}}
+  .menu{width:270px;max-width:100%;background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--radius-md);box-shadow:var(--shadow-lg);padding:4px}
+  .mi{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:var(--radius-sm);font-size:14px}
+  .mi.hl{background:var(--color-surface-muted)}
+  .box{width:16px;height:16px;flex:none;border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);
+    background:var(--color-surface);display:flex;align-items:center;justify-content:center}
+  .box.on{background:var(--color-accent);border-color:var(--color-accent)}
+  .box svg{display:none} .box.on svg{display:block}
+  .sep{height:1px;background:var(--color-border);margin:4px 0}
+  .mfoot{display:flex;justify-content:space-between;padding:6px 8px;color:var(--color-fg-muted);font-size:13px}
+  .kbd{display:inline-block;min-width:22px;text-align:center;padding:1px 7px;border:1px solid var(--color-border-strong);
+    border-bottom-width:2px;border-radius:var(--radius-sm);background:var(--color-surface-muted);
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:var(--color-fg-muted)}
+  table.k{border-collapse:collapse;width:100%}
+  table.k td{padding:8px 0;border-top:1px solid var(--color-border);vertical-align:top;font-size:14px;color:var(--color-fg-muted)}
+  table.k tr:first-child td{border-top:0}
+  table.k td:first-child{width:170px;white-space:nowrap}
+  table.k b{color:var(--color-fg)}
+  .foot{margin-top:36px;padding:18px 20px;background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);color:var(--color-fg-muted);font-size:14px}
+  .foot b{color:var(--color-fg)}
+  .badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:600;
+    background:var(--color-info-subtle);color:var(--color-info-fg)}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>A filter that can hold several choices</h1>
+  <p class="lede">Today a filter across the top of a busy list holds one choice — pick a second and it
+    replaces the first. This adds a second style that holds several: two rooms, three depots. Every
+    list that wants one choice keeps exactly the control it has now.</p>
+</header>
+
+<div class="ask">All three work the same way when open. Pick how one should read when it is <u>closed</u>.</div>
+
+<h2>The three options</h2>
+<div class="grid">
+
+  <!-- ── A ─────────────────────────────────────────────────────────── -->
+  <div class="col pick">
+    <p class="name">A — first one, then a count <span class="rec">Recommended</span></p>
+    <p class="what">Names the first choice and counts the rest.</p>
+
+    <div class="cap">Nothing chosen</div>
+    <span class="trigger"><span class="val placeholder">All depots</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+
+    <div class="cap">One chosen</div>
+    <span class="trigger"><span class="val">Cape Town</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+
+    <div class="cap">Three chosen</div>
+    <span class="trigger"><span class="val">Cape Town <span class="more">+2</span></span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+
+    <ul class="pc">
+      <li><span class="yes">✓</span><span>Names <b>something real</b> — you can see what you filtered without opening it.</span></li>
+      <li><span class="yes">✓</span><span>With one choice it is <b>identical to today’s control</b>, so a list loses nothing by moving.</span></li>
+      <li><span class="yes">✓</span><span>Always one line; a long name shortens with “…”.</span></li>
+      <li><span class="no">✗</span><span>You still open it to see the other two.</span></li>
+    </ul>
+  </div>
+
+  <!-- ── B ─────────────────────────────────────────────────────────── -->
+  <div class="col">
+    <p class="name">B — a count</p>
+    <p class="what">Says how many are chosen, out of how many there are.</p>
+
+    <div class="cap">Nothing chosen</div>
+    <span class="trigger"><span class="val placeholder">All depots</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+
+    <div class="cap">One chosen</div>
+    <span class="trigger"><span class="val count">1 of 7 depots</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+
+    <div class="cap">Three chosen</div>
+    <span class="trigger"><span class="val count">3 of 7 depots</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+
+    <ul class="pc">
+      <li><span class="yes">✓</span><span>The <b>tidiest</b>: never grows, never shortens, whatever is chosen.</span></li>
+      <li><span class="yes">✓</span><span>Tells you at a glance <b>how much of the list you are hiding</b>.</span></li>
+      <li><span class="no">✗</span><span>Never names a choice — <b>even one depot reads as “1 of 7”</b>, which is less than the control says today.</span></li>
+    </ul>
+  </div>
+
+  <!-- ── C ─────────────────────────────────────────────────────────── -->
+  <div class="col">
+    <p class="name">C — a tag per choice</p>
+    <p class="what">Shows each choice as a small tag, and counts whatever will not fit.</p>
+
+    <div class="cap">Nothing chosen</div>
+    <span class="trigger"><span class="val placeholder">All depots</span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+
+    <div class="cap">One chosen</div>
+    <span class="trigger tags"><span class="val"><span class="chip">Cape Town</span></span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+
+    <div class="cap">Three chosen</div>
+    <span class="trigger tags"><span class="val"><span class="chip">Cape Town</span><span class="chip">Durban</span><span class="chip rest">+1</span></span>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+
+    <ul class="pc">
+      <li><span class="yes">✓</span><span>The <b>most concrete</b> — two or three choices are all visible at once.</span></li>
+      <li><span class="no">✗</span><span>Takes the most room; with two of these filters the row <b>wraps onto a second line sooner</b>.</span></li>
+      <li><span class="no">✗</span><span>Reads differently from today’s control even when only one thing is chosen.</span></li>
+    </ul>
+  </div>
+
+</div>
+
+<h2>Identical in all three — how it opens and how it works from the keyboard</h2>
+<div class="shared">
+  <div>
+    <div class="menu">
+      <div class="mi"><span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> All depots</div>
+      <div class="sep"></div>
+      <div class="mi"><span class="box on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> Cape Town</div>
+      <div class="mi hl"><span class="box on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> Durban</div>
+      <div class="mi"><span class="box on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> Johannesburg</div>
+      <div class="mi"><span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> Nelspruit</div>
+      <div class="mi"><span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> Port Elizabeth</div>
+      <div class="sep"></div>
+      <div class="mfoot"><span>3 chosen</span><span class="kbd">Esc</span></div>
+    </div>
+  </div>
+  <div>
+    <p style="margin-top:0;color:var(--color-fg-muted)">A tick beside each choice. The list
+      <b style="color:var(--color-fg)">stays open</b> while several are ticked — that is the whole
+      point. <b style="color:var(--color-fg)">“All depots”</b> at the top is both the untouched state
+      and the clear-everything: tick it and the rest empty.</p>
+    <table class="k">
+      <tr><td><span class="kbd">Tab</span></td><td>reaches the filter — one stop, like every other control in the row</td></tr>
+      <tr><td><span class="kbd">Enter</span> <span class="kbd">↓</span></td><td>opens the list</td></tr>
+      <tr><td><span class="kbd">↑</span> <span class="kbd">↓</span></td><td>move between choices; typing a letter jumps to it</td></tr>
+      <tr><td><span class="kbd">Space</span></td><td>ticks or unticks — <b>and the list stays open</b></td></tr>
+      <tr><td><span class="kbd">Esc</span></td><td>closes and puts focus back on the filter</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="foot">
+  <p style="margin-top:0"><span class="badge">Nothing changes yet</span> &nbsp;The eleven lists that
+  use these filters today keep exactly the control they have now, whichever option you pick. A list
+  gains the new style only when its own team asks for it, in its own separate piece of work.</p>
+  <p style="margin-bottom:0"><b>Deliberately not included:</b> no searching inside the list of
+  choices, no grouping, no “pick everything matching”. No change to the search box or the date filter.</p>
+</div>
+
+</div>
+</body>
+</html>
