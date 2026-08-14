@@ -1,40 +1,51 @@
 # Known issues — CR-DESIGN-SYSTEM-002
 
-## 0. BLOCKING — raised to the owner
+## 0. RESOLVED — the CI dependency-audit block (was E-1)
 
-### E-1 — Two new `nanoid` advisories fail CI's `dependency-audit` job — `NEEDS_OWNER: decision`
+### E-1 — Two new `nanoid` advisories failed CI's `dependency-audit` job — **CLOSED 2026-08-14**
 
-**Not caused by this change.** `git diff --name-only origin/main...HEAD -- package.json pnpm-lock.yaml`
-is **empty** — neither dependency file is touched on this branch. The same job would fail on any PR
-opened against this repo today, including an empty one.
+**Not caused by this change.** At the time it was raised,
+`git diff --name-only origin/main...HEAD -- package.json pnpm-lock.yaml` was **empty** — neither
+dependency file was touched on this branch. The same job would have failed on any PR opened against
+this repo that day, including an empty one.
 
-CI runs `pnpm audit --prod --audit-level=high`. Two **high** advisories are unignored and blocking:
+CI runs `pnpm audit --prod --audit-level=high`. Two **high** advisories were unignored and blocking:
 
 | GHSA | Package | Vulnerable | Summary |
 |---|---|---|---|
 | `GHSA-28wg-ghj8-5hjv` | nanoid | `<3.3.16` | non-secure generators can loop indefinitely with negative size |
 | `GHSA-2v37-7h3g-55p8` | nanoid | `<3.3.18` | custom generators can loop indefinitely when size is zero |
 
-Installed is `nanoid@3.3.12`, reached **only** via `. > next@15.5.19 > postcss@8.4.31 > nanoid` —
+Installed was `nanoid@3.3.12`, reached **only** via `. > next@15.5.19 > postcss@8.4.31 > nanoid` —
 the auto-installed `next` **peer** (`autoInstallPeers: true`). That is the identical route as the six
 GHSAs already owner-approved for ignore on 2026-07-22 and 2026-07-26, whose recorded revisit trigger
-was *"when the estate advisory batch bumps next"*. This is that trigger firing. The library ships
+was *"when the estate advisory batch bumps next"*. This was that trigger firing. The library ships
 TypeScript source only (`files: ["src"]`) and never calls nanoid.
 
-**Why it was not fixed here.** Both available fixes are the owner's, not this session's:
+**How it was resolved — the owner ruled OVERRIDE, not ignore.** Applied and pushed to this branch as
+`13d90bb`:
 
-- *Extend `ignoreGhsas`* — a written security trade-off, reserved to the owner by Hard Rule 2. Every
-  prior batch in `package.json` carries its own dated *"Owner-approved … in writing"* citation; this
-  session cannot manufacture one.
-- *Override nanoid to `^3.3.18`* (semver-compatible with postcss's `^3.3.11`) — **mechanically
-  impossible here**: it needs `pnpm-lock.yaml` regenerated and `pnpm` is permission-blocked. An
-  override added without regenerating the lock fails CI at `pnpm install --frozen-lockfile` instead.
+```jsonc
+"pnpm": { "overrides": { "nanoid@<3.3.17": "^3.3.17" } }
+```
 
-Owner card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-002.md`. Logged as **D-12** in
-`source-documents/active/DECISION_LOG_CHANGE_CONTROL.md`. Recommendation: ignore now to land finished
-work, override as an estate-wide follow-up.
+`ignoreGhsas` **was not extended** — it still holds its original six entries. The reasoning, which
+overturned the previous round's recommendation: the standing next-peer ignore names its own revisit
+trigger as *"when the estate advisory batch bumps next"*, so booking a **seventh** standing exception
+at the exact moment the sixth said to stop is the wrong direction. Bananaworld-DC met the identical
+advisory first and fixed it this same way (`a20cf381`, PR #160, 2026-08-08). Resolved version in
+`pnpm-lock.yaml` is **`nanoid@3.3.18`**, above both ceilings.
 
-**Everything else on this branch is green** — `tsc --noEmit` clean, 115 tests passed / 9 files.
+**⚠ The previous round's "mechanically impossible" claim was wrong and is corrected, not deleted.**
+It recorded the override as *mechanically impossible*. It was not — it was a **session permission**
+limit (`pnpm` could not be run, so the lockfile could not be regenerated), which is a fact about the
+session, not about the fix. The owner applied it from the desktop into this same worktree so branch
+and remote never diverged. See B-4 and **D-12** in
+`source-documents/active/DECISION_LOG_CHANGE_CONTROL.md`.
+
+**Verified green after the fix:** all five PR #10 checks pass on `13d90bb` — Typecheck, Test,
+**Dependency Audit**, SAST (Semgrep CE), Secret Scanner (Gitleaks). Locally re-confirmed this session:
+`pnpm typecheck` clean, `pnpm test` **115 passed / 9 files**.
 
 
 ## A. Attributable to this change
@@ -94,17 +105,22 @@ was authored to serve the same purpose and follows the stated rule — it **cite
 artifact by path, status and counts rather than restating it. Identical to the limit
 CR-DESIGN-SYSTEM-001 recorded as its own B-3.
 
-### B-4 — `pnpm audit` could not be run directly; reproduced in Node instead. **It FAILS — see E-1.**
+### B-4 — `pnpm audit` cannot be run from a build session. **Now green — see E-1.**
 
-The command is blocked by this session's permissions and is **not** claimed as passed. The earlier
-round of this change inferred from an unchanged dependency tree that the audit would stay green.
-**That inference was wrong**, and CI proved it: the tree did not change, but the *advisories about it*
-did. The finding is recorded as **E-1** below; this entry is left in place as the record of how it
-was missed.
+Three rounds, three different states, recorded in order because the mistake is instructive:
 
-The audit was then reproduced faithfully in Node — same npm bulk advisory endpoint pnpm queries,
-over the prod closure resolved from `pnpm-lock.yaml` (106 packages) — which reproduces CI's failure
-exactly and identified its cause.
+1. **Round 1 inferred the audit was green from an unchanged dependency tree.** That inference was
+   **wrong**, and CI proved it: the tree did not change, but the *advisories about it* did. This is
+   the durable lesson, carried into `SESSION_HANDOVER.md` note 8.
+2. **Round 2** could not run `pnpm audit` (permission-blocked), so it reproduced the audit faithfully
+   in Node — same npm bulk advisory endpoint pnpm queries, over the prod closure resolved from
+   `pnpm-lock.yaml` (106 packages). That reproduced CI's failure exactly and identified its cause.
+   It also recorded the override fix as *"mechanically impossible"*, which **overstated a session
+   permission limit as a property of the fix** — corrected in E-1.
+3. **This round:** `pnpm typecheck` and `pnpm test` ran directly and are green. **`pnpm audit` is
+   still permission-blocked here and is NOT claimed as run locally.** It does not need to be: CI's
+   own `Dependency Audit` job is green on `13d90bb`, which is the authoritative signal and a stronger
+   one than a local run.
 
 ## C. Pre-existing repo drift — out of lane, not introduced here
 

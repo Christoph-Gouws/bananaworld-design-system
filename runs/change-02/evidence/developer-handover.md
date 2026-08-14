@@ -135,11 +135,17 @@ intended uniformity, not an oversight. If the CRM genuinely needs a different nu
 
 ## 6. State of this repo
 
-- Branch `change/cr-design-system-002`, off `origin/main` @ `365be65`. PR open; **the conductor merges
-  on green** — do not merge from a build session.
-- `pnpm typecheck` clean · `pnpm test` **115 / 9** (baseline 79 / 7) · **0 open defects**
+- Branch `change/cr-design-system-002`, off `origin/main` @ `365be65`. PR #10 open with **all five
+  checks green**; **the conductor merges** — do not merge from a build session.
+- `pnpm typecheck` clean · `pnpm test` **115 / 9** (baseline 79 / 7) · **0 open defects, 0 open decisions**
 - **No migration** — this package has no database. **No throwaway Postgres was ever started.**
+- ⚠ **`package.json` and `pnpm-lock.yaml` differ from `main`** — the D-12 `nanoid` override only
+  (`"nanoid@<3.3.17": "^3.3.17"`, resolving **3.3.18**), no source touched. Two advisories published
+  against an unchanged tree were refusing every PR in this repo; the owner ruled **override, not a
+  seventh ignore**, matching DC's fix (`a20cf381`, PR #160). `ignoreGhsas` is untouched at six.
+  **Nothing a consumer ships changes** — this package publishes `files: ["src"]` and never calls nanoid.
 - Carried drift, all out of lane: `format:check` fails repo-wide (44 files, all three edited barrels
   already failed at `HEAD`); **there is no `lint` script and no eslint config**; `ci.yml`'s test job
-  label is stale; `pnpm audit` is blocked in the build session and CI's job is the real gate.
-  Details in `runs/change-02/output/known-issues.md`.
+  label is stale; `pnpm audit` is permission-blocked in build sessions, so CI's job is the real gate —
+  **do not infer audit health from an unchanged dependency tree**, which is how this change first
+  missed it. Details in `runs/change-02/output/known-issues.md`.

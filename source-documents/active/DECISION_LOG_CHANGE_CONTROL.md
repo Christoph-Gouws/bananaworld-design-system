@@ -10,7 +10,7 @@
 | Field | Value |
 |---|---|
 | Type | CHANGE / DECISION |
-| Status | **ACCEPTED** — plan approved at the plan gate, built on branch `change/cr-design-system-002`. **One decision open: D-12** (unrelated CI dependency advisory) |
+| Status | **ACCEPTED** — plan approved at the plan gate, built on branch `change/cr-design-system-002`. **All decisions closed; D-12 answered by the owner 2026-08-14** (unrelated CI dependency advisory — overridden, not ignored) |
 | Date | 2026-08-14 |
 | Branch point | `origin/main` @ `365be65` |
 | Approved layout | **n/a — not UI-bearing** (D-9) |
@@ -62,39 +62,58 @@ than a question — see D-2 — and the plan was approved with it in place.
 |---|---|---|
 | D-11 | **`src/index.ts` is also edited (+7 / −0)**, beyond the plan's four-file table. | That file enumerates its `./lib` re-exports by name rather than starring them, so the describer would have existed in the package and been **unreachable from the package root**. The approved approach required it; the plan's §7 table was one file short of its own §7.1 intent. Logged as defect D-1 — unfixed it would have surfaced in DC's lane weeks later as this change's problem. |
 
-### Open — awaiting owner
+### Decided by the owner at the decision gate — D-12
 
 | # | Decision | Status |
 |---|---|---|
-| D-12 | **How to clear two new `nanoid` advisories that fail CI's `dependency-audit` job.** | **PROPOSED — `NEEDS_OWNER: decision` raised 2026-08-14.** Owner card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-002.md`. |
+| D-12 | **Two new `nanoid` advisories that fail CI's `dependency-audit` job are cleared by a `pnpm.overrides` bump — NOT by a seventh `ignoreGhsas` entry.** | **ACCEPTED — owner ruling, in writing, 2026-08-14.** Applied and pushed to this branch as `13d90bb`. |
 
-**Not attributable to this change.** `package.json` and `pnpm-lock.yaml` are untouched on this branch
-(`git diff --name-only origin/main...HEAD -- package.json pnpm-lock.yaml` → empty), so the dependency
-tree is byte-identical to `main`. The same job would fail on any PR opened against this repo today.
+**Not attributable to this change.** When the block was raised, `package.json` and `pnpm-lock.yaml`
+were untouched on this branch, so the dependency tree was byte-identical to `main` and the same job
+would have failed on any PR opened against this repo that day. The two files are now deliberately
+changed **by the owner's fix**, and by nothing else — no source file moved in that round.
 
-**What was found.** CI runs `pnpm audit --prod --audit-level=high`. That command is blocked by this
-session's permissions, so it was reproduced faithfully in Node against the same npm bulk advisory
-endpoint pnpm uses, over the prod closure resolved from `pnpm-lock.yaml` (106 packages). Two **high**
-advisories are unignored and therefore blocking:
+**What was found.** CI runs `pnpm audit --prod --audit-level=high`. Two **high** advisories were
+unignored and therefore blocking:
 
 - `GHSA-28wg-ghj8-5hjv` — nanoid `<3.3.16`, non-secure generators can loop indefinitely on negative size
 - `GHSA-2v37-7h3g-55p8` — nanoid `<3.3.18`, custom generators can loop indefinitely when size is zero
 
-**The path is the already-ruled-on one.** Both reach this package solely via
-`. > next@15.5.19 > postcss@8.4.31 > nanoid@3.3.12` — the auto-installed `next` **peer**
-(`autoInstallPeers: true`), the identical route as the six GHSAs the owner already approved ignoring
-on 2026-07-22 (sharp) and 2026-07-26 (next/postcss). Those approvals set the revisit trigger
-*"when the estate advisory batch bumps next"*; this is that trigger firing. This library ships
-TypeScript source only (`files: ["src"]`) and never calls nanoid.
+**The path.** Both reached this package solely via `. > next@15.5.19 > postcss@8.4.31 > nanoid@3.3.12`
+— the auto-installed `next` **peer** (`autoInstallPeers: true`), the identical route as the six GHSAs
+the owner approved ignoring on 2026-07-22 (sharp) and 2026-07-26 (next/postcss). Those approvals set
+the revisit trigger *"when the estate advisory batch bumps next"*; this was that trigger firing. The
+library ships TypeScript source only (`files: ["src"]`) and never calls nanoid.
 
-**Why this is not decided here.** Adding an advisory suppression is a written security trade-off, and
-Hard Rule 2 reserves that to the owner — the file's own convention gives every prior batch its own
-dated *"Owner-approved … (Hard Rule 2, in writing)"* citation, and this session cannot manufacture
-one. The alternative fix (a `pnpm.overrides` bump of nanoid to `^3.3.18`, semver-compatible with
-postcss's `^3.3.11`) is **mechanically impossible in this session**: it requires regenerating
-`pnpm-lock.yaml`, and `pnpm` is permission-blocked — an override added without regenerating the lock
-would fail CI at `pnpm install --frozen-lockfile` instead, which is worse. Recommendation on the card
-is the ignore now, the override as an estate-wide follow-up.
+**The ruling, and why the recommendation was overturned.** This session's predecessor recommended
+extending `ignoreGhsas` now and doing the override later, estate-wide. **The owner chose the override
+instead, and the reasoning is the better one:** the standing next-peer ignore records its own revisit
+trigger as *"when the estate advisory batch bumps next"*, so booking a **seventh** standing exception
+at the exact moment the sixth said to stop is the wrong direction. Bananaworld-DC met the identical
+advisory first and resolved it exactly this way (`a20cf381`, PR #160, 2026-08-08), so this repo now
+matches the estate rather than diverging from it.
+
+```jsonc
+"pnpm": { "overrides": { "nanoid@<3.3.17": "^3.3.17" } }
+```
+
+`ignoreGhsas` **was not extended** — it still holds the same six entries, and no Hard Rule 2 citation
+was added or needed. That absence is the substance of the ruling: an ignore trades a risk away and so
+is the owner's to sign; an override removes the risk and so trades nothing. Resolved version in
+`pnpm-lock.yaml` is **`nanoid@3.3.18`**, above both advisory ceilings.
+
+**⚠ A claim in the previous round is corrected rather than deleted.** That round recorded the override
+as *"mechanically impossible in this session"*. **That was wrong, and the distinction matters.** It was
+a *session permission* limit — `pnpm` could not be run, so the lockfile could not be regenerated — not
+a property of the fix. The owner applied it from the desktop into this same worktree, so the branch and
+the remote never diverged. The honest statement is "this session could not perform it", not "it cannot
+be done". Corrected in `known-issues.md` B-4/E-1, `changed-files.md` §4, the owner card, and
+`SESSION_HANDOVER.md` note 8.
+
+**Verified after the fix.** `pnpm install --frozen-lockfile` passes (lock and manifest agree) ·
+`pnpm audit --prod --audit-level=high` exits 1 before / 0 after · `pnpm typecheck` clean ·
+`pnpm test` 115 passed / 9 files. **All five PR #10 checks are green** on `13d90bb` — Typecheck,
+Test, **Dependency Audit**, SAST (Semgrep CE) and Secret Scanner (Gitleaks).
 
 ### The contract this creates for consumers
 
