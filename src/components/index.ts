@@ -113,6 +113,25 @@ export {
   type TableControls,
   type UseTableControlsConfig,
 } from "./DataTableToolbar";
+// ⚠ THE FILTER TYPES ARE EXPORTED FROM CR-DESIGN-SYSTEM-003 (decision D-9). Their absence has already
+//   cost a consumer: Bananaworld-CRM's AvailabilityView pins the shape with `as const` and says so in
+//   place, because "FilterDef is internal to the design system's table-controls module and is not
+//   re-exported from its barrel". A consumer writing a reconciler that must read BOTH stored shapes has
+//   to be able to NAME MultiSelectFilterValue, or it will re-declare it locally and drift.
+//   Additive: adds names, moves none. SortDir/SortState/SortAccessor are deliberately NOT exported —
+//   they are not what that change was about.
+export type {
+  FilterDef,
+  SelectFilterDef,
+  MultiSelectFilterDef,
+  DateRangeFilterDef,
+  FilterValue,
+  SelectFilterValue,
+  MultiSelectFilterValue,
+  DateRangeFilterValue,
+  FilterValues,
+  SelectOption,
+} from "../lib/table-controls";
 export {
   RowActions,
   RowActionItem,

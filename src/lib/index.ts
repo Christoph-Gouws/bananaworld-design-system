@@ -25,3 +25,13 @@ export {
   type DocumentDateMood,
   type DocumentDateDescription,
 } from "./document-date";
+// The stored-shape contract for toolbar filter values (CR-DESIGN-SYSTEM-003 §5.3). Pure and tiny: one
+// value stores as a bare string, several as an array, and reading back reports whether the stored shape
+// could not be represented — so a consumer restoring a SAVED VIEW can say "this filter opened wider than
+// you left it" instead of widening in silence. The wording of that notice stays in the app; this side
+// supplies only the fact (TECH-COMP-003).
+export {
+  filterValueFromStored,
+  storedFromFilterValue,
+  type StoredFilterReading,
+} from "./table-controls";

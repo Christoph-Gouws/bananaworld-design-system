@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-003 — Option C · a small tag per choice</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4; --color-surface-sunken:#efefee;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-accent:#fac80a; --color-accent-subtle:#fef3c7; --color-fg-on-accent:#18181b;
+    --color-info:#2563eb; --color-info-subtle:#dbeafe; --color-info-fg:#1e3a8a;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+    --shadow-xs:0 1px 0 rgba(24,24,27,.04);
+    --shadow-sm:0 1px 2px rgba(24,24,27,.04),0 1px 3px rgba(24,24,27,.06);
+    --shadow-lg:0 10px 15px -3px rgba(24,24,27,.08),0 4px 6px -4px rgba(24,24,27,.05);
+    --shadow-focus:0 0 0 1px #fff,0 0 0 3px var(--color-accent);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1120px;margin:0 auto;padding:40px 32px 96px}
+  h1{font-size:28px;line-height:1.25;letter-spacing:-.015em;margin:0 0 6px}
+  .sub{color:var(--color-fg-muted);margin:0 0 24px;font-size:15px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-subtle);
+    margin:36px 0 12px;font-weight:600}
+  .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);
+    padding:20px;box-shadow:var(--shadow-xs)}
+  .note{color:var(--color-fg-muted);font-size:13px;margin:10px 2px 0}
+  .note b{color:var(--color-fg);font-weight:600}
+  .toolbar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .flabel{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-fg-subtle)}
+  .search{position:relative;flex:1;min-width:240px}
+  .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--color-fg-subtle)}
+  .input{height:36px;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);
+    box-shadow:var(--shadow-xs);padding:0 12px;font:inherit;color:var(--color-fg);width:100%}
+  .search .input{padding-left:36px}
+  .placeholder{color:var(--color-fg-subtle)}
+  .trigger{height:36px;min-width:160px;display:inline-flex;align-items:center;justify-content:space-between;gap:8px;
+    border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);
+    box-shadow:var(--shadow-xs);padding:0 12px;font:inherit;color:var(--color-fg);cursor:default;text-align:left}
+  .trigger .val{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .trigger.focus{border-color:var(--color-accent);box-shadow:var(--shadow-focus)}
+  .trigger.tags{gap:6px;padding-left:6px;min-width:200px}
+  .trigger.tags .val{display:flex;align-items:center;gap:4px;overflow:hidden}
+  .chip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-sm);
+    background:var(--color-accent-subtle);border:1px solid var(--color-accent);color:var(--color-fg);
+    font-size:12px;font-weight:600;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;flex:none}
+  .chip.rest{background:var(--color-surface-muted);border-color:var(--color-border-strong);color:var(--color-fg-muted);
+    font-variant-numeric:tabular-nums}
+  .chev{color:var(--color-fg-muted);flex:none}
+  .dates{display:flex;align-items:center;gap:6px}
+  .dates .input{width:152px}
+  .dash{color:var(--color-fg-subtle)}
+  .clear{height:36px;display:inline-flex;align-items:center;gap:4px;border:0;background:none;
+    padding:0 8px;border-radius:var(--radius-md);color:var(--color-fg-muted);font:inherit;cursor:default}
+  .stage{position:relative;padding-bottom:280px}
+  .menu{position:absolute;width:248px;background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--radius-md);box-shadow:var(--shadow-lg);padding:4px}
+  .mi{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--radius-sm);font-size:14px;color:var(--color-fg)}
+  .mi.hl{background:var(--color-surface-muted)}
+  .box{width:16px;height:16px;flex:none;border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);
+    background:var(--color-surface);display:flex;align-items:center;justify-content:center}
+  .box.on{background:var(--color-accent);border-color:var(--color-accent)}
+  .box.on svg{display:block}
+  .box svg{display:none}
+  .sep{height:1px;background:var(--color-border);margin:4px 0}
+  .mfoot{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;color:var(--color-fg-muted);font-size:13px}
+  .kbd{display:inline-block;min-width:20px;text-align:center;padding:1px 6px;border:1px solid var(--color-border-strong);
+    border-bottom-width:2px;border-radius:var(--radius-sm);background:var(--color-surface-muted);
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:var(--color-fg-muted)}
+  table.k{border-collapse:collapse;width:100%}
+  table.k td{padding:7px 0;border-top:1px solid var(--color-border);vertical-align:top;font-size:13px;color:var(--color-fg-muted)}
+  table.k tr:first-child td{border-top:0}
+  table.k td:first-child{width:190px;white-space:nowrap}
+  .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .mini{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:16px}
+  .mini .cap{font-size:12px;color:var(--color-fg-subtle);margin-bottom:10px}
+  .newkind{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:600;
+    background:var(--color-accent-subtle);color:#7c2d12}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Option C — a small tag per choice</h1>
+  <p class="sub">A filter that holds several values shows each one as a tag, and counts whatever will not fit.</p>
+
+  <h2>The toolbar, with one multi-value filter beside the ones that exist today</h2>
+  <div class="card">
+    <div class="toolbar">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input class="input" placeholder="Search product, box type, depot…">
+      </div>
+      <label class="field">
+        <span class="flabel">Grade</span>
+        <span class="trigger"><span class="val placeholder">All grade</span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+      </label>
+      <label class="field">
+        <span class="flabel">Depot <span class="newkind">new kind</span></span>
+        <span class="trigger tags"><span class="val">
+            <span class="chip">Cape Town</span><span class="chip">Durban</span><span class="chip rest">+1</span>
+          </span>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+      </label>
+      <div class="field">
+        <span class="flabel">Date</span>
+        <div class="dates">
+          <input class="input" value="2026-08-01" size="10">
+          <span class="dash">–</span>
+          <input class="input" value="2026-08-14" size="10">
+        </div>
+      </div>
+      <button class="clear">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg> Clear
+      </button>
+    </div>
+    <p class="note">Everything except the <b>Depot</b> control is exactly what the seven live toolbar
+      screens render today. <b>Nothing on an existing screen changes.</b> Note how much more width this option
+      takes from the row — with two multi-value filters, the toolbar wraps to a second line sooner.</p>
+  </div>
+
+  <h2>How it reads, in each state</h2>
+  <div class="row3">
+    <div class="mini">
+      <div class="cap">Nothing chosen</div>
+      <span class="trigger"><span class="val placeholder">All depots</span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+      <p class="note">Word-for-word what a single-value filter already says.</p>
+    </div>
+    <div class="mini">
+      <div class="cap">One chosen</div>
+      <span class="trigger tags"><span class="val"><span class="chip">Cape Town</span></span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+      <p class="note">Reads slightly differently from today’s control, which shows the name as plain
+        text rather than in a tag.</p>
+    </div>
+    <div class="mini">
+      <div class="cap">Three chosen</div>
+      <span class="trigger tags"><span class="val"><span class="chip">Cape Town</span><span class="chip">Durban</span><span class="chip rest">+1</span></span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+      <p class="note">The most concrete of the three — and the one that most easily becomes a
+        paragraph once names get long.</p>
+    </div>
+  </div>
+
+  <h2>Open</h2>
+  <div class="card stage">
+    <label class="field" style="width:240px">
+      <span class="flabel">Depot</span>
+      <span class="trigger tags focus"><span class="val"><span class="chip">Cape Town</span><span class="chip">Durban</span><span class="chip rest">+1</span></span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+    </label>
+    <div class="menu" style="left:20px;top:96px">
+      <div class="mi"><span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> All depots</div>
+      <div class="sep"></div>
+      <div class="mi"><span class="box on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> Cape Town</div>
+      <div class="mi hl"><span class="box on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> Durban</div>
+      <div class="mi"><span class="box on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> Johannesburg</div>
+      <div class="mi"><span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> Nelspruit</div>
+      <div class="mi"><span class="box"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="3"><path d="m5 12 5 5 9-11"/></svg></span> Port Elizabeth</div>
+      <div class="sep"></div>
+      <div class="mfoot"><span>3 chosen</span><span class="kbd">Esc</span></div>
+    </div>
+    <p class="note" style="margin-left:300px;max-width:500px">The open list is identical in all three
+      options. <b>The tags are not individually removable</b> — a small × on each would put extra
+      buttons inside the control’s single keyboard stop, which is the sort of thing that quietly
+      breaks tabbing. Unticking happens in the list, where it already works.</p>
+  </div>
+
+  <h2>The keyboard path — identical in all three options</h2>
+  <div class="card">
+    <table class="k">
+      <tr><td><span class="kbd">Tab</span></td><td>reaches the filter — one stop, like every other control in the row</td></tr>
+      <tr><td><span class="kbd">Enter</span> <span class="kbd">Space</span> <span class="kbd">↓</span></td><td>opens the list, focus lands on the first item</td></tr>
+      <tr><td><span class="kbd">↑</span> <span class="kbd">↓</span></td><td>move between choices; typing a letter jumps to it</td></tr>
+      <tr><td><span class="kbd">Space</span></td><td>ticks or unticks — <b>and the list stays open</b></td></tr>
+      <tr><td><span class="kbd">Esc</span></td><td>closes and puts focus back on the filter</td></tr>
+    </table>
+    <p class="note">Provided by the same Radix menu the row-actions “⋯” already uses, so a screen
+      reader announces each row as a checkbox with its ticked state. Nothing here is hand-rolled.</p>
+  </div>
+
+</div>
+</body>
+</html>

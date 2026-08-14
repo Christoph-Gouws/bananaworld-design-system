@@ -1,123 +1,107 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-08-14, at the close of **CR-DESIGN-SYSTEM-002**.
+> Last updated: 2026-08-14, at the close of **CR-DESIGN-SYSTEM-003**.
 
-## Most recent unit of work: CR-DESIGN-SYSTEM-002
+## Most recent unit of work: CR-DESIGN-SYSTEM-003
 
 | Field | Value |
 |---|---|
-| Unit | **Change Request CR-DESIGN-SYSTEM-002** (not an epic, not a milestone) |
-| Title | The document header moves into the shared package, so two apps wear one header instead of two copies that drift |
-| Branch | `change/cr-design-system-002`, off `origin/main` @ `365be65` |
-| Approved layout | **n/a — not UI-bearing** (D-9) |
+| Unit | **Change Request CR-DESIGN-SYSTEM-003** (not an epic, not a milestone) |
+| Title | A toolbar filter can hold one value. Let it hold several, without disturbing the screens that hold one |
+| Branch | `change/cr-design-system-003`, off `origin/main` @ `9aa20f7` |
+| Approved layout | **A** — the closed trigger reads `Cape Town +2` (owner, plan gate) |
 | Ship mode | **on-green** |
-| Status | **Built, tested green, closed out. PR #10 open with all five CI checks GREEN.** The D-12 dependency block is resolved. |
-| Archive | `runs/change-02/` |
-| Open defects | **0** · open decisions: **none** (D-12 answered 2026-08-14) |
+| Status | **Built, tested green, closed out. PR opened; the conductor polls CI and merges.** |
+| Archive | `runs/change-03/` |
+| Open defects | **0** · open decisions: **none** |
 
 ### What it did
 
-Promoted Bananaworld-DC's four-slot document header (Date · DC · Raised by · Document no.) into this
-package, so the CRM can wear the **same** header rather than hand-building a second one that drifts.
+Added a **third filter kind, `multiSelect`**, beside `select` and `dateRange` in the shared
+table-controls engine, and a Radix `DropdownMenu`-of-checkboxes control to render it. A screen that
+declares `select` declares exactly what it declared before and renders byte-identically.
 
-- `src/components/DocumentHeader.tsx` — new, ported from DC
-- `src/lib/document-date.ts` — new, the **pure day-line describer only** (54 of DC's 420 lines).
-  DC's SQL fragments, column map, row readers and validator stayed in DC (TECH-COMP-003)
-- `src/components/index.ts`, `src/index.ts`, `src/lib/index.ts` — appended, +34 / −0
-
-**Precondition verified first, as instructed:** CR-DC-039 landed — no `useAuth` import or call
-remains in DC's component. Had it still been there, this change would have stopped.
+- `src/lib/table-controls.ts` — `MultiSelectFilterDef` / `MultiSelectFilterValue`; four functions gain
+  an arm; the **stored-shape contract** (`filterValueFromStored`, `storedFromFilterValue`,
+  `StoredFilterReading`)
+- `src/components/DataTableToolbar.tsx` — `MultiSelectFilterControl` + `MultiSelectItem`, both private
+- `src/components/index.ts`, `src/lib/index.ts`, `src/index.ts` — appended: ten filter types + two
+  helpers. **Nothing renamed, moved or removed**
+- `tests/components/{table-controls,DataTableToolbar}.test.tsx` + a committed snapshot file — new
 
 ### Verification
 
 | Gate | Result |
 |---|---|
 | `pnpm typecheck` | clean |
-| `pnpm test` | **115 passed / 9 files** (baseline before any edit: 79 / 7) |
-| New tests | 36, in `tests/components/{DocumentHeader,document-date}.test.tsx` |
-| Source diff | **34 insertions, 0 deletions** — purely additive |
-| **Byte identity vs DC's `main`** | **282 / 282 code lines identical; 2 differing lines, both import specifiers** |
+| `pnpm test` | **189 passed / 11 files** (baseline before any edit: 115 / 9) |
+| New tests | **74**, of which **36 are characterisation specs written before a line of source changed** |
+| **Additive proof** | The seven toolbar screens' DOM snapshot **hash is identical before and after** the source edit (`ce7bd849…`) |
+| Source diff | **+347 / −26**; every deletion itemised in `changed-files.md` §1.1 |
+| Dependency audit | 6 highs, **all six already on the standing ignore list, 0 new**. Reproduced in Node — `pnpm audit` is permission-blocked here |
 | Migration | none — this package has no database |
 | Throwaway Postgres | never started; nothing left behind |
 | Context-usage row | logged ✅ (`--project bananaworld-design-system`) |
-| **CI on PR #10** | **all five green** on `13d90bb` — Typecheck · Test · Dependency Audit · Semgrep · Gitleaks |
-
-### ✅ D-12 — CI's `dependency-audit` block, RESOLVED 2026-08-14
-
-**Nothing to do with this change.** Two new **high** `nanoid` advisories (`GHSA-28wg-ghj8-5hjv`,
-`GHSA-2v37-7h3g-55p8`) were published against an unchanged tree and arrived via
-`. > next > postcss@8.4.31 > nanoid@3.3.12` — the same auto-installed `next` peer route as the six
-GHSAs owner-approved for ignore on 2026-07-22 and 2026-07-26. Any PR against this repo would have
-been refused.
-
-**The owner ruled OVERRIDE, not a seventh ignore** — `pnpm.overrides` `"nanoid@<3.3.17": "^3.3.17"`,
-resolving `nanoid@3.3.18`; `ignoreGhsas` untouched at six. Applied as `13d90bb`. Same fix DC used
-(`a20cf381`, PR #160). Rationale: the standing next-peer ignore's own revisit trigger was *"when the
-estate advisory batch bumps next"*, so a 7th exception at that exact moment was the wrong direction.
-
-⚠ A prior round called the override *"mechanically impossible"* — it was a **session permission**
-limit, not a property of the fix. Corrected in D-12 and `known-issues.md` E-1. Detail:
-`source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` (D-12).
 
 ## State of the repository
 
-- **`main` is at `365be65`** (CR-DESIGN-SYSTEM-001 merged). CR-DESIGN-SYSTEM-002 sits on its own
-  branch with PR #10 open and green; the conductor merges.
-- **`package.json` / `pnpm-lock.yaml` now differ from `main`** — the D-12 nanoid override only.
-  A consumer bumping its pin gets `nanoid@3.3.18` in its dev closure; nothing shipped changes,
-  because this package publishes `files: ["src"]`.
+- **`main` is at `9aa20f7`** (CR-DESIGN-SYSTEM-002 merged as PR #10/#11). CR-DESIGN-SYSTEM-003 sits on
+  its own branch with a PR open; the conductor merges.
 - **No epic is in flight.** `runs/epic-020/` is pre-existing and closed; this change created nothing
   under it and created no `epic-NN/` or `milestone-NN/` folder of its own.
 - **No migrations pending.** This package has no database by construction.
+- `package.json` / `pnpm-lock.yaml` are **untouched by this change** — no new dependency.
 
 ## What the next session needs to know
 
-1. **This package is ADDITIVE-ONLY, and that is a lane rule, not a preference.** Five repos pin it by
-   git sha — DC (`b1373c78`), CRM (`4bc1f220`), RMS (`ecba2218`), org-admin (`ecba2218`) and
-   Mangaverde (`e3a88e35`). Each bumps when it chooses. Never remove a field, change a default, or
-   move an export.
-2. **Never bump a consumer pin from here**, and when a consumer bumps it must be against the
-   **merged** sha on `main`, never a branch sha. KI-M001E19-002 is that mistake on record.
-3. 🔴 **The follow-up is Bananaworld-DC's adoption change, and it has a known red.** Five assertions
-   in DC's `tests/contract/transaction-form-standard.test.ts` go red at adoption **by design** —
-   line 889 exists specifically to assert this promotion had *not* happened. The fix is to re-point
-   `SHARED_HEADER` and **invert** that spec, never to relax it. Line numbers and the full list:
-   `runs/change-02/evidence/developer-handover.md` §3. **DC's suites could not be run from this
-   sandboxed worktree and nothing in the evidence claims they were.**
-4. **The exported names are FROZEN** so DC's follow-up compiles unedited — the eight component
-   exports plus `describeDocumentDate` / `DOCUMENT_DATE_WARN_DAYS` / `DocumentDateMood` /
-   `DocumentDateDescription`. Do not rename or tighten them.
-5. **The eight transitional pieces were NOT carried across, and that was approved.** The request
-   asked for them; the owner had already deleted them at CR-DC-046 under DECISION-358 (2026-08-12).
-   Do not "restore" them here — that would be a DC-lane change if the owner ever wants it.
-6. **CR-DESIGN-SYSTEM-001's follow-up is still open** and unchanged: bump DC's pin, then build the
-   colour-stage chips on the tablet receiving screen (`runs/change-01/evidence/developer-handover.md`).
-   The `swatch` / `description` field names remain frozen.
-7. **Pre-existing repo drift, all out of lane:** `pnpm format:check` fails on 44 files (all three
-   barrels this change edited already failed at `HEAD`, verified by stash); there is **no `lint`
-   script and no eslint config**; `ci.yml`'s test job label is stale. Recorded in
-   `runs/change-02/output/known-issues.md`.
-8. 🔴 **Do not infer audit health from an unchanged dependency tree.** This change did exactly that
-   and CI proved it wrong: the tree was identical to `main`, but two new advisories had been
-   published *about* it. Run the audit, don't reason about it. **`pnpm audit` is permission-blocked
-   in build sessions** (`typecheck` and `test` run fine) — reproduce it in Node against npm's bulk
-   advisory endpoint, or read CI's own job, which is authoritative.
-9. **When an advisory arrives through the `next` peer, prefer an OVERRIDE to a seventh ignore** —
-   the owner's D-12 ruling, and DC's precedent (`a20cf381`). The six standing ignores carry a revisit
-   trigger; honour it rather than extending the list past it. An override needs the lockfile
-   regenerated, so it cannot be done from a permission-blocked session — say so plainly rather than
-   calling it impossible.
+1. **This package is ADDITIVE-ONLY, and that is a lane rule, not a preference.** Four repos pin it by
+   git sha and each bumps when it chooses. Never remove a field, change a default, or move an export.
+   ⚠ The recorded pin values disagree between documents (`SESSION_HANDOVER` history says DC
+   `b1373c78` / CRM `4bc1f220`; the CR-003 plan §1.4 read `365be65` for both from their
+   `package.json`s). Neither is checkable from a build worktree — **read the app's own `package.json`**.
+2. **Never bump a consumer pin from here**, and when a consumer bumps it must be against the **merged**
+   sha on `main`, never a branch sha. KI-M001E19-002 is that mistake on record.
+3. 🔴 **CRM owes seven specific things before it declares any availability filter as `multiSelect`.**
+   Saved availability views (CR-CRM-011) persist filter values per rep, and both cross-version
+   directions currently fail by *silently widening*. The package fixed the half it can (one value is
+   stored as a bare string, so an old build reads it correctly) and reports the other half
+   (`widened`). Full list: `runs/change-03/evidence/developer-handover.md` §3.
+4. **Two lines must not be undone**, both fenced in the source: `onSelect={(e) => e.preventDefault()}`
+   on each `CheckboxItem` (without it the menu closes after every tick), and the `multiSelect` arm of
+   `hasActiveControls` (without it "Clear" sits permanently lit on any adopting screen). Also do not
+   tidy `matchesFilter`'s trailing `return true` into a throw — it is what stops an old saved view
+   crashing a screen.
+5. **The blast radius is eleven call sites across three apps, not nine across two.** Six DC toolbar
+   screens, one CRM, plus **four org-admin screens that drive the engine without the toolbar**. All
+   eleven are proved unaffected; org-admin's are answered at the type level (`qa-report.md` §4).
+6. **DC keeps a byte-for-byte private copy of `src/lib/table-controls.ts` that nothing in DC imports.**
+   It will not gain the new kind and drifts further. DC's lane should delete it — from here it would
+   be a lane violation (seam S-4).
+7. **Consumer repos cannot be read or run from a build worktree** (paths outside it are permission-
+   blocked). Their filter declarations were transcribed from the approved plan's inventory and labelled
+   as such; **no consumer suite was executed and nothing claims one was.** Third change to record this.
+8. **Pre-existing repo drift, all out of lane:** `pnpm format:check` fails repo-wide (all five files
+   this change edited already failed at `HEAD`, verified by stash, and it is not a CI job); there is
+   **no `lint` script and no eslint config**; `ci.yml`'s test job label is stale.
+9. 🔴 **Do not infer audit health from an unchanged dependency tree** — CR-002 did and CI proved it
+   wrong. `pnpm audit` is permission-blocked in build sessions; reproduce it in Node against npm's
+   bulk advisory endpoint (CR-003 did), or read CI's own job, which is authoritative. When an advisory
+   arrives through the `next` peer, prefer an **override** to a seventh ignore (owner ruling D-12).
+10. **Still open from earlier changes:** CR-DESIGN-SYSTEM-001's colour-stage chips on the tablet
+    receiving screen, and CR-DESIGN-SYSTEM-002's DC document-header adoption — where **five assertions
+    in DC's `tests/contract/transaction-form-standard.test.ts` go red by design** and must be inverted,
+    never relaxed (`runs/change-02/evidence/developer-handover.md` §3). Neither is affected by CR-003.
 
 ## Where the paper trail is
 
 | What | Where |
 |---|---|
-| Approved plan (the contract this was built to) | `runs/current/logic-plan/CR-DESIGN-SYSTEM-002.md` |
-| Approved mockup | none — not UI-bearing (D-9) |
-| Stage 04 artifacts | `runs/change-02/output/{test-results,qa-report,defect-log,deployed-verification}.md` |
-| Stage 05 artifacts | `runs/change-02/output/{revision-review,simplification-opportunities,accepted-refactors,readable-code-scorecard,centrality-scorecard}.md` |
-| Changed files · summary · open items | `runs/change-02/output/{changed-files,implementation-summary,known-issues}.md` |
-| Evidence roll-ups | `runs/change-02/evidence/{milestone-evidence,global-milestone-scorecard,user-verification-steps,developer-handover}.md` |
-| Decisions | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` |
+| Approved plan (the contract this was built to) | `runs/current/logic-plan/CR-DESIGN-SYSTEM-003.md` |
+| Approved mockup (layout A) | `runs/current/mockups/CR-DESIGN-SYSTEM-003/option-a.html` |
+| Stage 04 artifacts | `runs/change-03/output/{test-results,qa-report,defect-log,deployed-verification}.md` |
+| Stage 05 artifacts | `runs/change-03/output/{revision-review,simplification-opportunities,accepted-refactors,readable-code-scorecard,centrality-scorecard}.md` |
+| Changed files · summary · open items | `runs/change-03/output/{changed-files,implementation-summary,known-issues}.md` |
+| Evidence roll-ups | `runs/change-03/evidence/{milestone-evidence,global-milestone-scorecard,user-verification-steps,developer-handover}.md` |
+| Decisions | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` (CR-DESIGN-SYSTEM-003, D-1…D-20) |
 | Active unit pointer | `runs/current/active-milestone.md` |
-| Previous change | `runs/change-01/` (CR-DESIGN-SYSTEM-001, merged as `365be65`) |
+| Previous changes | `runs/change-02/` (CR-002, merged as `9aa20f7`) · `runs/change-01/` (CR-001, merged as `365be65`) |

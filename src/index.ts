@@ -30,4 +30,10 @@ export {
   DOCUMENT_DATE_WARN_DAYS,
   type DocumentDateMood,
   type DocumentDateDescription,
+  // The toolbar filter stored-shape helpers (CR-DESIGN-SYSTEM-003). The filter TYPES arrive through the
+  // `export * from "./components"` above; these two functions live in ./lib, so they have to be named
+  // here as well or a consumer cannot reach them from the package root at all.
+  filterValueFromStored,
+  storedFromFilterValue,
+  type StoredFilterReading,
 } from "./lib";
