@@ -23,4 +23,11 @@ export {
   formatDateTimeZA,
   formatTimeZA,
   formatRelativeTimeZA,
+  // The document header's day line (CR-DESIGN-SYSTEM-002). `DocumentHeader` itself arrives through the
+  // `export * from "./components"` above; this list is enumerated rather than starred, so the describer
+  // has to be named here as well or a consumer cannot reach it from the package root at all.
+  describeDocumentDate,
+  DOCUMENT_DATE_WARN_DAYS,
+  type DocumentDateMood,
+  type DocumentDateDescription,
 } from "./lib";
