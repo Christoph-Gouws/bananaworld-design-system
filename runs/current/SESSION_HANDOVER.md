@@ -11,9 +11,9 @@
 | Branch | `change/cr-design-system-002`, off `origin/main` @ `365be65` |
 | Approved layout | **n/a — not UI-bearing** (D-9) |
 | Ship mode | **on-green** |
-| Status | **Built, tested green, closed out, PR #10 open — but BLOCKED at CI on an unrelated dependency advisory.** `NEEDS_OWNER: decision` raised 2026-08-14 (D-12). |
+| Status | **Built, tested green, closed out. PR #10 open with all five CI checks GREEN.** The D-12 dependency block is resolved. |
 | Archive | `runs/change-02/` |
-| Open defects | **0** · one open **decision**: D-12 |
+| Open defects | **0** · open decisions: **none** (D-12 answered 2026-08-14) |
 
 ### What it did
 
@@ -40,25 +40,32 @@ remains in DC's component. Had it still been there, this change would have stopp
 | Migration | none — this package has no database |
 | Throwaway Postgres | never started; nothing left behind |
 | Context-usage row | logged ✅ (`--project bananaworld-design-system`) |
+| **CI on PR #10** | **all five green** on `13d90bb` — Typecheck · Test · Dependency Audit · Semgrep · Gitleaks |
 
-### 🔴 Open decision D-12 — CI's `dependency-audit` refuses PR #10
+### ✅ D-12 — CI's `dependency-audit` block, RESOLVED 2026-08-14
 
-**Nothing to do with this change.** `package.json` and `pnpm-lock.yaml` are untouched on this branch,
-so the same job fails on any PR opened against this repo today. Two new **high** advisories —
-`GHSA-28wg-ghj8-5hjv` and `GHSA-2v37-7h3g-55p8`, both `nanoid` — arrive via
-`. > next > postcss@8.4.31 > nanoid@3.3.12`, the same auto-installed `next` peer route as the six
-GHSAs the owner already approved ignoring on 2026-07-22 and 2026-07-26.
+**Nothing to do with this change.** Two new **high** `nanoid` advisories (`GHSA-28wg-ghj8-5hjv`,
+`GHSA-2v37-7h3g-55p8`) were published against an unchanged tree and arrived via
+`. > next > postcss@8.4.31 > nanoid@3.3.12` — the same auto-installed `next` peer route as the six
+GHSAs owner-approved for ignore on 2026-07-22 and 2026-07-26. Any PR against this repo would have
+been refused.
 
-Not self-decided: extending `ignoreGhsas` is a written security trade-off reserved to the owner under
-Hard Rule 2, and the alternative (a `pnpm.overrides` bump to nanoid `^3.3.18`) needs `pnpm-lock.yaml`
-regenerated, which this session cannot do — `pnpm` is permission-blocked.
+**The owner ruled OVERRIDE, not a seventh ignore** — `pnpm.overrides` `"nanoid@<3.3.17": "^3.3.17"`,
+resolving `nanoid@3.3.18`; `ignoreGhsas` untouched at six. Applied as `13d90bb`. Same fix DC used
+(`a20cf381`, PR #160). Rationale: the standing next-peer ignore's own revisit trigger was *"when the
+estate advisory batch bumps next"*, so a 7th exception at that exact moment was the wrong direction.
 
-Owner card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-002.md`. Detail: `known-issues.md` §0.
+⚠ A prior round called the override *"mechanically impossible"* — it was a **session permission**
+limit, not a property of the fix. Corrected in D-12 and `known-issues.md` E-1. Detail:
+`source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` (D-12).
 
 ## State of the repository
 
 - **`main` is at `365be65`** (CR-DESIGN-SYSTEM-001 merged). CR-DESIGN-SYSTEM-002 sits on its own
-  branch with a PR open; the conductor merges on green.
+  branch with PR #10 open and green; the conductor merges.
+- **`package.json` / `pnpm-lock.yaml` now differ from `main`** — the D-12 nanoid override only.
+  A consumer bumping its pin gets `nanoid@3.3.18` in its dev closure; nothing shipped changes,
+  because this package publishes `files: ["src"]`.
 - **No epic is in flight.** `runs/epic-020/` is pre-existing and closed; this change created nothing
   under it and created no `epic-NN/` or `milestone-NN/` folder of its own.
 - **No migrations pending.** This package has no database by construction.
@@ -90,11 +97,16 @@ Owner card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-002.md`. Detail: `k
    barrels this change edited already failed at `HEAD`, verified by stash); there is **no `lint`
    script and no eslint config**; `ci.yml`'s test job label is stale. Recorded in
    `runs/change-02/output/known-issues.md`.
-8. 🔴 **`pnpm` cannot be run inside the build session** (permission-blocked), so `pnpm audit` was
-   reproduced in Node against npm's bulk advisory endpoint. **Do not infer audit health from an
-   unchanged dependency tree** — this change did exactly that and CI proved it wrong: the tree was
-   identical to `main`, but two new advisories had been published against it. Reproduce it, don't
-   assume it. See D-12 above.
+8. 🔴 **Do not infer audit health from an unchanged dependency tree.** This change did exactly that
+   and CI proved it wrong: the tree was identical to `main`, but two new advisories had been
+   published *about* it. Run the audit, don't reason about it. **`pnpm audit` is permission-blocked
+   in build sessions** (`typecheck` and `test` run fine) — reproduce it in Node against npm's bulk
+   advisory endpoint, or read CI's own job, which is authoritative.
+9. **When an advisory arrives through the `next` peer, prefer an OVERRIDE to a seventh ignore** —
+   the owner's D-12 ruling, and DC's precedent (`a20cf381`). The six standing ignores carry a revisit
+   trigger; honour it rather than extending the list past it. An override needs the lockfile
+   regenerated, so it cannot be done from a permission-blocked session — say so plainly rather than
+   calling it impossible.
 
 ## Where the paper trail is
 

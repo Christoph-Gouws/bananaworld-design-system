@@ -1,4 +1,31 @@
-# A decision is needed — CR-DESIGN-SYSTEM-002 (the shared document header)
+# ✅ ANSWERED — CR-DESIGN-SYSTEM-002 (the shared document header)
+
+**Date raised:** 2026-08-14 · **Answered:** 2026-08-14 · **Status: CLOSED — nothing is waiting on you.**
+
+> ## Your ruling, and what happened
+>
+> **You chose Option B — force the repaired version of nanoid.** Not the ignore-list.
+>
+> You also corrected the reasoning below, and the correction was the right one: the approved
+> exception list already said to revisit *"when the estate advisory batch bumps"*, so adding a
+> **seventh** exception at the very moment the sixth said to stop was the wrong direction. The depot
+> system had already met this identical notice and repaired it the same way, so this repository now
+> **matches** the estate rather than becoming the odd one out — the opposite of what Option B warned.
+>
+> **It is done.** Applied straight to this branch as `13d90bb`. The repaired version is in place, the
+> approved-exceptions list is untouched at six, and **all five checks on the pull request are now
+> green.** Nothing about the document header changed.
+>
+> **One correction to the card below.** It said Option B "could not be done in this session". That
+> overstated it — the build session simply lacked permission to run one tool, so it could not rebuild
+> the dependency lock file. That is a limit of the session, not of the fix. It was applied from the
+> desktop into this same worktree, so the branch and the published copy never disagreed.
+>
+> *The original card is preserved unedited below, as the record of what was asked.*
+
+---
+
+## The original card, as raised
 
 **Date raised:** 2026-08-14 · **Status:** waiting on you · **The change itself is built and passing.**
 

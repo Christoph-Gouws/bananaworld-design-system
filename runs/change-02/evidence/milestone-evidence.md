@@ -38,7 +38,8 @@ pass; the component was already pure.
 | Byte identity | code-line comparison vs DC's `main` | **282 / 282 identical; 2 differing lines, both import specifiers** |
 | Lint | — | **no `lint` script exists in this package** — `known-issues.md` C-2, recorded not invented |
 | Format | `pnpm format:check` | pre-existing repo-wide drift; all three edited barrels **already failed at `HEAD`** (verified by stash). `known-issues.md` C-1 |
-| Dependency audit | `pnpm audit` | **blocked by session permissions — not claimed as passed.** Surface provably unchanged: `package.json` + `pnpm-lock.yaml` untouched. CI's `dependency-audit` job is the gate. `known-issues.md` B-4 |
+| Dependency audit | `pnpm audit` | **PASS — via CI, which is the authoritative gate.** `Dependency Audit` is green on PR #10 @ `13d90bb`. Not run locally: `pnpm audit` is permission-blocked in build sessions and is **not** claimed as run here. It first refused this PR on two `nanoid` advisories published against an unchanged tree; cleared by the owner's D-12 override (`nanoid@3.3.18`), **not** by a 7th ignore. `known-issues.md` §0 (E-1) + B-4 |
+| CI, all checks | GitHub Actions, PR #10 | **5 / 5 green** on `13d90bb`: Typecheck · Test · Dependency Audit · SAST (Semgrep CE) · Secret Scanner (Gitleaks) |
 | Migration | — | **N/A** — no database in this package |
 | Throwaway Postgres | — | **never started**; `docker ps -a` filter on `chg-cr-design-system-002-pg` returns empty |
 
@@ -67,9 +68,9 @@ pass; the component was already pure.
 
 | Artifact | Status | Counts |
 |---|---|---|
-| `runs/change-02/output/changed-files.md` | complete | **7 files**: 2 source added, 3 source modified (+34 / −0), 2 tests added. 10 files explicitly considered and left untouched, each with a reason. The 4 adapted comments listed individually |
+| `runs/change-02/output/changed-files.md` | complete | **7 source/test files**: 2 source added, 3 source modified (+34 / −0), 2 tests added — **plus 2 dependency files** (`package.json` +4/−0, `pnpm-lock.yaml` +12/−12) changed by owner decision D-12 alone, touching no source (§4a). 8 files considered and left untouched, each with a reason. The 4 adapted comments listed individually |
 | `runs/change-02/output/implementation-summary.md` | complete | Includes the required plan-vs-code confirmation: **12 / 12 of the plan's cited facts verified exact; nothing stale** |
-| `runs/change-02/output/known-issues.md` | **0 open defects** | 2 attributable items (both resolved and recorded), 4 session limits (B), 4 pre-existing drift items (C), 2 to watch (D) |
+| `runs/change-02/output/known-issues.md` | **0 open defects, 0 open decisions** | §0 **E-1 raised then CLOSED** (the CI audit block, D-12); 2 attributable items (both resolved and recorded), 4 session limits (B), 4 pre-existing drift items (C), 2 to watch (D) |
 
 ## 4. The byte-identity claim — the whole risk of this change
 

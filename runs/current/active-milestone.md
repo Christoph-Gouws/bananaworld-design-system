@@ -3,7 +3,7 @@
 > This is a FILE, not a unit folder. It records what is currently in flight.
 > Updated 2026-08-14.
 
-## Current: CR-DESIGN-SYSTEM-002 — **CLOSED OUT, PR #10 open, BLOCKED on owner decision D-12**
+## Current: CR-DESIGN-SYSTEM-002 — **CLOSED OUT, PR #10 open and GREEN, awaiting merge**
 
 | Field | Value |
 |---|---|
@@ -14,7 +14,8 @@
 | Approved layout | **n/a — not UI-bearing** (D-9: defined by byte-identical rendering) |
 | Ship mode | **on-green** |
 | Build status | **Complete.** `pnpm typecheck` clean · `pnpm test` 115 passed / 9 files · 0 open defects · 34 insertions / **0 deletions** in `src/` |
-| Remaining | 🔴 **Owner decision D-12.** CI's `dependency-audit` refuses PR #10 on two new `nanoid` advisories that arrive via the `next` peer — **unrelated to this change**, which touches no dependency file. Card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-002.md`. Once answered, the fix pushes to the same branch and the conductor merges on green. |
+| CI | **All five PR #10 checks green** on `13d90bb` — Typecheck · Test · Dependency Audit · Semgrep CE · Gitleaks |
+| Remaining | **Nothing in this lane.** Owner decision **D-12 is answered** (2026-08-14): the two `nanoid` advisories that refused PR #10 — unrelated to the header work — were cleared by a `pnpm.overrides` bump to `nanoid@3.3.18`, **not** by a seventh `ignoreGhsas` entry. Applied as `13d90bb`. The conductor merges. |
 
 ## Previous unit
 
