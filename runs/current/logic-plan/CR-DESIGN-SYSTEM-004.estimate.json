@@ -1,0 +1,17 @@
+{
+  "files": 5,
+  "lines": 245,
+  "steps": 3,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Design system adds the paging control; DC, CRM, org-admin and RMS see it only when each bumps its own pin",
+    "Two steps, not one: CR-DC-052 is unblocked only after this merges AND DC bumps its pin",
+    "A server-paged list must not use the shared toolbar's client-side search; the consumer owns that rule",
+    "Consumers must render both bars - top above the list, bottom below; the package cannot enforce it",
+    "Nothing existing is edited: Table, DataTableToolbar and table-controls are untouched",
+    "No database seam: page number and total count are inputs supplied by the consumer"
+  ],
+  "migrationExpected": false
+}

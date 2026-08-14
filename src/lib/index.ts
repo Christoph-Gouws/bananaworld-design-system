@@ -35,3 +35,12 @@ export {
   storedFromFilterValue,
   type StoredFilterReading,
 } from "./table-controls";
+// The paging arithmetic behind `TablePagination` (CR-DESIGN-SYSTEM-004). Exported in its own right
+// because the consumer needs the SAME numbers the bar prints: `offset` is what its query asks the
+// server for, so the window an operator reads and the window that was fetched cannot disagree.
+export {
+  TABLE_PAGE_SIZES,
+  tablePageRange,
+  type TablePageState,
+  type TablePageRange,
+} from "./table-paging";
