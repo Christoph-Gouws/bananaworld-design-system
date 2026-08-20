@@ -1,0 +1,17 @@
+{
+  "files": 2,
+  "lines": 110,
+  "steps": 2,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Package writes the default word; DC, CRM, RMS and org-admin read it only when each bumps its own pin",
+    "CR-CRM-015 unblocks only after this merges AND the CRM bumps its pin - two changes, two lanes",
+    "DC's contract test reads this file's source text; the pinned declaration stays byte-identical",
+    "One DC source-text assertion on the depot slot's render line narrows at DC's adoption - declared, not found later",
+    "No barrel, export or type moves; DocumentHeaderProps gains one optional field and nothing else",
+    "No database seam: this package has no database and the slot's value is already a plain name"
+  ],
+  "migrationExpected": false
+}

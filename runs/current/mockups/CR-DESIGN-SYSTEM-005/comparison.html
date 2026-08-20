@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-005 — A, B and C side by side</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-accent:#fac80a; --color-accent-subtle:#fef3c7;
+    --color-info:#2563eb; --color-info-subtle:#dbeafe; --color-info-fg:#1e3a8a;
+    --color-success:#15803d; --color-success-subtle:#dcfce7; --color-success-fg:#14532d;
+    --color-danger:#b91c1c; --color-danger-subtle:#fee2e2; --color-danger-fg:#7f1d1d;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+    --shadow-xs:0 1px 0 rgba(24,24,27,.04);
+    --shadow-lg:0 10px 15px -3px rgba(24,24,27,.08),0 4px 6px -4px rgba(24,24,27,.05);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1280px;margin:0 auto;padding:40px 28px 110px}
+  h1{font-size:30px;line-height:1.22;letter-spacing:-.015em;margin:0 0 8px}
+  .sub{color:var(--color-fg-muted);margin:0 0 6px;font-size:15px;max-width:88ch}
+  .sub b{color:var(--color-fg);font-weight:600}
+  .tag{display:inline-block;margin:14px 0 30px;padding:3px 10px;border-radius:999px;font-size:12px;
+    font-weight:600;background:var(--color-accent-subtle);color:#7c2d12}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-subtle);
+    margin:40px 0 12px;font-weight:600}
+  .note{color:var(--color-fg-muted);font-size:13px;margin:10px 2px 0;max-width:84ch}
+  .note b{color:var(--color-fg);font-weight:600}
+
+  /* ── the document strip, drawn as the package renders it ────────────── */
+  .hdr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;
+    border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:14px;
+    background:var(--color-surface);box-shadow:var(--shadow-xs)}
+  .hdr.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .slot{min-width:0;display:flex;flex-direction:column;gap:5px}
+  .slabel{font-size:11.5px;font-weight:500;color:var(--color-fg-muted)}
+  .sval{height:34px;display:flex;align-items:center;padding:0 11px;font-size:13.5px;font-weight:500;
+    border:1px solid var(--color-border);border-radius:var(--radius-md);
+    background:var(--color-surface-muted);color:var(--color-fg);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sval.empty{border-style:dashed;font-weight:400;color:var(--color-fg-subtle)}
+  .shint{font-size:11.5px;color:var(--color-fg-subtle)}
+  .gap{border:1px dashed var(--color-border-strong);border-radius:var(--radius-md);
+    display:flex;align-items:center;justify-content:center;color:var(--color-fg-subtle);
+    font-size:10px;letter-spacing:.05em;text-transform:uppercase;min-height:58px;
+    background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(0,0,0,.02) 6px,rgba(0,0,0,.02) 12px)}
+
+  .ring{position:relative;border-radius:var(--radius-md)}
+  .ring::after{content:"";position:absolute;inset:-5px;border:2px solid var(--color-info);
+    border-radius:var(--radius-md);pointer-events:none}
+  .ring.bad::after{border-color:var(--color-danger)}
+  .ring.good::after{border-color:var(--color-success)}
+
+  /* ── the three columns ──────────────────────────────────────────────── */
+  .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+  @media (max-width:1080px){.cols{grid-template-columns:1fr}}
+  .col{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);
+    padding:18px;box-shadow:var(--shadow-xs);display:flex;flex-direction:column;gap:14px}
+  .col.pick{border-color:var(--color-success);box-shadow:var(--shadow-lg)}
+  .colhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .colhead h3{margin:0;font-size:17px;letter-spacing:-.01em}
+  .badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .badge.rec{background:var(--color-success-subtle);color:var(--color-success-fg)}
+  .badge.no{background:var(--color-danger-subtle);color:var(--color-danger-fg)}
+  .badge.alt{background:var(--color-info-subtle);color:var(--color-info-fg)}
+  .lede{margin:0;font-size:13px;color:var(--color-fg-muted)}
+  .frame{border-top:1px solid var(--color-border);padding-top:12px}
+  .fcap{font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--color-fg-subtle);margin:0 0 8px}
+  ul.plain{margin:0;padding-left:17px;color:var(--color-fg-muted);font-size:12.5px}
+  ul.plain li{margin:5px 0}
+  ul.plain b{color:var(--color-fg)}
+  .yes::marker{content:"+  "}
+  .verdictline{margin-top:auto;border-top:1px solid var(--color-border);padding-top:12px;
+    font-size:12.5px;color:var(--color-fg-muted)}
+  .verdictline b{color:var(--color-fg)}
+
+  /* ── the constant row ───────────────────────────────────────────────── */
+  .constant{margin-top:12px;border:1px solid var(--color-border);border-left:3px solid var(--color-accent);
+    border-radius:var(--radius-md);background:var(--color-surface);padding:16px 18px}
+  .constant h3{margin:0 0 8px;font-size:15px}
+
+  table.cmp{width:100%;border-collapse:collapse;margin-top:14px;background:var(--color-surface);
+    border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden;font-size:13px}
+  table.cmp thead{background:var(--color-surface-muted)}
+  table.cmp th{padding:10px 12px;font-size:10.5px;font-weight:600;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--color-fg-muted);border-bottom:1px solid var(--color-border);text-align:left}
+  table.cmp td{padding:10px 12px;border-bottom:1px solid var(--color-border);vertical-align:top;
+    color:var(--color-fg-muted)}
+  table.cmp tr:last-child td{border-bottom:0}
+  table.cmp td:first-child{color:var(--color-fg);font-weight:500;width:26%}
+  .ok{color:var(--color-success-fg);font-weight:600}
+  .nope{color:var(--color-danger-fg);font-weight:600}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>The word over the second box</h1>
+  <p class="sub">Every form in the depot system carries the same strip of four boxes. The second box has
+    <b>“DC”</b> printed over it, and that word is fixed in the shared kit — which is why the customer
+    system’s change has been stuck since 18 August. This change lets <b>each app print its own word</b>
+    over that box, the same way each form already chooses whether the first box says “Date”, “Order
+    date” or “Run date”.</p>
+  <p class="sub">All three options below do that. <b>They differ on one question only:</b> what an app
+    shows when it has nothing at all to put in that box.</p>
+  <span class="tag">Pick A, B or C</span>
+
+  <h2>The depot system, under every option</h2>
+  <div class="constant">
+    <h3>Unchanged. Not one form moves, and no word on it changes.</h3>
+    <div class="hdr" style="margin-top:12px">
+      <div class="slot"><div class="slabel">Order date</div><div class="sval">06 Aug 2026</div></div>
+      <div class="slot ring good"><div class="slabel">DC</div><div class="sval">Nelspruit</div></div>
+      <div class="slot"><div class="slabel">Raised by</div><div class="sval">T. Mahlangu</div></div>
+      <div class="slot"><div class="slabel">Document no.</div><div class="sval">SO-01247</div>
+        <div class="shint">Given automatically</div></div>
+    </div>
+    <p class="note">The depot system asks for no word, so it gets <b>“DC”</b> — identical to today, to the
+      character. This holds under A, B and C alike, so it is not part of the decision.</p>
+  </div>
+
+  <h2>The three options</h2>
+  <div class="cols">
+
+    <!-- ── A ─────────────────────────────────────────────────────────── -->
+    <div class="col pick">
+      <div class="colhead"><h3>A — the box always stays</h3><span class="badge rec">Recommended</span></div>
+      <p class="lede">Four boxes, always. An app with nothing to put there shows the faint dashed
+        “not filled in” look the strip already uses elsewhere.</p>
+
+      <div class="frame">
+        <p class="fcap">Customer system · something to show</p>
+        <div class="hdr two">
+          <div class="slot"><div class="slabel">Quote date</div><div class="sval">18 Aug 2026</div></div>
+          <div class="slot ring"><div class="slabel">Branch</div><div class="sval">Sandton</div></div>
+          <div class="slot"><div class="slabel">Raised by</div><div class="sval">L. Petersen</div></div>
+          <div class="slot"><div class="slabel">Document no.</div><div class="sval">QT-00412</div></div>
+        </div>
+      </div>
+
+      <div class="frame">
+        <p class="fcap">Customer system · nothing to show</p>
+        <div class="hdr two">
+          <div class="slot"><div class="slabel">Quote date</div><div class="sval">18 Aug 2026</div></div>
+          <div class="slot ring"><div class="slabel">Branch</div><div class="sval empty">—</div></div>
+          <div class="slot"><div class="slabel">Raised by</div><div class="sval">L. Petersen</div></div>
+          <div class="slot"><div class="slabel">Document no.</div><div class="sval empty">—</div>
+            <div class="shint">Not numbered yet</div></div>
+        </div>
+      </div>
+
+      <ul class="plain">
+        <li><b>Nothing moves.</b> The document number keeps the top-right corner.</li>
+        <li><b>Nothing new is drawn.</b> The faint dash already exists and is already tested.</li>
+        <li><b>Smallest possible change</b> — one setting, copying the pattern the date box already has.</li>
+      </ul>
+      <div class="verdictline"><b>The honest cost:</b> an app with genuinely nothing there ships a
+        permanently faint box. Stated up front, not left to be discovered.</div>
+    </div>
+
+    <!-- ── B ─────────────────────────────────────────────────────────── -->
+    <div class="col">
+      <div class="colhead"><h3>B — the box may be dropped</h3><span class="badge no">Not recommended</span></div>
+      <p class="lede">An app with nothing for that box leaves it out entirely, and the strip draws three
+        boxes instead of four.</p>
+
+      <div class="frame">
+        <p class="fcap">Customer system · wide screen</p>
+        <div class="hdr two">
+          <div class="slot"><div class="slabel">Quote date</div><div class="sval">18 Aug 2026</div></div>
+          <div class="slot"><div class="slabel">Raised by</div><div class="sval">L. Petersen</div></div>
+          <div class="slot ring bad"><div class="slabel">Document no.</div><div class="sval">QT-00412</div></div>
+          <div class="gap">empty</div>
+        </div>
+        <p class="note" style="font-size:12.5px">The three boxes shuffle left and the number sits third of
+          four, with a hole beside it.</p>
+      </div>
+
+      <div class="frame">
+        <p class="fcap">Customer system · narrow screen</p>
+        <div class="hdr two" style="max-width:340px">
+          <div class="slot"><div class="slabel">Quote date</div><div class="sval">18 Aug 2026</div></div>
+          <div class="slot"><div class="slabel">Raised by</div><div class="sval">L. Petersen</div></div>
+          <div class="slot ring bad"><div class="slabel">Document no.</div><div class="sval">QT-00412</div></div>
+          <div class="gap">empty</div>
+        </div>
+      </div>
+
+      <ul class="plain">
+        <li><b>Breaks a ruling you already made</b> — the document number top right (8 August).</li>
+        <li><b>Worse when narrow:</b> the number lands bottom <i>left</i>.</li>
+        <li><b>Cannot be fixed without re-laying-out the strip</b>, which this change was asked not to
+          touch.</li>
+        <li><b>Nobody has asked for it</b> — the stuck change needs a word, not a hole.</li>
+      </ul>
+      <div class="verdictline">Buildable, and the depot system would still be untouched. But I would want
+        the layout question settled first, and I would come back before building it.</div>
+    </div>
+
+    <!-- ── C ─────────────────────────────────────────────────────────── -->
+    <div class="col">
+      <div class="colhead"><h3>C — the box stays, and is explained</h3><span class="badge alt">Available</span></div>
+      <p class="lede">Everything in A, plus a short line the app may put under the box — for example
+        “Not applicable”.</p>
+
+      <div class="frame">
+        <p class="fcap">Customer system · something to show</p>
+        <div class="hdr two">
+          <div class="slot"><div class="slabel">Quote date</div><div class="sval">18 Aug 2026</div></div>
+          <div class="slot ring"><div class="slabel">Branch</div><div class="sval">Sandton</div></div>
+          <div class="slot"><div class="slabel">Raised by</div><div class="sval">L. Petersen</div></div>
+          <div class="slot"><div class="slabel">Document no.</div><div class="sval">QT-00412</div></div>
+        </div>
+      </div>
+
+      <div class="frame">
+        <p class="fcap">Customer system · nothing to show</p>
+        <div class="hdr two">
+          <div class="slot"><div class="slabel">Quote date</div><div class="sval">18 Aug 2026</div></div>
+          <div class="slot ring"><div class="slabel">Branch</div><div class="sval empty">—</div>
+            <div class="shint">Not applicable</div></div>
+          <div class="slot"><div class="slabel">Raised by</div><div class="sval">L. Petersen</div></div>
+          <div class="slot"><div class="slabel">Document no.</div><div class="sval empty">—</div>
+            <div class="shint">Not numbered yet</div></div>
+        </div>
+      </div>
+
+      <ul class="plain">
+        <li><b>Nothing moves</b> — same four boxes, same corners, as A.</li>
+        <li><b>The dash is explained</b> instead of reading like an oversight.</li>
+        <li><b>The line already exists</b> under the document number box; it is simply made available to a
+          second box.</li>
+        <li><b>Against it:</b> nobody has asked for it, and adding a setting in case it is wanted later is
+          the habit this strip has twice refused before.</li>
+      </ul>
+      <div class="verdictline">Pick this if you already know the customer system wants to explain the
+        blank. About ten minutes more than A, and just as safe.</div>
+    </div>
+
+  </div>
+
+  <h2>The same three, in one line each</h2>
+  <table class="cmp">
+    <thead>
+      <tr><th>&nbsp;</th><th>A — box always stays</th><th>B — box may be dropped</th><th>C — stays, explained</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Each app prints its own word</td>
+        <td class="ok">Yes</td><td class="ok">Yes</td><td class="ok">Yes</td>
+      </tr>
+      <tr>
+        <td>Depot system changes</td>
+        <td class="ok">Nothing at all</td><td class="ok">Nothing at all</td><td class="ok">Nothing at all</td>
+      </tr>
+      <tr>
+        <td>Document number stays top right</td>
+        <td class="ok">Yes</td><td class="nope">No</td><td class="ok">Yes</td>
+      </tr>
+      <tr>
+        <td>Empty box reads as…</td>
+        <td>a faint dash — the look the strip already uses</td>
+        <td>the box is gone</td>
+        <td>a faint dash with a short line under it</td>
+      </tr>
+      <tr>
+        <td>Needs the strip re-laid-out</td>
+        <td class="ok">No</td><td class="nope">Yes — outside this change</td><td class="ok">No</td>
+      </tr>
+      <tr>
+        <td>Someone has asked for it</td>
+        <td class="ok">Yes — the stuck change</td><td class="nope">No</td><td class="nope">Not yet</td>
+      </tr>
+      <tr>
+        <td>Size of the work</td>
+        <td>Smallest</td><td>Largest, and needs a further decision first</td><td>Smallest plus about ten minutes</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="constant" style="margin-top:26px">
+    <h3>One thing worth knowing whichever you pick</h3>
+    <p class="note" style="margin-top:0">There is a safety check inside the depot system that reads the
+      exact wording of the shared file, character for character. All three options leave that wording
+      alone on purpose, so nothing breaks today and nothing breaks when the depot system next moves
+      across — with one exception: a single line in that check will need updating at that point. It is
+      written down now so it is not a surprise in six weeks’ time.</p>
+  </div>
+
+</div>
+</body>
+</html>
