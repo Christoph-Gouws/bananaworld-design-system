@@ -5,6 +5,96 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-005 — the depot slot's label is chosen by the app wearing the header
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **ACCEPTED** — plan approved at the plan gate, built on branch `change/cr-design-system-005`. All decisions closed; **0 open** |
+| Date | 2026-08-20 |
+| Branch point | `origin/main` @ `0633476` |
+| Approved layout | **A** — the slot is always present; an app with nothing for it shows the faint dash the strip already uses. Omission is not offered |
+| Ship mode | **on-green** |
+| Archive | `runs/change-05/` |
+
+### What was asked
+
+The shared document header is wearable by a second app in every respect except the one word printed on
+it. The second of its four slots hard-codes the label `"DC"`, and **CR-CRM-015 had been BLOCKED since
+2026-08-18** — the only blocked change left in the estate — because the CRM has no depot on a document.
+
+The request was explicit on four points. **Follow the `dateLabel` precedent** already in the same file
+— one optional prop, defaulted at the point of use — unless there is a reason it must differ.
+**Decide explicitly what an app does when it has nothing for that slot**, and if omission is not
+offered, say why, because "a four-slot header whose fourth slot is permanently blank is a defensible
+answer, but it must be a stated one and not a thing the CRM discovers." **It is additive or it is
+wrong.** And it named the trap: **Bananaworld-DC asserts against this file's SOURCE TEXT**, not its
+behaviour, so an edit here is a delayed-action failure that fires at DC's next pin bump.
+
+### What was decided at the plan gate
+
+The plan offered three answers to the omission question as rendered mockups. The owner answered once:
+**layout A, "just go for the logical fix", ship on-green.**
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-1 | **One optional prop, `dcLabel?: string`, defaulted at the point of use with `props.dcLabel ?? "DC"`.** | The `dateLabel` precedent, applied unchanged, exactly as the request instructed. No discriminant, no config object, no ceremony. A caller that passes nothing renders `"DC"` and is byte-identical to today, which is the whole additive claim. No reason to differ from the precedent was found, so none was invented. |
+| D-2 | **`??`, never `\|\|`.** | `dateLabel=""` renders an empty label today. With `\|\|` the new prop would silently fall back to `"DC"` for the same input, and the two label props would behave differently. Special-casing one of them is a divergence from the precedent this change was told to follow. Pinned by a spec, and proved by mutation M-1. |
+| D-3 | 🔴 **`DOCUMENT_HEADER_SLOTS` is not changed by one character, and the override sits BESIDE it as presentation.** | **The array is IDENTITY and ORDER; the prop is PRESENTATION.** The array says which slot; the prop says what this app calls it. Bananaworld-DC's `tests/contract/transaction-form-standard.test.ts` asserts the byte-exact declaration and `const slots = DOCUMENT_HEADER_SLOTS;` against this file's source. Both are held; `slots.map(` is unchanged. Nothing here can turn DC red at its next bump. |
+| D-4 | 🔴 **LAYOUT A — the slot is ALWAYS present. Omission is NOT offered.** An app with nothing for it passes `dcName: null` and gets the empty state the slot already has. | **The owner's choice**, made at the plan gate from three rendered mockups (A: the existing faint dash; B: the app may drop the box; C: the box stays with an explanatory line). Three reasons, in weight order: (1) 🔴 dropping the slot leaves three children in a `lg:grid-cols-4` strip, putting the document number in column 3 on a wide screen and bottom-**left** on a narrow one — against the owner instruction of 2026-08-08 — so honest omission means restyling the header, which this change was explicitly forbidden to do; (2) the file defines "homogeneous" as *these four slots, in this order, on every desk form*, and a per-app slot count makes the standard a suggestion; (3) no caller asked — CR-CRM-015 needs a word, not a hole. |
+| D-5 | **The omission decision is STATED where the CRM will read it, and pinned by a test that fails if it silently changes.** | The request's own requirement. Written on the `dcLabel` prop itself, in `developer-handover.md` §1, and asserted by the spec *"renders FOUR slots always"* across four prop combinations — proved to bite by mutation M-3. |
+| D-6 | **Option C — a `dcHint?: string` mirroring `dateHint` — was NOT built.** | Cheap, fully additive, and it would let an app explain a blank box. Refused on **one ground only: no caller has asked.** This component has twice already refused configurability built ahead of a decision nobody has taken (D-3, D-13 of earlier changes). Recorded with a named trigger as `technical-debt.md` TD-2 so it is found rather than re-derived. |
+| D-7 | 🔴 **The one existing assertion this change edits is NARROWED, never relaxed — and it was declared at the plan gate, not discovered in the build.** | This repo's own spec *"reads NO session"* scanned this file's source for the concatenated `label="DC" value={props.origin.dcName}`; the label half necessarily moved. It now scans for `value={props.origin.dcName}` — the half that carries the session claim, which is the spec's actual subject — **plus** `label={props.dcLabel ?? "DC"}`, pinning the new default. The file therefore asserts strictly **more** afterwards. The change request did not know this assertion existed; the plan found it (F-9) and put it on the card. |
+| D-8 | **A NEW guard is added in return: `DOCUMENT_HEADER_SLOTS` may never gain a second home.** | The request asked that the cross-repo negative be pinned in this repo so a future change here cannot break DC silently. The existing byte-exact source scan is re-fenced with a comment **naming DC's contract test by file** as the reason it exists, and a new spec asserts exactly one array literal of slot names, four entries, `"DC"` second, and that the render still walks the constant. Both proved by mutation M-4 — the edit that would keep every DOM spec green and still break DC weeks later. |
+| D-9 | **`dateLabel` is neither removed nor folded into a shape with `dcLabel`.** | Two independent optional props. Folding them would be a breaking reshape of a published interface in a package four apps pin by sha. Asserted: the two do not interact. |
+| D-10 | **The "Raised by" slot's label was NOT made overridable.** | Out of scope by the request's own wording; no caller asked. One optional prop away if a second app ever needs it. `technical-debt.md` TD-1. |
+| D-11 | **No consumer pin is bumped and no consumer file is edited.** | Consumers move their own pins, in their own changes, against the **merged** sha on `main` — never a branch sha (KI-M001E19-002). **This change does not unblock CR-CRM-015 by itself**: two changes, two lanes, in that order. |
+| D-12 | **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` is NOT created here.** | It still does not exist and there is no `governance/` directory. **Fifth consecutive change to raise it** (CR-001 D-12, CR-002 D-10, CR-003, CR-004, and here). Creating it is a governance decision for the owner, not something a change may invent. The six seams are recorded in `centrality-scorecard.md` §2 and `developer-handover.md`. |
+
+### Clarify questions and answers
+
+The owner responses recorded for this change were:
+
+- **`[plan]` — plan APPROVED (layout A) — ship on-green.**
+
+That single response settled the change's one decide-point: **open question OQ-1, the omission
+decision** — A (the slot always present, using the existing empty state), B (an app may drop the slot),
+or C (the slot stays and may carry an explanatory hint). The plan's stated default had the owner not
+picked was **A**, and the plan recommended A; the owner confirmed A with "just go for the logical fix".
+See D-4, and D-6 for why C was not built alongside it.
+
+The plan's three non-blocking open questions were not separately answered and are carried forward:
+**OQ-2** (whether DC's contract mirror pins the full concatenated substring — **not answerable from a
+build worktree**) as D-7's caveat and `developer-handover.md` §2; **OQ-3** (the cross-system register)
+as D-12; **OQ-4** (the "Raised by" label) as D-10.
+
+**No further clarification was requested and none was needed** — no new decision arose during the
+build that the approved plan had not already answered, so no `NEEDS_OWNER: decision` gate was hit.
+
+### The rule this change adds
+
+Recorded because Stage 07 requires an amendment when a change alters a rule or contract, and this one
+does — twice, both for this component:
+
+1. **The depot slot's LABEL belongs to the wearing app; its IDENTITY and ORDER belong to the package,
+   expressed once in `DOCUMENT_HEADER_SLOTS`.** The array and the override sit beside each other and
+   are never nested.
+2. **The header always renders four slots. Omission is not offered.** An app with nothing for a slot
+   uses the existing empty state.
+
+Both are fenced in the source on the `dcLabel` prop — where a build session actually reads — and both
+are pinned by specs that fail if either half is broken.
+
+### Outcome
+
+Built as approved. `pnpm typecheck` clean; `pnpm test` **246 passed / 13 files** (baseline **235 / 13**
+before any edit, so +11 new specs). `git diff --numstat -- src/` = **+30 / −1**, the single deleted
+line itemised (a one-line `return` replaced by its braced form); **all three barrels byte-identical**.
+**1** existing assertion narrowed, per D-7. Four deliberate mutations run and all four caught. 0 open
+defects, 0 open decisions. Full evidence in `runs/change-05/`.
+
+---
+
 ## CR-DESIGN-SYSTEM-004 — a shared paging control for long lists
 
 | Field | Value |

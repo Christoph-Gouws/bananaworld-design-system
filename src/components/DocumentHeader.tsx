@@ -226,6 +226,30 @@ export interface DocumentHeaderProps {
    */
   readonly documentPdf?: ReactNode;
   /**
+   * Defaults to "DC". The word printed over the SECOND slot, and nothing more. CR-CRM-015 passes its
+   * own word; Bananaworld-DC passes nothing and gets "DC".
+   *
+   * 🔴 IT NAMES THE SLOT; IT DOES NOT MOVE IT, AND IT IS NOT AN IDENTITY. `DOCUMENT_HEADER_SLOTS`
+   *    remains the ONE expression of which slots exist and in what order — "DC" is this slot's
+   *    canonical NAME there and stays exactly as it reads, character for character, because
+   *    Bananaworld-DC's `tests/contract/transaction-form-standard.test.ts` scans this file's SOURCE for
+   *    that declaration. This prop is presentation sitting BESIDE the array: the array says WHICH slot,
+   *    this says what THIS APP calls it. 🔴 NEVER MOVE THE OVERRIDE INTO THE ARRAY.
+   *
+   * ⚠ SAME SHAPE AS `dateLabel`, DELIBERATELY — one optional prop defaulted at the point of use, no
+   *   discriminant, no second slot list. It is the VALUE half's argument applied to the LABEL: both
+   *   `DocumentOrigin` arms carry a plain `string | null` NAME with no tenancy identifier, so "the
+   *   component is never told what the depot IS, only what it is CALLED" (above) was already true of
+   *   what the slot SHOWS. The word printed over it was the one thing left hard-coded.
+   *
+   * 🔴 THE SLOT IS ALWAYS PRESENT — OMISSION IS NOT OFFERED (CR-DESIGN-SYSTEM-005, layout A). An app
+   *    with nothing for this slot passes `dcName: null` and gets the empty state the slot already has:
+   *    a dashed, dimmed em dash reading "not filled in". Dropping the slot would put Document no. in
+   *    column 3 of a `lg:grid-cols-4` strip, and "the document number top right" is the owner
+   *    instruction of 2026-08-08. Pinned by a spec that fails the day a hole appears.
+   */
+  readonly dcLabel?: string;
+  /**
    * 🔴 CR-DC-039 — REQUIRED. Whose DC and whose name the middle two slots show. See `DocumentOrigin`.
    *
    * Hand it `useDocumentOrigin(...)` — DC's one hook that reads the session, and only on the "no
@@ -288,7 +312,12 @@ export function DocumentHeader(props: DocumentHeaderProps): ReactElement {
         // 🔴 CR-DC-039 — BOTH MIDDLE SLOTS COME FROM THE DOCUMENT, NEVER FROM THE SESSION. `null` is
         //    the empty state the slot already has ("nothing filled in"), which is what a row with no
         //    recorded author gets. It is NOT filled in from the viewer.
-        if (slot === "DC") return <HeaderSlot key={slot} label="DC" value={props.origin.dcName} />;
+        // ⚠ AND THE WORD OVER IT IS THE WEARING APP'S (CR-DESIGN-SYSTEM-005). `??`, not `||` —
+        //   identical to `dateLabel` above, so a caller passing "" gets the same thing from both props
+        //   and the two cannot drift. The slot itself is not optional: see `dcLabel`.
+        if (slot === "DC") {
+          return <HeaderSlot key={slot} label={props.dcLabel ?? "DC"} value={props.origin.dcName} />;
+        }
         if (slot === "Raised by") {
           return <HeaderSlot key={slot} label="Raised by" value={props.origin.raisedBy} />;
         }

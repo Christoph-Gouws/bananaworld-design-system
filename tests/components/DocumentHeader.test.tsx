@@ -216,6 +216,188 @@ describe("<DocumentHeader> — whose facts the middle two slots show", () => {
 });
 
 // ---------------------------------------------------------------------------
+// 🔴 CR-DESIGN-SYSTEM-005 — THE DEPOT SLOT'S LABEL IS THE WEARING APP'S WORD
+// ---------------------------------------------------------------------------
+//
+// `DocumentOrigin` already made the slot's VALUE app-neutral: both arms carry a plain `string | null`
+// NAME, no `warehouse_id`, no tenancy identifier — "the component is never told what the depot IS, only
+// what it is CALLED". The word PRINTED over it was the one thing still hard-coded to "DC", and that is
+// why CR-CRM-015 could not build: the CRM has no depot on a document.
+//
+// The fix is the `dateLabel` precedent, applied unchanged: one optional prop, defaulted at the point of
+// use. 🔴 THE FIRST SPEC BELOW IS THE ADDITIVE CLAIM ITSELF — with the prop absent, every existing
+// caller renders the same four words in the same order it renders today.
+describe("<DocumentHeader> — the depot slot's label (CR-DESIGN-SYSTEM-005)", () => {
+  // T-1
+  it("prints 'DC' when no label is given — every existing caller is byte-identical", () => {
+    // 🔴 THE ADDITIVE PROOF, AS A SPEC. Bananaworld-DC's thirteen live render sites across twelve forms
+    //    pass no `dcLabel`; `props.dcLabel` is `undefined`; `?? "DC"` yields the identical string and
+    //    `HeaderSlot` receives the identical props. This is the assertion that would go red the day
+    //    somebody changed the default — which the lane rule forbids outright.
+    render(
+      <DocumentHeader
+        origin={SOMEBODY_ELSES}
+        dateValue="06 Aug 2026"
+        documentNumber={{ kind: "absent" }}
+      />,
+    );
+    expect(slotLabels()).toEqual([...DOCUMENT_HEADER_SLOTS]);
+    expect(slotValue("DC")).toBe("Nelspruit");
+  });
+
+  // T-2
+  it("prints the app's own word when one is given, and leaves the other three alone", () => {
+    render(
+      <DocumentHeader
+        origin={SOMEBODY_ELSES}
+        dcLabel="Branch"
+        dateValue="06 Aug 2026"
+        documentNumber={{ kind: "absent" }}
+      />,
+    );
+    expect(slotLabels()).toEqual(["Date", "Branch", "Raised by", "Document no."]);
+    expect(slotValue("Branch")).toBe("Nelspruit");
+    // The word changed; the slot's CONTENT still comes from the document, exactly as before.
+    expect(screen.queryByText(VIEWER_NAME)).toBeNull();
+  });
+
+  // T-3 — the same property `dateLabel` already has a spec for, at the top of this file.
+  it("keeps the slot SECOND even when the app gives it its own name", () => {
+    // Naming a slot must not move it. "Date top left" is owner ruling Q12 and "document number top
+    // right" is the instruction of 2026-08-08; both are POSITIONS, and a label is not a position.
+    render(
+      <DocumentHeader
+        origin={SOMEBODY_ELSES}
+        dcLabel="Branch"
+        dateValue="06 Aug 2026"
+        documentNumber={{ kind: "absent" }}
+      />,
+    );
+    expect(slotLabels()[0]).toBe("Date");
+    expect(slotLabels()[1]).toBe("Branch");
+    expect(slotLabels()[3]).toBe("Document no.");
+  });
+
+  // T-4
+  it("shows the unchanged empty state under the DEFAULT label when the name is null", () => {
+    render(
+      <DocumentHeader
+        origin={{ kind: "existing", dcName: null, raisedBy: "T. Mahlangu" }}
+        dateValue="06 Aug 2026"
+        documentNumber={{ kind: "absent" }}
+      />,
+    );
+    expect(slotValue("DC")).toBe("—");
+    const empty = [...document.querySelectorAll("dt")].find((el) => el.textContent === "DC")
+      ?.nextElementSibling;
+    expect(empty?.className).toContain("border-dashed");
+  });
+
+  // T-5 — 🔴 THIS IS THE OMISSION ANSWER, ASSERTED.
+  it("shows the SAME empty state under an OVERRIDDEN label — the answer for an app with nothing", () => {
+    // 🔴 LAYOUT A. An app whose equivalent concept does not exist on a document passes `dcName: null`
+    //    and gets the dash the strip already uses for anything not filled in. It does not get a hole,
+    //    and it does not get a new wording: option B's dropped slot and option C's explanatory line
+    //    were the two the owner did NOT pick, and asserting their absence is what keeps the pick from
+    //    drifting into whatever the next app assumes.
+    render(
+      <DocumentHeader
+        origin={{ kind: "existing", dcName: null, raisedBy: "T. Mahlangu" }}
+        dcLabel="Branch"
+        dateValue="06 Aug 2026"
+        documentNumber={{ kind: "absent" }}
+      />,
+    );
+    expect(slotValue("Branch")).toBe("—");
+    const empty = [...document.querySelectorAll("dt")].find((el) => el.textContent === "Branch")
+      ?.nextElementSibling;
+    expect(empty?.className).toContain("border-dashed");
+    expect(empty?.className).toContain("text-fg-subtle");
+    expect(screen.queryByText("Not applicable")).toBeNull();
+  });
+
+  // T-6 — 🔴 THE OMISSION DECISION, PINNED. It fails the day somebody adds a hole.
+  it("renders FOUR slots always — labelled or not, filled or empty", () => {
+    // 🔴 OMISSION IS NOT OFFERED, AND THIS IS THE SPEC THAT SAYS SO OUT LOUD. Dropping the slot would
+    //    leave three children in a `lg:grid-cols-4` strip, putting Document no. in column 3 on a wide
+    //    screen and bottom-LEFT on a narrow one (`sm:grid-cols-2` wraps) — against the owner
+    //    instruction of 2026-08-08. Making omission honest would mean restyling the header, which this
+    //    change was explicitly forbidden to do. A CRM with nothing for the slot uses T-5's empty state.
+    const cases: readonly { readonly dcLabel?: string; readonly dcName: string | null }[] = [
+      { dcName: "Nelspruit" },
+      { dcName: null },
+      { dcLabel: "Branch", dcName: "Nelspruit" },
+      { dcLabel: "Branch", dcName: null },
+    ];
+    for (const c of cases) {
+      render(
+        <DocumentHeader
+          origin={{ kind: "existing", dcName: c.dcName, raisedBy: null }}
+          dcLabel={c.dcLabel}
+          dateValue="06 Aug 2026"
+          documentNumber={{ kind: "absent" }}
+        />,
+      );
+      expect(slotLabels().length).toBe(4);
+      expect(document.querySelectorAll("dl > div").length).toBe(4);
+      cleanup();
+    }
+  });
+
+  // T-7
+  it("is independent of `dateLabel` — both words land, both slots stay put", () => {
+    render(
+      <DocumentHeader
+        origin={SOMEBODY_ELSES}
+        dateLabel="Order date"
+        dcLabel="Branch"
+        dateValue="06 Aug 2026"
+        documentNumber={{ kind: "absent" }}
+      />,
+    );
+    expect(slotLabels()).toEqual(["Order date", "Branch", "Raised by", "Document no."]);
+  });
+
+  // T-8
+  it("cannot impersonate another slot: `dcLabel=\"Date\"` does not make it the date slot", () => {
+    // A label is a word, not an identity. `DOCUMENT_HEADER_SLOTS` decides which slot is which, and the
+    // render keys off the ARRAY entry — never off the printed text.
+    render(
+      <DocumentHeader
+        origin={SOMEBODY_ELSES}
+        dcLabel="Date"
+        dateValue="06 Aug 2026"
+        documentNumber={{ kind: "absent" }}
+      />,
+    );
+    const labels = slotLabels();
+    expect(labels).toEqual(["Date", "Date", "Raised by", "Document no."]);
+    // The FIRST is the real date slot and the SECOND is the depot slot, by position and by content.
+    const dts = [...document.querySelectorAll("dt")];
+    expect(dts[0]?.nextElementSibling?.textContent).toBe("06 Aug 2026");
+    expect(dts[1]?.nextElementSibling?.textContent).toBe("Nelspruit");
+  });
+
+  // T-9 — `??`, not `||`. The two label props must not drift apart.
+  it("treats an empty string exactly as `dateLabel` does — `??`, never `||`", () => {
+    // 🔴 THE PRECEDENT IS THE POINT. `dateLabel=""` renders an empty label today; if `dcLabel` used
+    //    `||` it would silently fall back to "DC" instead, and the two props would behave differently
+    //    for the same input. Special-casing one of them would be a divergence from the precedent this
+    //    change was told to follow. Neither is a case any caller has; it is pinned so it stays true.
+    render(
+      <DocumentHeader
+        origin={SOMEBODY_ELSES}
+        dateLabel=""
+        dcLabel=""
+        dateValue="06 Aug 2026"
+        documentNumber={{ kind: "absent" }}
+      />,
+    );
+    expect(slotLabels()).toEqual(["", "", "Raised by", "Document no."]);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // The Document no. slot — the five visible states of the approved option-c mockup
 // ---------------------------------------------------------------------------
 //
@@ -460,9 +642,25 @@ describe("the package builds standalone — no app import is reachable from this
   it("reads NO session — the middle two slots come from the origin prop", () => {
     // Mirrors DC's `transaction-form-standard.test.ts:883`, which asserted exactly this before the
     // move. A component that read a session was never eligible to be here at all.
+    //
+    // 🔴 CR-DESIGN-SYSTEM-005 — THIS IS THE ONE EXISTING ASSERTION THAT CHANGE EDITED, AND IT WAS
+    //    NARROWED, NEVER RELAXED. It used to scan for the concatenated `label="DC"
+    //    value={props.origin.dcName}`; the depot slot's label became overridable, so the label half of
+    //    that substring moved. The VALUE half is what this spec is actually about — its title is "reads
+    //    NO session", and the session guard is the claim that the slot's CONTENT comes from `origin`
+    //    and not from a `useAuth()`. That half is kept verbatim. The new default is then pinned
+    //    separately, so the property is strictly BETTER covered afterwards: the value still comes from
+    //    the document, and the word over it still falls back to "DC".
+    //
+    // ⚠ BANANAWORLD-DC MAY HOLD THE SAME MIRROR AND IT WAS NOT READ. Consumer repos are not readable
+    //   from this worktree and none was opened. If DC's mirror pins the full concatenated string, DC
+    //   makes this identical one-line narrowing when it bumps its pin — a line it already has to visit
+    //   (`runs/change-02/evidence/developer-handover.md` §3). Nothing here is red today: DC pins an
+    //   older sha, so nothing in this file reaches DC until DC chooses to move.
     const code = stripComments(COMPONENT_SOURCE);
     expect(code).not.toContain("useAuth");
-    expect(code).toContain('label="DC" value={props.origin.dcName}');
+    expect(code).toContain("value={props.origin.dcName}");
+    expect(code).toContain('label={props.dcLabel ?? "DC"}');
     expect(code).toContain('label="Raised by" value={props.origin.raisedBy}');
   });
 
@@ -471,6 +669,16 @@ describe("the package builds standalone — no app import is reachable from this
     // could drift from the markup, and the DOM spec at the top of this file could not say what the
     // standard IS. 🔴 The scan is on comment-stripped source, because a claim satisfied by a comment
     // is the recorded trap that let a half-applied migration redden nothing.
+    //
+    // 🔴 CR-DESIGN-SYSTEM-005 — THIS IS THE CROSS-REPO NEGATIVE, AND HERE IS WHO IT IS FOR BY NAME.
+    //    Bananaworld-DC's `tests/contract/transaction-form-standard.test.ts` asserts against THIS
+    //    FILE'S OWN SOURCE, not its behaviour: it builds the same `quoted` string and asserts the
+    //    declaration below character for character, and it asserts `const slots =
+    //    DOCUMENT_HEADER_SLOTS;`. DC pins an older sha, so a change here cannot turn DC red TODAY — it
+    //    hands DC a delayed-action failure that fires at DC's next pin bump, weeks later, with nobody
+    //    left to connect it back to this lane. That is exactly the shape of defect this spec exists to
+    //    make impossible from inside this repo. 🔴 IF YOU NEED THIS ASSERTION TO CHANGE, THAT IS A
+    //    CROSS-REPO DECISION FOR THE OWNER AND A LINE IN DC'S LANE — NOT AN EDIT HERE.
     const quoted = ["Date", "DC", "Raised by", "Document no."].map((s) => `"${s}"`).join(", ");
     expect(COMPONENT_SOURCE).toContain(
       `export const DOCUMENT_HEADER_SLOTS = [${quoted}] as const;`,
@@ -478,6 +686,27 @@ describe("the package builds standalone — no app import is reachable from this
     const code = stripComments(COMPONENT_SOURCE);
     expect(code).toContain("const slots = DOCUMENT_HEADER_SLOTS;");
     expect(code).toContain("slots.map(");
+  });
+
+  // 🔴 CR-DESIGN-SYSTEM-005 — "THE LABEL BECAME OVERRIDABLE" MUST NEVER BECOME "THE ARRAY BECAME
+  //    EDITABLE". `dcLabel` is presentation sitting beside the array; the array is identity and order.
+  //    A future change that "tidied" the two together — by templating the slot names, or by deriving
+  //    them from props — would satisfy every DOM spec in this file and still break DC's source scan.
+  it("keeps ORDER in exactly one place — `dcLabel` never becomes a second slot list", () => {
+    const code = stripComments(COMPONENT_SOURCE);
+
+    // Exactly ONE array literal of slot names exists in the source, and it is the exported constant.
+    const slotArrayLiterals = code.match(/\[\s*"Date"\s*,/g) ?? [];
+    expect(slotArrayLiterals.length).toBe(1);
+
+    // Four entries, "DC" second, still literal strings — not interpolated, not prop-derived.
+    expect([...DOCUMENT_HEADER_SLOTS].length).toBe(4);
+    expect(DOCUMENT_HEADER_SLOTS[1]).toBe("DC");
+    expect(code).not.toContain("DOCUMENT_HEADER_SLOTS = [`");
+    expect(code).not.toContain("dcLabel]");
+
+    // And the render still walks the constant rather than a locally rebuilt list.
+    expect(code).not.toContain("slots = [");
   });
 });
 
@@ -502,6 +731,32 @@ describe("the barrel re-export — the line between 'no import changed' and four
     );
     expect(slotLabels()).toEqual([...DOCUMENT_HEADER_SLOTS]);
     expect(screen.getByText("SO-01247")).toBeTruthy();
+  });
+
+  // 🔴 CR-DESIGN-SYSTEM-005 — THE EXPORT SURFACE DID NOT MOVE. Four apps pin this package by git sha
+  //    and each bumps when IT chooses, so the lane rule is additive-only: a new optional FIELD on an
+  //    existing interface is invisible to every caller that does not pass it, but a new, moved or
+  //    renamed EXPORT is a coordinated migration. This change added a prop, not a symbol.
+  it("re-exports the same eight header symbols, and not one more", () => {
+    const barrel = readFileSync(resolve(process.cwd(), "src/components/index.ts"), "utf8");
+    const block = /export \{([^}]*)\} from "\.\/DocumentHeader";/.exec(barrel);
+    expect(block).not.toBeNull();
+    const exported = (block?.[1] ?? "")
+      .split(",")
+      .map((name) => name.trim().replace(/^type\s+/, ""))
+      .filter((name) => name.length > 0);
+    expect(exported.sort()).toEqual(
+      [
+        "DOCUMENT_HEADER_SLOTS",
+        "DOCUMENT_NUMBER_WHERE_TO_SET",
+        "DocumentDateSlotState",
+        "DocumentHeader",
+        "DocumentHeaderProps",
+        "DocumentHeaderSlot",
+        "DocumentNumberSlotState",
+        "DocumentOrigin",
+      ].sort(),
+    );
   });
 
   it("exports the day-line describer from the package root too", async () => {

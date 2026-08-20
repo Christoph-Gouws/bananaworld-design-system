@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-005 — Option B · an app may leave the box out</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-accent:#fac80a; --color-accent-subtle:#fef3c7;
+    --color-info:#2563eb; --color-info-subtle:#dbeafe; --color-info-fg:#1e3a8a;
+    --color-danger:#b91c1c; --color-danger-subtle:#fee2e2; --color-danger-fg:#7f1d1d;
+    --color-warning:#b45309; --color-warning-subtle:#fef3c7;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+    --shadow-xs:0 1px 0 rgba(24,24,27,.04);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1000px;margin:0 auto;padding:40px 32px 96px}
+  h1{font-size:28px;line-height:1.25;letter-spacing:-.015em;margin:0 0 6px}
+  .sub{color:var(--color-fg-muted);margin:0 0 16px;font-size:15px}
+  .tag{display:inline-block;margin-bottom:26px;padding:3px 10px;border-radius:999px;font-size:12px;
+    font-weight:600;background:var(--color-danger-subtle);color:var(--color-danger-fg)}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-subtle);
+    margin:34px 0 10px;font-weight:600}
+  .note{color:var(--color-fg-muted);font-size:13px;margin:10px 2px 0;max-width:78ch}
+  .note b{color:var(--color-fg);font-weight:600}
+
+  .hdr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;
+    border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:16px;
+    background:var(--color-surface);box-shadow:var(--shadow-xs)}
+  .hdr.narrow{grid-template-columns:repeat(2,minmax(0,1fr));max-width:520px}
+  .slot{min-width:0;display:flex;flex-direction:column;gap:6px}
+  .slabel{font-size:12px;font-weight:500;color:var(--color-fg-muted)}
+  .sval{height:36px;display:flex;align-items:center;padding:0 12px;font-size:14px;font-weight:500;
+    border:1px solid var(--color-border);border-radius:var(--radius-md);
+    background:var(--color-surface-muted);color:var(--color-fg);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sval.empty{border-style:dashed;font-weight:400;color:var(--color-fg-subtle)}
+  .shint{font-size:12px;color:var(--color-fg-subtle)}
+  .gap{border:1px dashed var(--color-border-strong);border-radius:var(--radius-md);
+    display:flex;align-items:center;justify-content:center;color:var(--color-fg-subtle);
+    font-size:11px;letter-spacing:.04em;text-transform:uppercase;min-height:62px;
+    background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(0,0,0,.02) 6px,rgba(0,0,0,.02) 12px)}
+
+  .ring{position:relative;border-radius:var(--radius-md)}
+  .ring::after{content:"";position:absolute;inset:-6px;border:2px solid var(--color-danger);
+    border-radius:var(--radius-md);pointer-events:none}
+  .caption{display:flex;align-items:baseline;gap:10px;margin:0 2px 10px}
+  .caption .who{font-size:13px;font-weight:600;color:var(--color-fg)}
+  .caption .pill{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    padding:2px 8px;border-radius:999px}
+  .pill.same{background:var(--color-surface-muted);color:var(--color-fg-subtle);border:1px solid var(--color-border)}
+  .pill.new{background:var(--color-info-subtle);color:var(--color-info-fg)}
+  .pill.bad{background:var(--color-danger-subtle);color:var(--color-danger-fg)}
+  .block{margin-bottom:30px}
+  .verdict{margin-top:34px;border:1px solid var(--color-border);border-left:3px solid var(--color-danger);
+    border-radius:var(--radius-md);background:var(--color-surface);padding:14px 16px}
+  .verdict h3{margin:0 0 6px;font-size:14px}
+  .verdict p{margin:0;color:var(--color-fg-muted);font-size:13px;max-width:80ch}
+  ul.plain{margin:8px 0 0;padding-left:18px;color:var(--color-fg-muted);font-size:13px;max-width:80ch}
+  ul.plain li{margin:4px 0}
+  ul.plain b{color:var(--color-fg)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Option B — an app may leave the box out</h1>
+  <p class="sub">Each app prints its own word, and an app with nothing for that box drops it entirely.</p>
+  <span class="tag">Not recommended</span>
+
+  <h2>1 · The depot system — still untouched</h2>
+  <div class="block">
+    <div class="caption"><span class="who">Depot system — a sales order</span><span class="pill same">unchanged</span></div>
+    <div class="hdr">
+      <div class="slot"><div class="slabel">Order date</div><div class="sval">06 Aug 2026</div></div>
+      <div class="slot"><div class="slabel">DC</div><div class="sval">Nelspruit</div></div>
+      <div class="slot"><div class="slabel">Raised by</div><div class="sval">T. Mahlangu</div></div>
+      <div class="slot"><div class="slabel">Document no.</div><div class="sval">SO-01247</div>
+        <div class="shint">Given automatically</div></div>
+    </div>
+    <p class="note">Under every option, the depot system is byte-for-byte what it is today.</p>
+  </div>
+
+  <h2>2 · The customer system, with the box dropped</h2>
+  <div class="block">
+    <div class="caption"><span class="who">Customer system — a quotation, wide screen</span><span class="pill bad">the number leaves its corner</span></div>
+    <div class="hdr">
+      <div class="slot"><div class="slabel">Quote date</div><div class="sval">18 Aug 2026</div></div>
+      <div class="slot"><div class="slabel">Raised by</div><div class="sval">L. Petersen</div></div>
+      <div class="slot ring"><div class="slabel">Document no.</div><div class="sval">QT-00412</div>
+        <div class="shint">Given automatically</div></div>
+      <div class="gap">empty</div>
+    </div>
+    <p class="note"><b>This is the problem, drawn.</b> The strip is built for four boxes across. Take one
+      out and the three that remain shuffle left — so the document number sits third of four, with a hole
+      to its right. It is no longer in the top-right corner, which was your ruling of 8 August.</p>
+  </div>
+
+  <h2>3 · And it is worse on a narrow screen</h2>
+  <div class="block">
+    <div class="caption"><span class="who">Customer system — a quotation, narrow screen</span><span class="pill bad">bottom left</span></div>
+    <div class="hdr narrow">
+      <div class="slot"><div class="slabel">Quote date</div><div class="sval">18 Aug 2026</div></div>
+      <div class="slot"><div class="slabel">Raised by</div><div class="sval">L. Petersen</div></div>
+      <div class="slot ring"><div class="slabel">Document no.</div><div class="sval">QT-00412</div>
+        <div class="shint">Given automatically</div></div>
+      <div class="gap">empty</div>
+    </div>
+    <p class="note">On a narrower window the strip wraps to two across. With three boxes the document
+      number lands <b>bottom left</b> — the opposite corner from where it belongs. Fixing this properly
+      means changing how the strip lays itself out, which this change was asked not to do.</p>
+  </div>
+
+  <div class="verdict">
+    <h3>Why I advise against this</h3>
+    <ul class="plain">
+      <li><b>It breaks a ruling you already made</b> — the document number top right.</li>
+      <li><b>It cannot be fixed without re-laying-out the strip</b>, and re-styling the strip is outside
+        what this change was asked to touch.</li>
+      <li><b>“Four boxes, this order, every form” is what the standard means.</b> Letting the count vary
+        per app makes it a suggestion rather than a standard.</li>
+      <li><b>Nobody has asked for it.</b> The stuck change needs a <i>word</i>, not a hole.</li>
+    </ul>
+    <p style="margin-top:10px">If you want it anyway, say so and I will come back with the layout
+      question answered first — it is buildable, and it would still leave the depot system untouched.</p>
+  </div>
+
+</div>
+</body>
+</html>
