@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-006 — Option C · ask once for the whole grid, no exceptions</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-accent:#fac80a; --color-accent-subtle:#fef3c7;
+    --color-info:#2563eb; --color-info-subtle:#dbeafe; --color-info-fg:#1e3a8a;
+    --color-success:#15803d; --color-success-subtle:#dcfce7;
+    --color-warning:#b45309; --color-warning-subtle:#fef3c7;
+    --color-danger:#b91c1c; --color-danger-subtle:#fee2e2;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+    --shadow-xs:0 1px 0 rgba(24,24,27,.04);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1040px;margin:0 auto;padding:40px 32px 96px}
+  h1{font-size:28px;line-height:1.25;letter-spacing:-.015em;margin:0 0 6px}
+  .sub{color:var(--color-fg-muted);margin:0 0 16px;font-size:15px}
+  .tag{display:inline-block;margin-bottom:26px;padding:3px 10px;border-radius:999px;font-size:12px;
+    font-weight:600;background:var(--color-surface-muted);color:var(--color-fg-muted);border:1px solid var(--color-border)}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-subtle);
+    margin:34px 0 10px;font-weight:600}
+  .note{color:var(--color-fg-muted);font-size:13px;margin:10px 2px 0;max-width:80ch}
+  .note b{color:var(--color-fg);font-weight:600}
+  .block{margin-bottom:30px}
+  .caption{display:flex;align-items:baseline;gap:10px;margin:0 2px 10px;flex-wrap:wrap}
+  .caption .who{font-size:13px;font-weight:600;color:var(--color-fg)}
+  .caption .pill{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    padding:2px 8px;border-radius:999px}
+  .pill.bad{background:var(--color-danger-subtle);color:#7f1d1d}
+  .pill.good{background:var(--color-success-subtle);color:#14532d}
+  .pill.warn{background:var(--color-warning-subtle);color:#78350f}
+  .pill.same{background:var(--color-surface-muted);color:var(--color-fg-subtle);border:1px solid var(--color-border)}
+
+  .frame{width:100%;overflow-x:auto;border:1px solid var(--color-border);border-radius:var(--radius-lg);
+    background:var(--color-surface)}
+  table{width:100%;border-collapse:collapse;font-size:14px;color:var(--color-fg)}
+  thead{background:var(--color-surface-muted)}
+  th{padding:10px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--color-fg-muted);border-bottom:1px solid var(--color-border);white-space:nowrap;text-align:left}
+  th.r{text-align:right}
+  tbody tr{border-bottom:1px solid var(--color-border)}
+  tbody tr:last-child{border-bottom:0}
+  td{padding:8px 12px;vertical-align:middle}
+  table.alltop td{vertical-align:top}
+  .fld{height:36px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid var(--color-border);
+    border-radius:var(--radius-md);background:var(--color-surface);font-size:14px;font-weight:500;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fld.num{justify-content:flex-end;font-variant-numeric:tabular-nums}
+  .fld .chev{margin-left:auto;color:var(--color-fg-subtle);font-size:11px}
+  .chip{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:2px 8px;border-radius:999px;
+    font-size:11px;font-weight:600;background:var(--color-success-subtle);color:#14532d}
+  .chip .dot{width:6px;height:6px;border-radius:999px;background:var(--color-success)}
+  .total{font-variant-numeric:tabular-nums;font-weight:600;text-align:right;padding-right:12px}
+  .btn{height:32px;width:32px;display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);
+    color:var(--color-fg-subtle);font-size:15px}
+  .box{width:18px;height:18px;border-radius:4px;border:1px solid var(--color-border-strong);
+    display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-fg-subtle);
+    background:var(--color-surface)}
+  .actions{text-align:center}
+  .ring{outline:2px solid var(--color-warning);outline-offset:-2px;border-radius:var(--radius-sm)}
+  .guide{position:relative}
+  .guide::before{content:"";position:absolute;left:0;right:0;top:8px;border-top:2px dashed var(--color-accent);
+    pointer-events:none;z-index:2}
+  .legend{display:flex;align-items:center;gap:8px;margin:10px 2px 0;font-size:12px;color:var(--color-fg-muted)}
+  .legend .swatch{width:26px;border-top:2px dashed var(--color-accent);display:inline-block}
+
+  .verdict{margin-top:34px;border:1px solid var(--color-border);border-left:3px solid var(--color-warning);
+    border-radius:var(--radius-md);background:var(--color-surface);padding:14px 16px}
+  .verdict h3{margin:0 0 6px;font-size:14px}
+  .verdict p{margin:0;color:var(--color-fg-muted);font-size:13px;max-width:80ch}
+  ul.plain{margin:8px 0 0;padding-left:18px;color:var(--color-fg-muted);font-size:13px;max-width:80ch}
+  ul.plain li{margin:4px 0}
+  ul.plain b{color:var(--color-fg)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Option C — ask once for the whole grid, no exceptions</h1>
+  <p class="sub">One instruction covers every line and every box in the grid. Nothing can opt out.</p>
+  <span class="tag">Alternative</span>
+
+  <h2>1 · On the order screen it works perfectly</h2>
+  <div class="block">
+    <div class="caption"><span class="who">Customer system — one instruction for the grid</span><span class="pill good">looks right</span></div>
+    <div class="frame">
+      <table class="alltop">
+        <thead>
+          <tr><th>Item</th><th>Container</th><th class="r">Quantity</th><th>Unit</th><th class="r">Unit price</th><th class="r">Line total</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr class="guide">
+            <td><div class="fld">Banana Cavendish Cl.3<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>412 cartons available</span></td>
+            <td><div class="fld">Carton 18kg<span class="chev">▾</span></div></td>
+            <td><div class="fld num">120</div></td>
+            <td><div class="fld">Cartons<span class="chev">▾</span></div></td>
+            <td><div class="fld num">184.50</div></td>
+            <td class="total" style="padding-top:16px">22 140.00</td>
+            <td class="actions" style="padding-top:10px"><span class="btn">⋯</span></td>
+          </tr>
+          <tr>
+            <td><div class="fld">Banana Cavendish Cl.1<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>96 pallets available</span></td>
+            <td><div class="fld">Pallet 1.2m<span class="chev">▾</span></div></td>
+            <td><div class="fld num">4</div></td>
+            <td><div class="fld">Pallets<span class="chev">▾</span></div></td>
+            <td><div class="fld num">9 480.00</div></td>
+            <td class="total" style="padding-top:16px">37 920.00</td>
+            <td class="actions" style="padding-top:10px"><span class="btn">⋯</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="legend"><span class="swatch"></span> every field starts on this line</div>
+    <p class="note">For this screen the answer is genuinely the same for every box, so a single instruction is the
+      whole job — the shortest version of the fix there is.</p>
+  </div>
+
+  <h2>2 · On the next grid it overshoots</h2>
+  <div class="block">
+    <div class="caption"><span class="who">A stock list — the tick box and the buttons are dragged up too</span><span class="pill warn">no way out</span></div>
+    <div class="frame">
+      <table class="alltop">
+        <thead>
+          <tr><th style="width:34px"></th><th>Pallet</th><th>Room</th><th class="r">Cartons</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:center"><span class="box ring">✓</span></td>
+            <td><div class="fld">PAL-0091823<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>Ripening day 4 of 6</span></td>
+            <td><div class="fld">Room 3<span class="chev">▾</span></div></td>
+            <td><div class="fld num">240</div></td>
+            <td class="actions ring" style="padding-top:10px"><span class="btn">⋯</span></td>
+          </tr>
+          <tr>
+            <td style="text-align:center"><span class="box ring"></span></td>
+            <td><div class="fld">PAL-0091824<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>Ripening day 2 of 6</span></td>
+            <td><div class="fld">Room 3<span class="chev">▾</span></div></td>
+            <td><div class="fld num">240</div></td>
+            <td class="actions ring" style="padding-top:10px"><span class="btn">⋯</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">The tick box in front and the buttons at the end are small, single controls with nothing under
+      them. Pinned to the top of a tall line they read as knocked out of place rather than lined up. There is no
+      way to say “everything except these two” — it is all or nothing.</p>
+  </div>
+
+  <h2>3 · Which forces the old habit back</h2>
+  <div class="block">
+    <p class="note">Faced with that, whoever builds the screen goes back to the workaround we have today: leave the
+      grid alone and hand-build the awkward boxes outside the shared kit. That is exactly how the depot system's own
+      order screen ended up written by hand — <b>the thing this change is meant to stop</b>.</p>
+  </div>
+
+  <div class="verdict">
+    <h3>Where this lands</h3>
+    <p>The shortest instruction of the three, and the only one with no escape hatch.</p>
+    <ul class="plain">
+      <li><b>One sentence for a whole grid</b> — nothing to repeat, nothing to miss.</li>
+      <li><b>No exceptions at all</b>, including for the small controls that plainly want to stay centred.</li>
+      <li><b>Pushes people back to hand-built screens</b> the moment one box needs to differ.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

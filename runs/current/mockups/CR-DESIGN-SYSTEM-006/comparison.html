@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-006 — a row of fields can line up along the top · A, B and C</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-accent:#fac80a; --color-accent-subtle:#fef3c7;
+    --color-info:#2563eb; --color-info-subtle:#dbeafe; --color-info-fg:#1e3a8a;
+    --color-success:#15803d; --color-success-subtle:#dcfce7;
+    --color-warning:#b45309; --color-warning-subtle:#fef3c7;
+    --color-danger:#b91c1c; --color-danger-subtle:#fee2e2;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+    --shadow-xs:0 1px 0 rgba(24,24,27,.04);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1320px;margin:0 auto;padding:40px 28px 96px}
+  h1{font-size:28px;line-height:1.25;letter-spacing:-.015em;margin:0 0 6px}
+  .sub{color:var(--color-fg-muted);margin:0 0 22px;font-size:15px;max-width:90ch}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-subtle);
+    margin:38px 0 12px;font-weight:600}
+  .note{color:var(--color-fg-muted);font-size:13px;margin:10px 2px 0;max-width:88ch}
+  .note b{color:var(--color-fg);font-weight:600}
+  .caption{display:flex;align-items:baseline;gap:9px;margin:0 2px 9px;flex-wrap:wrap}
+  .caption .who{font-size:13px;font-weight:600;color:var(--color-fg)}
+  .pill{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
+  .pill.bad{background:var(--color-danger-subtle);color:#7f1d1d}
+  .pill.good{background:var(--color-success-subtle);color:#14532d}
+  .pill.warn{background:var(--color-warning-subtle);color:#78350f}
+  .pill.same{background:var(--color-surface-muted);color:var(--color-fg-subtle);border:1px solid var(--color-border)}
+
+  .frame{width:100%;overflow-x:auto;border:1px solid var(--color-border);border-radius:var(--radius-lg);
+    background:var(--color-surface)}
+  table.grid{width:100%;border-collapse:collapse;font-size:14px;color:var(--color-fg)}
+  table.grid thead{background:var(--color-surface-muted)}
+  table.grid th{padding:9px 10px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--color-fg-muted);border-bottom:1px solid var(--color-border);white-space:nowrap;text-align:left}
+  table.grid th.r{text-align:right}
+  table.grid tbody tr{border-bottom:1px solid var(--color-border)}
+  table.grid tbody tr:last-child{border-bottom:0}
+  table.grid td{padding:8px 10px;vertical-align:middle}
+  table.grid td.top{vertical-align:top}
+  table.grid.alltop td{vertical-align:top}
+  td.miss{background:var(--color-danger-subtle)}
+  .fld{height:34px;display:flex;align-items:center;gap:6px;padding:0 9px;border:1px solid var(--color-border);
+    border-radius:var(--radius-md);background:var(--color-surface);font-size:13px;font-weight:500;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fld.num{justify-content:flex-end;font-variant-numeric:tabular-nums}
+  .fld .chev{margin-left:auto;color:var(--color-fg-subtle);font-size:11px}
+  .chip{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:2px 7px;border-radius:999px;
+    font-size:10px;font-weight:600;background:var(--color-success-subtle);color:#14532d;white-space:nowrap}
+  .chip .dot{width:6px;height:6px;border-radius:999px;background:var(--color-success)}
+  .total{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+  .btn{height:30px;width:30px;display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);
+    color:var(--color-fg-subtle);font-size:14px}
+  .box{width:18px;height:18px;border-radius:4px;border:1px solid var(--color-border-strong);
+    display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-fg-subtle);
+    background:var(--color-surface)}
+  .actions{text-align:center}
+  .ring{outline:2px solid var(--color-warning);outline-offset:-2px;border-radius:var(--radius-sm)}
+  .guide{position:relative}
+  .guide::before{content:"";position:absolute;left:0;right:0;top:8px;border-top:2px dashed var(--color-accent);
+    pointer-events:none;z-index:2}
+  .legend{display:flex;align-items:center;gap:8px;margin:10px 2px 0;font-size:12px;color:var(--color-fg-muted)}
+  .legend .swatch{width:26px;border-top:2px dashed var(--color-accent);display:inline-block}
+
+  /* three panels side by side */
+  .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+  @media (max-width:1080px){.cols{grid-template-columns:1fr}}
+  .card{border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);
+    padding:16px 16px 18px;display:flex;flex-direction:column;gap:10px}
+  .card.rec{border-color:var(--color-success);box-shadow:0 0 0 1px var(--color-success)}
+  .card h3{margin:0;font-size:16px;letter-spacing:-.01em}
+  .card .lead{margin:0;font-size:13px;color:var(--color-fg-muted)}
+  .card .hdrline{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .card .demoLabel{font-size:11px;font-weight:600;color:var(--color-fg-subtle);text-transform:uppercase;
+    letter-spacing:.05em;margin-top:4px}
+  ul.plain{margin:2px 0 0;padding-left:17px;color:var(--color-fg-muted);font-size:13px}
+  ul.plain li{margin:5px 0}
+  ul.plain b{color:var(--color-fg)}
+  .verdictline{margin-top:auto;padding-top:10px;border-top:1px dashed var(--color-border);font-size:12.5px;
+    color:var(--color-fg-muted)}
+  .verdictline b{color:var(--color-fg)}
+
+  table.sum{width:100%;border-collapse:collapse;font-size:13px;background:var(--color-surface);
+    border:1px solid var(--color-border);border-radius:var(--radius-lg);overflow:hidden}
+  table.sum th{background:var(--color-surface-muted);text-align:left;padding:10px 12px;font-size:11px;
+    text-transform:uppercase;letter-spacing:.05em;color:var(--color-fg-muted);border-bottom:1px solid var(--color-border)}
+  table.sum td{padding:10px 12px;border-bottom:1px solid var(--color-border);color:var(--color-fg-muted);vertical-align:top}
+  table.sum tr:last-child td{border-bottom:0}
+  table.sum td b{color:var(--color-fg)}
+  .yes{color:#14532d;font-weight:600}
+  .no{color:#7f1d1d;font-weight:600}
+
+  .closing{margin-top:34px;border:1px solid var(--color-border);border-left:3px solid var(--color-accent);
+    border-radius:var(--radius-md);background:var(--color-surface);padding:14px 16px}
+  .closing h3{margin:0 0 6px;font-size:14px}
+  .closing p{margin:0 0 8px;color:var(--color-fg-muted);font-size:13px;max-width:90ch}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>A row of fields can line up along the top</h1>
+  <p class="sub">Three ways of asking for it, side by side. The picture on screen is the same in all three when
+    everything is done correctly — what differs is <b>how easy it is to get wrong</b>, and whether a single box can
+    stay where it is. Nothing on any screen changes until a system chooses to use it.</p>
+
+  <h2>The complaint — the order screen today</h2>
+  <div class="frame">
+    <table class="grid">
+      <thead>
+        <tr><th>Item</th><th>Container</th><th class="r">Quantity</th><th>Unit</th><th class="r">Unit price</th><th class="r">Line total</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr class="guide">
+          <td><div class="fld">Banana Cavendish Cl.3<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>412 cartons available</span></td>
+          <td><div class="fld">Carton 18kg<span class="chev">▾</span></div></td>
+          <td><div class="fld num">120</div></td>
+          <td><div class="fld">Cartons<span class="chev">▾</span></div></td>
+          <td><div class="fld num">184.50</div></td>
+          <td class="total">22 140.00</td>
+          <td class="actions"><span class="btn">⋯</span></td>
+        </tr>
+        <tr>
+          <td><div class="fld">Banana Cavendish Cl.1<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>96 pallets available</span></td>
+          <td><div class="fld">Pallet 1.2m<span class="chev">▾</span></div></td>
+          <td><div class="fld num">4</div></td>
+          <td><div class="fld">Pallets<span class="chev">▾</span></div></td>
+          <td><div class="fld num">9 480.00</div></td>
+          <td class="total">37 920.00</td>
+          <td class="actions"><span class="btn">⋯</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend"><span class="swatch"></span> where the item box starts — everything else sits below it</div>
+  <p class="note">The item box carries a stock note underneath, so its square of the line is taller. Every other box
+    floats to the <b>middle</b> of that extra height and ends up lower than the item it belongs to.</p>
+
+  <h2>The three options</h2>
+  <div class="cols">
+
+    <!-- ─────────────── A ─────────────── -->
+    <div class="card rec">
+      <div class="hdrline"><h3>A · Ask once for the line</h3><span class="pill good">Recommended</span></div>
+      <p class="lead">One instruction covers the whole line, and a single box can still say “not me”.</p>
+
+      <div class="demoLabel">The order line</div>
+      <div class="frame">
+        <table class="grid">
+          <thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th></th></tr></thead>
+          <tbody>
+            <tr class="guide">
+              <td class="top"><div class="fld">Cavendish Cl.3<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>412 available</span></td>
+              <td class="top"><div class="fld num">120</div></td>
+              <td class="top"><div class="fld num">184.50</div></td>
+              <td class="top actions" style="padding-top:10px"><span class="btn">⋯</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="demoLabel">A stock list — the tick box opts out</div>
+      <div class="frame">
+        <table class="grid">
+          <thead><tr><th style="width:30px"></th><th>Pallet</th><th class="r">Cartons</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="text-align:center"><span class="box">✓</span></td>
+              <td class="top"><div class="fld">PAL-0091823<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>Day 4 of 6</span></td>
+              <td class="top"><div class="fld num">240</div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="plain">
+        <li><b>One instruction per line</b>, not one per box.</li>
+        <li><b>Cannot be half-done</b> — no missed box, ever.</li>
+        <li><b>The exception survives</b> for a tick box or a buttons column.</li>
+      </ul>
+      <div class="verdictline"><b>Why I recommend it:</b> being level is a property of the whole line, so that is
+        where the instruction belongs — and the one place it genuinely needs an exception still has one.</div>
+    </div>
+
+    <!-- ─────────────── B ─────────────── -->
+    <div class="card">
+      <div class="hdrline"><h3>B · Ask box by box</h3><span class="pill same">Alternative</span></div>
+      <p class="lead">Each box is told separately. Done in full it is identical to A; miss one and it stays crooked.</p>
+
+      <div class="demoLabel">All boxes told</div>
+      <div class="frame">
+        <table class="grid">
+          <thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th></th></tr></thead>
+          <tbody>
+            <tr class="guide">
+              <td class="top"><div class="fld">Cavendish Cl.3<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>412 available</span></td>
+              <td class="top"><div class="fld num">120</div></td>
+              <td class="top"><div class="fld num">184.50</div></td>
+              <td class="top actions" style="padding-top:10px"><span class="btn">⋯</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="demoLabel">One box missed — the quantity</div>
+      <div class="frame">
+        <table class="grid">
+          <thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th></th></tr></thead>
+          <tbody>
+            <tr class="guide">
+              <td class="top"><div class="fld">Cavendish Cl.3<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>412 available</span></td>
+              <td class="miss"><div class="fld num">120</div></td>
+              <td class="top"><div class="fld num">184.50</div></td>
+              <td class="top actions" style="padding-top:10px"><span class="btn">⋯</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="plain">
+        <li><b>Simplest possible setting</b> — one box, one answer.</li>
+        <li><b>No shortcut</b> for a line of six or seven boxes.</li>
+        <li><b>The failure is invisible</b> — nothing flags a missed box, and it looks exactly like today's
+          complaint. The red shading above is only a marker for this page.</li>
+      </ul>
+      <div class="verdictline"><b>Where it lands:</b> the same picture as A when done perfectly, and quiet
+        crookedness whenever a column is added later and forgotten.</div>
+    </div>
+
+    <!-- ─────────────── C ─────────────── -->
+    <div class="card">
+      <div class="hdrline"><h3>C · Ask once for the whole grid</h3><span class="pill same">Alternative</span></div>
+      <p class="lead">One instruction covers every line and every box. Nothing can opt out.</p>
+
+      <div class="demoLabel">The order line</div>
+      <div class="frame">
+        <table class="grid alltop">
+          <thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th></th></tr></thead>
+          <tbody>
+            <tr class="guide">
+              <td><div class="fld">Cavendish Cl.3<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>412 available</span></td>
+              <td><div class="fld num">120</div></td>
+              <td><div class="fld num">184.50</div></td>
+              <td class="actions" style="padding-top:10px"><span class="btn">⋯</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="demoLabel">A stock list — the tick box is dragged up too</div>
+      <div class="frame">
+        <table class="grid alltop">
+          <thead><tr><th style="width:30px"></th><th>Pallet</th><th class="r">Cartons</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="text-align:center"><span class="box ring">✓</span></td>
+              <td><div class="fld">PAL-0091823<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>Day 4 of 6</span></td>
+              <td><div class="fld num">240</div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="plain">
+        <li><b>Shortest instruction of the three</b> — one sentence for a whole grid.</li>
+        <li><b>No exceptions at all</b>, including the small controls that read better centred.</li>
+        <li><b>Pushes us back to hand-built screens</b> the moment one box needs to differ — which is how the
+          depot system's own order screen ended up hand-built in the first place.</li>
+      </ul>
+      <div class="verdictline"><b>Where it lands:</b> perfect on the order screen, blunt everywhere else, and the
+        first awkward grid escapes the shared kit again.</div>
+    </div>
+
+  </div>
+
+  <h2>Side by side</h2>
+  <table class="sum">
+    <thead>
+      <tr><th style="width:34%">&nbsp;</th><th>A — once per line</th><th>B — box by box</th><th>C — once per grid</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><b>Fixes the order screen</b></td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+      <tr><td><b>How many instructions per line</b></td><td>One</td><td>One per box — six or seven</td><td>One, for the whole grid</td></tr>
+      <tr><td><b>Can a single box stay centred</b></td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td></tr>
+      <tr><td><b>Can it be half-done by accident</b></td><td class="yes">No</td><td class="no">Yes — and nothing warns</td><td class="yes">No</td></tr>
+      <tr><td><b>Holds up when a column is added later</b></td><td class="yes">Yes</td><td class="no">Only if somebody remembers</td><td class="yes">Yes</td></tr>
+      <tr><td><b>Existing screens move</b></td><td class="yes">No</td><td class="yes">No</td><td class="yes">No</td></tr>
+    </tbody>
+  </table>
+
+  <div class="closing">
+    <h3>The same for all three</h3>
+    <p><b>Nothing changes on any screen when this is done.</b> The setting is off unless a screen asks for it, so
+      every existing list in every system stays exactly as it is today — and that will be proved by measurement,
+      not asserted.</p>
+    <p>The customer system's order screen actually switching over is <b>a separate piece of work in that system's
+      own lane</b>, once this is in place and that system chooses to pick it up. This change only makes the setting
+      exist.</p>
+  </div>
+
+</div>
+</body>
+</html>

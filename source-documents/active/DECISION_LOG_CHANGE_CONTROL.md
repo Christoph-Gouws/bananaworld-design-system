@@ -5,6 +5,106 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-006 — a row of fields can line up along the top
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **ACCEPTED** — plan approved at the plan gate, built on branch `change/cr-design-system-006`. All decisions closed; **0 open** |
+| Date | 2026-08-24 |
+| Branch point | `origin/main` @ `fc6f6c6` |
+| Approved layout | **A** — a row-level default (`<TableRow valign>`) **with** a per-cell override (`<TableCell valign>`) |
+| Ship mode | **on-green** |
+| Archive | `runs/change-06/` |
+
+### What was asked
+
+`TableCell` hardcoded `align-middle` in its class list (`Table.tsx:197`) and its `align` prop controls
+**horizontal** alignment only — there was no vertical option at all. On the CRM sales order line grid
+the first cell is taller than the others because it renders an `AvailabilityChip` under the item
+combobox, so every other field in the row — container, quantity, unit, unit price, line total — floats
+to the middle of that extra height and sits visibly lower than the item it belongs to.
+
+The request was explicit on four points. **Add a vertical option** (most likely `valign` on
+`TableCell`), and **consider whether `TableRow` should set it once for all its cells — choose and
+justify**. 🔴 **The default must stay `middle`**: five apps pin this package by sha and flipping it
+would silently move the contents of every table in the estate. **Follow the package's own alignment
+precedent** — the `alignClass` comment records that a stray default `text-left` once overrode
+`numeric`'s `text-right` — so emit exactly one vertical class, and make sure a caller's `className`
+cannot silently defeat it. **Say how byte-identity was proved, not just assert it.** The CRM-side
+adoption was named as explicitly out of scope.
+
+### What was decided at the plan gate
+
+**The plan was APPROVED, with layout A, ship mode on-green.**
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-1 | **Two optional fields — `valign?: VAlign` on both `TableCellProps` and `TableRowProps`.** Nothing removed, no default changed, no export surface moved. | Five repos pin this package by git sha and each bumps when it chooses. Purely additive is what keeps this a change rather than a coordinated multi-app migration. |
+| D-2 | 🔴 **The default stays `"middle"`, and it stays in the POSITION `align-middle` has always occupied in the class list.** | Two separate contracts, and the second is the one that is easy to miss. Before this change the base `align-middle` sat first and a caller's `className` beat it — so `className="align-top"` was the **only** way to top-align a cell, and it is certainly written somewhere across five pinned apps. Moving the default to the end of the list would keep the "default is middle" claim true and silently revert every one of them. Pinned by T-1 (value) and T-8 (position), proved by mutations M-1 and M-2. |
+| D-3 | **An explicit `valign` is emitted AFTER `className`; the untouched default is emitted in place.** Exactly one vertical class enters the list, in exactly one of two positions. | `cn` is `twMerge(clsx(...))` and twMerge keeps the **last** of two conflicting classes. Emitting the asked-for class last is what makes a stray utility in `className` unable to silently defeat the prop — the request's explicit requirement (T-7). Emitting the untouched default in place is what preserves today's workaround (T-8). One mechanism, two positions, both tested. |
+| D-4 | **Layout A — a row-level default with a per-cell override.** | **The owner's choice**, made at the plan gate from three rendered mockups. **B (per-cell only)** was rejected because the bug is a property of the *row*: the CRM's line has six cells, per-cell-only makes correctness depend on a caller never missing one, and **the miss is silent** — a single unflagged cell sags exactly the way the bug does today. **C (whole grid, no exceptions)** was rejected as too blunt: a buttons/actions column genuinely reads better centred, and C offers no way to say so without falling back to `className`. A keeps the escape hatch where the exception actually lives. |
+| D-5 | **The row carries its answer through a module-private React context, and provides it ALWAYS — including when `valign` is `undefined`.** | `TableRow` spreads arbitrary children, so `React.Children.map` + `cloneElement` would break on fragments, on `.map`ped cells and on cells rendered by a wrapper. A context is invisible in the DOM and composes through any depth. **Always** providing means a row **resets** the value, so a `<Table>` nested inside a top-aligned cell does not silently inherit that row's alignment; providing only when set would keep the React tree unchanged for existing tables at the price of exactly that leak, and the leak's failure mode is *silent visual misalignment* — the bug this change exists to fix. Correctness won. DOM cost is zero, which the 384-shape render diff proves. |
+| D-6 | **Precedence is cell > row > default.** | The more specific answer wins, which is what callers expect and what makes layout A's opt-out work. Pinned by T-11; mutation M-4 inverts it and T-11 reddens. |
+| D-7 | **`VAlign` stays module-private — not exported from any barrel.** | Exactly the precedent `Align` already sets in the same file. An export is a permanent contract across five pinned apps; a new optional field on an already-exported interface needs no barrel edit. All three barrel diffs are empty. |
+| D-8 | **The prop is named `valign`, knowingly shadowing React's deprecated `TdHTMLAttributes.valign` presentational attribute — declared rather than hidden.** | This is precisely the move the file already made once: `align?: Align` shadows and consumes `TdHTMLAttributes.align` identically, and `VAlign` is a subset of the inherited union so the narrowing typechecks. The residual is real and named: a caller passing the legacy attribute today gets a dead DOM attribute and middle alignment, and after this change gets what it literally asked for. **DC is proven clean — zero occurrences repo-wide.** CRM, RMS, org-admin and Manga Verde **cannot be read from a build worktree and were not opened**; each owes a one-line grep at its own pin bump. Zero-residual fallback if a live usage is ever found: rename to `verticalAlign` (unreachable today — passing it is a TypeScript error). Carried, not built. |
+| D-9 | **`TableHead` gains nothing.** | Header cells are single-line by construction (`whitespace-nowrap`) and no caller has asked. Widening two surfaces to answer one request is the configurability-in-anticipation this package has refused twice (CR-005 D-6, D-10). The fence is asserted by T-14, not assumed. |
+| D-10 | **No consumer pin bumped by this change, and the CRM's grid adoption is out of scope.** | Each consumer moves its own pin, in its own change, against the **merged** sha on `main` — never a branch sha. KI-M001E19-002 is that exact mistake on record. This change makes the option exist; the CRM opts in at step three of a three-step sequence. |
+| D-11 | **`epicRecommended: false` — this is a change, not an epic.** | Two files, two optional fields, one private helper, one private context. No service, no schema, no new section of the system. It does not decompose into controlled units of work. |
+| D-12 | **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` is NOT created here.** | It still does not exist and there is no `governance/` directory. **Sixth consecutive change to raise it** (CR-001 D-12, CR-002 D-10, CR-003, CR-004, CR-005 D-12, here). Creating it is a governance decision for the owner, not something a change may invent — flagged rather than invented. Seams are recorded in the plan §3, in `centrality-scorecard.md` and in `developer-handover.md`. |
+
+### Clarify questions and answers
+
+The owner responses recorded for this change were:
+
+- **`[plan]` — plan APPROVED (layout A) — ship on-green.**
+
+That single response settled the one open question the plan raised as a decide-point (OQ-1, the
+authoring shape: A row-level default with a per-cell override / B per-cell only / C whole-grid with no
+override). The plan's stated default had the owner not picked was **A**, and the owner picked **A**, so
+A is what was built. See D-4.
+
+The plan's four other open questions were all marked non-blocking and were not put to the owner:
+**OQ-2** (is any consumer passing the legacy `valign` attribute — unanswerable from here for four of
+five repos) is carried as D-8 and `technical-debt.md` TD-3; **OQ-3** (the cross-system register) is
+carried as D-12; **OQ-4** (`TableHead`) is carried as D-9 and TD-1; **OQ-5** (whether DC folds its
+hand-rolled sales-order `<td>`s back onto `TableCell`) is another repo's lane and is recorded in the
+developer handover.
+
+**No further clarification was requested and none was needed** — no new decision arose during the
+build that the approved plan had not already answered, so **no `NEEDS_OWNER: decision` gate was hit**.
+
+### Two findings during the build, recorded rather than smoothed over
+
+1. **Mutation M-3 was not caught by any spec, and is reported as a miss rather than rounded up to
+   4/4.** The plan predicted T-6 would catch it. It does not — M-3 is **not a behaviour change**:
+   twMerge collapses a duplicated `align-middle` before the class string is emitted, and T-6 counts
+   vertical classes in the final, post-twMerge string. This was **measured, not argued** — the full
+   320-row authoring matrix is byte-identical between the shipped component and the M-3 mutant. A
+   fifth mutation (**M-5**) was added to cover the genuinely-visible positional bug in the same family,
+   and T-8 catches it.
+2. **The plan's F-14 count was overstated** — it states 50 DC files reference `TableCell`; the actual
+   figure is **39** in `src/` (40 including tests). Immaterial: the plan's argument rests on **F-13**,
+   that *none* of them passes `valign`, which was re-run and is **zero across the whole DC repo**.
+   Recorded in `known-issues.md` A-1 and the build continued, per the standing instruction.
+
+### Outcome
+
+Built as approved. `pnpm typecheck` clean; `pnpm test` **263 passed / 14 files** (baseline **246 / 13**
+before any edit, so **+17 new specs and 0 existing specs edited** — this package had no `Table` specs
+at all). `src/` is **+77 / −13**, which `git diff -w` reduces to **+67 / −3**: only **three real
+deletions**, each itemised, the other ten being the `<tr>` block re-indented into the context provider.
+**All three barrel diffs are empty.**
+
+**The byte-identity claim was measured, not asserted:** 384 existing-caller shapes were rendered
+against `main@fc6f6c6`'s component and against this one, comparing the entire `innerHTML` — **the diff
+is empty**. In addition, T-1/T-2/T-15/T-16 were committed **green against the unmodified component**
+as `f59f2c7`, before `src/` was touched, and are unedited and still green.
+
+0 open defects, 0 open decisions. Full evidence in `runs/change-06/`.
+
+---
+
 ## CR-DESIGN-SYSTEM-005 — the depot slot's label is chosen by the app wearing the header
 
 | Field | Value |

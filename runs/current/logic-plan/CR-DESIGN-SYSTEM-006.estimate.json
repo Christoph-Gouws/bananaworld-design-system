@@ -1,0 +1,17 @@
+{
+  "files": 2,
+  "lines": 230,
+  "steps": 2,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Package owns the middle default; DC, CRM, RMS, org-admin and Manga Verde see the option only at their own pin bump",
+    "The CRM sales order grid opting in is a separate follow-up in the CRM's lane, after this merges",
+    "DC's three Table specs are behavioural and read no source text - nothing here can redden them",
+    "The cell prop takes over a deprecated HTML attribute name; DC is proven clean, four repos unreadable",
+    "No barrel, export or type name moves; two exported prop interfaces each gain one optional field",
+    "No database seam: this package has no database and the option is pure presentation"
+  ],
+  "migrationExpected": false
+}
