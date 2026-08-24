@@ -69,6 +69,11 @@ function trClass(container: HTMLElement, index = 0): string {
   return row.getAttribute("class") ?? "";
 }
 
+/** Every vertical-alignment utility present in a class string, in order. */
+function verticalClasses(classAttr: string): string[] {
+  return classAttr.match(/\balign-(?:top|middle|bottom)\b/g) ?? [];
+}
+
 // ---------------------------------------------------------------------------------------------
 // §1 — THE CELL DEFAULT, CHARACTER FOR CHARACTER (T-1, T-2). Written green pre-edit.
 // ---------------------------------------------------------------------------------------------
@@ -205,5 +210,254 @@ describe("the Table export surface", () => {
     const head: TableHeadProps = { sortable: true, sortDir: "asc" satisfies SortDirection };
     const cell: TableCellProps = { numeric: true };
     expect([row.interactive, head.sortable, cell.numeric]).toEqual([true, true, true]);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// §4 — THE NEW OPTION, ON THE CELL (T-3, T-4, T-5).
+// ---------------------------------------------------------------------------------------------
+
+describe("TableCell valign — the option itself", () => {
+  it("T-3: valign=\"top\" renders align-top, and no other vertical class", () => {
+    const container = renderTable(
+      <TableRow>
+        <TableCell valign="top">ITM-001</TableCell>
+      </TableRow>,
+    );
+    expect(tdClass(container)).toBe("px-3 py-2 text-left align-top");
+    expect(verticalClasses(tdClass(container))).toEqual(["align-top"]);
+  });
+
+  it("T-4: valign=\"bottom\" renders align-bottom, and no other vertical class", () => {
+    const container = renderTable(
+      <TableRow>
+        <TableCell valign="bottom">ITM-001</TableCell>
+      </TableRow>,
+    );
+    expect(tdClass(container)).toBe("px-3 py-2 text-left align-bottom");
+    expect(verticalClasses(tdClass(container))).toEqual(["align-bottom"]);
+  });
+
+  it("T-5: valign=\"middle\" is not a special case — same classes as the default, one vertical", () => {
+    const asked = renderTable(
+      <TableRow>
+        <TableCell valign="middle">ITM-001</TableCell>
+      </TableRow>,
+    );
+    const askedClass = tdClass(asked);
+    cleanup();
+    const untouched = renderTable(
+      <TableRow>
+        <TableCell>ITM-001</TableCell>
+      </TableRow>,
+    );
+    const untouchedClass = tdClass(untouched);
+
+    // 🔴 THE SAME SET OF CLASSES, not the same string. Asking explicitly emits the class after
+    //    `className` (so a caller's className cannot defeat the prop — T-7), while the default
+    //    emits it in place (so an existing className override still wins — T-8). Different
+    //    ORDER, identical rendering: Tailwind utilities are order-independent unless they
+    //    conflict, and there is exactly one vertical class either way.
+    expect(askedClass.split(" ").sort()).toEqual(untouchedClass.split(" ").sort());
+    expect(verticalClasses(askedClass)).toEqual(["align-middle"]);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// §5 — 🔴 EXACTLY ONE VERTICAL CLASS, ALWAYS (T-6, T-7, T-8, T-9).
+//      This is the bug the request named: the file's `alignClass` comment records that a stray
+//      default `text-left` once overrode `numeric`'s `text-right`. The same class of bug on the
+//      vertical axis is what these four block.
+// ---------------------------------------------------------------------------------------------
+
+describe("exactly one vertical-alignment class, on every path", () => {
+  it("T-6: every combination of valign x numeric x muted x className emits exactly one", () => {
+    const valigns = [undefined, "top", "middle", "bottom"] as const;
+    const classNames = [undefined, "w-40", "align-top", "align-bottom", "align-middle"];
+    let combinations = 0;
+
+    for (const valign of valigns) {
+      for (const numeric of [false, true]) {
+        for (const muted of [false, true]) {
+          for (const className of classNames) {
+            const container = renderTable(
+              <TableRow>
+                <TableCell valign={valign} numeric={numeric} muted={muted} className={className}>
+                  x
+                </TableCell>
+              </TableRow>,
+            );
+            const actual = verticalClasses(tdClass(container));
+            expect(
+              actual,
+              `valign=${String(valign)} numeric=${numeric} muted=${muted} className=${String(className)}`,
+            ).toHaveLength(1);
+            combinations += 1;
+            cleanup();
+          }
+        }
+      }
+    }
+    expect(combinations).toBe(80);
+  });
+
+  it("T-7: a caller's className cannot silently defeat the valign prop", () => {
+    // The explicit requirement in the request. `className` is emitted BEFORE the asked-for class,
+    // so twMerge — which keeps the last of a conflicting pair — resolves to what was asked.
+    const container = renderTable(
+      <TableRow>
+        <TableCell valign="top" className="align-middle">
+          x
+        </TableCell>
+      </TableRow>,
+    );
+    expect(verticalClasses(tdClass(container))).toEqual(["align-top"]);
+  });
+
+  it("T-8: className=\"align-top\" with NO valign still wins — today's workaround is untouched", () => {
+    // 🔴 THIS IS WHAT PINS THE DEFAULT'S POSITION, not just its value. Before this change the base
+    //    `align-middle` sat first and a caller's className beat it; that is the only way a cell
+    //    could be top-aligned at all, and somewhere in five sha-pinned apps somebody has written it.
+    //    Moving the default to the end of the list would silently break every one of them.
+    const container = renderTable(
+      <TableRow>
+        <TableCell className="align-top">x</TableCell>
+      </TableRow>,
+    );
+    expect(tdClass(container)).toBe("px-3 py-2 text-left align-top");
+    expect(verticalClasses(tdClass(container))).toEqual(["align-top"]);
+  });
+
+  it("T-9: horizontal alignment is untouched, with and without valign", () => {
+    // The original twMerge bug, re-guarded on the axis it actually happened on.
+    const cases: Array<{ props: TableCellProps; horizontal: string }> = [
+      { props: { numeric: true }, horizontal: "text-right" },
+      { props: { numeric: true, valign: "top" }, horizontal: "text-right" },
+      { props: { align: "right", valign: "top" }, horizontal: "text-right" },
+      { props: { align: "left", numeric: true, valign: "bottom" }, horizontal: "text-left" },
+      { props: { align: "center", valign: "middle" }, horizontal: "text-center" },
+    ];
+    for (const { props, horizontal } of cases) {
+      const container = renderTable(
+        <TableRow>
+          <TableCell {...props}>x</TableCell>
+        </TableRow>,
+      );
+      const actual = tdClass(container);
+      const label = JSON.stringify(props);
+      expect(actual.match(/\btext-(?:left|right|center)\b/g), label).toEqual([horizontal]);
+      cleanup();
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// §6 — THE ROW-LEVEL ANSWER, AND ITS OPT-OUT (T-10, T-11, T-12) — owner-approved layout A.
+// ---------------------------------------------------------------------------------------------
+
+describe("TableRow valign — asked once for the whole row", () => {
+  it("T-10: every cell in the row is top-aligned without repeating the prop", () => {
+    // The layout-A shape: the CRM's sales order line has six cells, and per-cell-only (layout B)
+    // makes correctness depend on a caller never missing one of them — silently.
+    const container = renderTable(
+      <TableRow valign="top">
+        <TableCell>item</TableCell>
+        <TableCell>container</TableCell>
+        <TableCell numeric>12</TableCell>
+        <TableCell>unit</TableCell>
+        <TableCell numeric>4.50</TableCell>
+        <TableCell numeric>54.00</TableCell>
+      </TableRow>,
+    );
+    const cells = container.querySelectorAll("td");
+    expect(cells).toHaveLength(6);
+    for (const cell of cells) {
+      expect(verticalClasses(cell.getAttribute("class") ?? "")).toEqual(["align-top"]);
+    }
+  });
+
+  it("T-11: a cell's own valign wins over its row's — layout A's opt-out", () => {
+    // The buttons column of a top-aligned grid usually reads better centred.
+    const container = renderTable(
+      <TableRow valign="top">
+        <TableCell>item</TableCell>
+        <TableCell valign="middle">actions</TableCell>
+      </TableRow>,
+    );
+    expect(verticalClasses(tdClass(container, 0))).toEqual(["align-top"]);
+    expect(verticalClasses(tdClass(container, 1))).toEqual(["align-middle"]);
+  });
+
+  it("T-12: no leak — a sibling row, and a nested table, keep the default", () => {
+    const container = renderTable(
+      <>
+        <TableRow valign="top">
+          <TableCell>
+            {/* A table nested inside a top-aligned cell must NOT inherit that row's alignment —
+                which is why TableRow provides its context ALWAYS, undefined included. */}
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <TableCell>nested</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>sibling</TableCell>
+        </TableRow>
+      </>,
+    );
+    const cells = Array.from(container.querySelectorAll("td")).map(
+      (cell) => cell.getAttribute("class") ?? "",
+    );
+    // Document order: the outer top-aligned cell, the nested cell inside it, then the sibling row.
+    expect(verticalClasses(cells[0] ?? "")).toEqual(["align-top"]);
+    expect(cells[1]).toBe("px-3 py-2 align-middle text-left"); // byte-identical to the default
+    expect(cells[2]).toBe("px-3 py-2 align-middle text-left"); // byte-identical to the default
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// §7 — THE PROP IS CONSUMED, AND THE SCOPE FENCE HOLDS (T-13, T-14).
+// ---------------------------------------------------------------------------------------------
+
+describe("valign is consumed, never forwarded; TableHead is out of scope", () => {
+  it("T-13: neither the <td> nor the <tr> carries a valign attribute", () => {
+    // `TdHTMLAttributes` declares the deprecated presentational `valign`, so before this change
+    // `<TableCell valign="top">` compiled, was spread onto the <td>, and did nothing. It is now
+    // destructured out — the same move the file already made for `align`. Nobody re-adds it by
+    // accident.
+    const container = renderTable(
+      <TableRow valign="top">
+        <TableCell valign="bottom">x</TableCell>
+      </TableRow>,
+    );
+    const cell = container.querySelector("td");
+    const row = container.querySelector("tr");
+    expect(cell?.hasAttribute("valign")).toBe(false);
+    expect(row?.hasAttribute("valign")).toBe(false);
+  });
+
+  it("T-14: a TableHead inside a top-aligned row is byte-identical to today", () => {
+    // TableHead deliberately gains nothing: header cells are single-line by construction
+    // (whitespace-nowrap) and no caller has asked. The fence is asserted, not assumed.
+    const { container } = render(
+      <TableContainer>
+        <Table>
+          <TableHeader>
+            <TableRow valign="top">
+              <TableHead>Code</TableHead>
+            </TableRow>
+          </TableHeader>
+        </Table>
+      </TableContainer>,
+    );
+    const head = container.querySelector("th")?.getAttribute("class") ?? "";
+    expect(head).toBe(
+      "px-3 py-2.5 text-2xs font-semibold uppercase tracking-wide text-fg-muted border-b border-border whitespace-nowrap select-none text-left",
+    );
+    expect(verticalClasses(head)).toEqual([]);
   });
 });
