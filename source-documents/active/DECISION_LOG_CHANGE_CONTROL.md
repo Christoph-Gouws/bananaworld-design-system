@@ -5,6 +5,111 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-007 — when a row instruction and a single box disagree, the box wins
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **ACCEPTED** — plan approved at the plan gate, built on branch `change/cr-design-system-007`. All decisions closed; **0 open** |
+| Date | 2026-08-25 |
+| Branch point | `origin/main` @ `ce47010` (CR-DESIGN-SYSTEM-006, merged as PR #17) |
+| Approved layout | **A** — the cell's own answer wins |
+| Ship mode | **on-green** |
+| Archive | `runs/change-07/` |
+
+### What was asked
+
+A **review follow-up on CR-DESIGN-SYSTEM-006**. After CR-006's CI went green, an independent reviewer
+session was given the owner-approved plan and the diff — and nothing the build session wrote about its
+own work — and asked one question: does this do what was approved? It raised one finding above the
+follow-up bar. The finding was judged real but not severe enough to send CR-006 back, so **CR-006
+merged with it in, and the code is live.**
+
+**F1 · `src/components/Table.tsx:249` · medium/medium.** `askedForValign` is true for a row-sourced
+`valign` as well as a cell-sourced one, so a row's `valign` is emitted **after** `className` and
+silently overrides a cell's own explicit vertical-align utility. It contradicts the approved plan at
+**D-6 / §2.4**: precedence is cell > row > default, and position (B) exists so that `className` cannot
+defeat *the cell's* prop — the plan never sanctioned a row-level answer beating a cell-level
+`className`. No spec covered the combination: T-6's 80-case matrix never sets a row `valign`, and
+T-7 / T-8 are cell-only.
+
+The standing instruction was explicit: **confirm the finding against the code as it is now before
+planning a fix**, and drop it if it no longer holds — never implement a fix for a defect that is not
+there.
+
+### What was decided at the plan gate
+
+**The plan was APPROVED, with layout A, ship mode on-green.**
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-1 | 🔴 **F1 is CONFIRMED PRESENT and the fix goes ahead.** | Re-read from this worktree at `ce47010`: `const askedForValign = resolvedValign !== undefined;` is present verbatim at line **249**, unchanged since the reviewer saw it. Confirmed a second way at build time by mutation **M-1**, which restores the shipped predicate and reddens the new specs. Not taken on the reviewer's word |
+| D-2 | **Layout A — the cell's own answer wins.** | **The owner's choice**, made at the plan gate from three rendered options. **B (declare today's behaviour intentional)** was rejected on the facts, not on taste: `className` was the *sole* way to express a per-cell vertical answer before CR-006 — which is the entire reason D-2 of that change pinned the default's *position* — and the failure mode is a **silent visual misalignment**, the exact bug class CR-006 existed to remove. **C (B plus a dev-time warning)** was rejected as new code, new per-render cost and a `console.warn` plus a class-string scan inside a pure presentational primitive, in a package whose lane rule is minimum surface. A was also the plan's stated default had the owner not picked |
+| D-3 | **The fix is ONE predicate: `cellAskedForValign = valign !== undefined`.** | `askedForValign` must mean *"the cell itself asked"*, not *"anybody asked"*. It was computed from `resolvedValign`, which has **already absorbed the row's answer** — so a row-sourced value took the *asked* path. Resolution itself is unchanged, so a row still answers for cells that express nothing of their own |
+| D-4 | 🔴 **Both class-emission positions stay, and keep their positions.** | The standing warning in `SESSION_HANDOVER.md` §2 — do not collapse them — is obeyed, and this change **depends** on both existing: the whole fix is *which slot* a row-level answer lands in. A row-level answer is a **default** for cells with no vertical answer of their own, so it is emitted at position (A) where the untouched `align-middle` default sits; only the cell's own prop earns position (B), after `className` |
+| D-5 | **Final precedence, stated once so it can be pinned: cell `valign` prop > cell `className` > row `valign` prop > the `"middle"` default.** Written into the `Table.tsx` file header and BOTH `valign` doc-comments. | The middle rung is the addition — a *cell-level* answer sitting above a *row-level* one, which is **D-6 of CR-006 read literally**. It is put in the source, not only in this log, because the rule living only in a decision log the next author would not open is **how the defect survived review in the first place** |
+| D-6 | **`"middle"` stays the default, in the position it has always occupied. Nothing is added, removed, renamed or exported.** | CR-006's **D-2** is untouched (T-1 pins the value, T-8 the position; mutations M-2 and M-4 both redden T-8). `VAlign` stays module-private (D-7 of CR-006); all three barrels are byte-identical. This is a behaviour correction inside one function body, not a new field |
+| D-7 | **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` is NOT created here.** | It still does not exist and there is no `governance/` directory. **Seventh consecutive change to raise it** (CR-001 D-12, CR-002 D-10, CR-003, CR-004, CR-005 D-12, CR-006 D-12, here). Creating it is a governance decision for the owner, not something a change may invent. Seams are recorded in `centrality-scorecard.md` §4 instead |
+
+### Clarify questions and answers
+
+The owner responses recorded for this change were:
+
+- **`[plan]` — plan APPROVED (layout A) — ship on-green.**
+
+That single response settled the one open question the plan raised as a decide-point — **OQ-1**: which
+should win when a row-level and a cell-level instruction disagree (**A** the single box wins /
+**B** leave it as it is today, the line wins silently / **C** the line wins, plus a development-time
+warning). The plan's stated default had the owner not picked was **A**, and the owner picked **A**, so
+A is what was built. See **D-2**.
+
+The plan's three other open questions were marked non-blocking and were not put to the owner:
+**OQ-2** (the cross-system register) is carried as **D-7**; **OQ-3** (CR-006's technical-debt items)
+is unaffected — those items stay in `runs/change-06/technical-debt.md`, which was **cited and never
+edited**, since a closed unit is immutable; **OQ-4** (each consumer's standing one-line
+`grep -rn "valign" src` before its pin bump, CR-006 D-8) is unchanged by this change and still owed by
+CRM, RMS, org-admin and Manga Verde.
+
+### Decided during the build
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-8 | **No `technical-debt.md` is created for this change.** | The plan anticipated one debt item — a documented silent override — but **only under option B**. The owner chose **A**, which *removes* the silent override rather than documenting it. There is no residual: no shim, no deprecated path, no TODO, no half-migration. Recorded as an outcome with its reason in `known-issues.md` §D rather than left as an unexplained absent file |
+
+### The contract this creates for consumers
+
+**No consumer pin is bumped by this change and no consumer file is touched.** Each consumer moves its
+own pin, in its own change, against the **merged** sha on `main` — never a branch sha
+(**KI-M001E19-002** is that exact mistake on record).
+
+This change **fixes no screen.** The CRM's sagging sales-order row is fixed only after three steps in
+order: this merges → the CRM bumps its pin to the merged sha → the CRM passes `valign="top"`. Fixing
+the precedence now means **the CRM never meets the bug**, and that window closes at step two.
+
+⚠ **One honest asterisk, declared in the plan rather than discovered at a gate:** cells inside a row
+that *sets* `valign` are the only ones whose output moves. Measured across 576 such shapes — 456
+identical strings, 72 differing in class **order** only (identical rendering), and **48 rendering
+changes, every one exactly the defect's shape**. **Zero consumers can observe either sub-case today**:
+DC's pin predates `TableRow.valign` entirely and `valign` appears 0 times repo-wide, and CRM, RMS,
+org-admin and Manga Verde are all behind CR-006 by construction.
+
+### Verification
+
+| Gate | Result |
+|---|---|
+| `pnpm typecheck` | clean |
+| `pnpm test` | **269 passed / 14 files** (baseline re-measured before any edit: **263 / 14**) |
+| New specs | **6** (T-17 … T-22); **0 existing specs edited**; **0 existing specs reddened** |
+| **Additive proof** | All three barrels byte-identical; `src/` **+31 / −13** with `git diff -w` identical (no whitespace churn); **1,536 caller shapes rendered against `main@ce47010` and diffed on whole `innerHTML` — byte-identical** |
+| Mutation check | **5 run, 5 caught.** M-1 restores the shipped defect and reddens T-17/T-18, proving the new specs bite |
+| Dependency audit | 6 highs, **all six on the standing ignore list, 0 new, 0 blocking**. Reproduced in Node — `pnpm audit` is permission-blocked. **The handover's demanded third sanity check was implemented and passed** (0 of 13 parsed ids empty or non-GHSA) |
+| Migration | none — this package has no database |
+| Throwaway Postgres | never started; nothing left behind |
+| In-session defect | **1 found, 1 fixed** — `defect-log.md` D-1, the mutation harness reverted the unstaged fix |
+| Context-usage row | logged ✅ (`--project bananaworld-design-system`) |
+
+---
+
 ## CR-DESIGN-SYSTEM-006 — a row of fields can line up along the top
 
 | Field | Value |

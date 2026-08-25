@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-007 — A, B and C side by side</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-accent:#fac80a; --color-accent-subtle:#fef3c7;
+    --color-info:#2563eb; --color-info-subtle:#dbeafe; --color-info-fg:#1e3a8a;
+    --color-success:#15803d; --color-success-subtle:#dcfce7;
+    --color-warning:#b45309; --color-warning-subtle:#fef3c7;
+    --color-danger:#b91c1c; --color-danger-subtle:#fee2e2;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1180px;margin:0 auto;padding:36px 24px 96px}
+  h1{font-size:26px;line-height:1.25;letter-spacing:-.015em;margin:0 0 6px}
+  .sub{color:var(--color-fg-muted);margin:0 0 8px;font-size:15px;max-width:88ch}
+  .lead{border:1px solid var(--color-border);border-left:3px solid var(--color-accent);
+    border-radius:var(--radius-md);background:var(--color-surface);padding:14px 16px;margin:18px 0 28px}
+  .lead p{margin:0;font-size:13px;color:var(--color-fg-muted);max-width:90ch}
+  .lead p + p{margin-top:8px}
+  .lead b{color:var(--color-fg)}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-subtle);
+    margin:34px 0 12px;font-weight:600}
+
+  .cols{display:flex;gap:18px;flex-wrap:wrap;align-items:stretch}
+  .col{flex:1 1 330px;min-width:320px;border:1px solid var(--color-border);border-radius:var(--radius-lg);
+    background:var(--color-surface);display:flex;flex-direction:column;overflow:hidden}
+  .col.pick{border-color:var(--color-success);box-shadow:0 0 0 1px var(--color-success)}
+  .col > header{padding:14px 16px 12px;border-bottom:1px solid var(--color-border);background:var(--color-surface-muted)}
+  .col h3{margin:0 0 4px;font-size:15px;letter-spacing:-.01em}
+  .col .kicker{font-size:12px;color:var(--color-fg-muted);margin:0}
+  .badge{display:inline-block;margin-bottom:8px;padding:2px 9px;border-radius:999px;font-size:10px;
+    font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .badge.rec{background:var(--color-success-subtle);color:#14532d}
+  .badge.today{background:var(--color-surface);color:var(--color-fg-muted);border:1px solid var(--color-border-strong)}
+  .badge.warn{background:var(--color-warning-subtle);color:#7c2d12}
+  .body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;flex:1}
+
+  .frame{width:100%;overflow-x:auto;border:1px solid var(--color-border);border-radius:var(--radius-md);
+    background:var(--color-surface)}
+  table{width:100%;border-collapse:collapse;font-size:12px;color:var(--color-fg)}
+  thead{background:var(--color-surface-muted)}
+  th{padding:7px 8px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--color-fg-muted);border-bottom:1px solid var(--color-border);white-space:nowrap;text-align:left}
+  th.r{text-align:right}
+  tbody tr{border-bottom:1px solid var(--color-border)}
+  tbody tr:last-child{border-bottom:0}
+  td{padding:7px 8px;vertical-align:middle}
+  td.top{vertical-align:top}
+  .fld{height:30px;display:flex;align-items:center;gap:6px;padding:0 8px;border:1px solid var(--color-border);
+    border-radius:var(--radius-sm);background:var(--color-surface);font-size:12px;font-weight:500;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fld.num{justify-content:flex-end;font-variant-numeric:tabular-nums}
+  .fld .chev{margin-left:auto;color:var(--color-fg-subtle);font-size:10px}
+  .chip{display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:1px 7px;border-radius:999px;
+    font-size:10px;font-weight:600;background:var(--color-success-subtle);color:#14532d}
+  .chip .dot{width:5px;height:5px;border-radius:999px;background:var(--color-success)}
+  .total{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+  .btn{height:26px;width:26px;display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-surface);
+    color:var(--color-fg-subtle);font-size:13px}
+  .actions{text-align:center}
+  .actions.ok{outline:2px solid var(--color-success);outline-offset:-2px;background:var(--color-success-subtle)}
+  .actions.no{outline:2px solid var(--color-danger);outline-offset:-2px;background:var(--color-danger-subtle)}
+  .actions.flag{outline:2px solid var(--color-warning);outline-offset:-2px;background:var(--color-warning-subtle)}
+
+  .verdictline{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px}
+  .verdictline .dotv{width:9px;height:9px;border-radius:999px;flex:none}
+  .dotv.g{background:var(--color-success)} .dotv.r{background:var(--color-danger)} .dotv.w{background:var(--color-warning)}
+
+  ul.plain{margin:0;padding-left:17px;color:var(--color-fg-muted);font-size:12.5px}
+  ul.plain li{margin:5px 0}
+  ul.plain b{color:var(--color-fg)}
+
+  .console{border:1px solid var(--color-border-strong);border-radius:var(--radius-sm);background:#1c1917;
+    color:#e7e5e4;overflow:hidden}
+  .console .bar{padding:6px 10px;background:#292524;border-bottom:1px solid #3f3f46;font-size:9px;
+    letter-spacing:.06em;text-transform:uppercase;color:#a8a29e}
+  .console pre{margin:0;padding:9px 10px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:10.5px;line-height:1.6;white-space:pre-wrap}
+  .console .w{color:#fbbf24}
+  .spacer{flex:1}
+
+  .foot{margin-top:34px;border:1px solid var(--color-border);border-radius:var(--radius-md);
+    background:var(--color-surface);overflow:hidden}
+  .foot table{font-size:13px}
+  .foot th{padding:10px 14px;font-size:10px}
+  .foot td{padding:10px 14px;border-bottom:1px solid var(--color-border);vertical-align:top;font-size:12.5px;color:var(--color-fg-muted)}
+  .foot tbody tr:last-child td{border-bottom:0}
+  .foot td b{color:var(--color-fg)}
+  .yes{color:var(--color-success);font-weight:700}
+  .no{color:var(--color-danger);font-weight:700}
+  .mid{color:var(--color-warning);font-weight:700}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin:14px 2px 0;font-size:12px;color:var(--color-fg-muted)}
+  .legend .k{display:inline-flex;align-items:center;gap:6px}
+  .legend .sw{width:13px;height:13px;border-radius:3px;display:inline-block}
+  .sw.g{background:var(--color-success-subtle);border:2px solid var(--color-success)}
+  .sw.r{background:var(--color-danger-subtle);border:2px solid var(--color-danger)}
+  .sw.w{background:var(--color-warning-subtle);border:2px solid var(--color-warning)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Which instruction wins — the whole line, or the one box?</h1>
+  <p class="sub">CR-DESIGN-SYSTEM-007 · the same order line, drawn three ways. Everything else on the screen is identical.</p>
+
+  <div class="lead">
+    <p><b>The situation.</b> A whole line of fields has been told “line up along the top”. One box in that line — the buttons — was separately told by its author to sit in the middle, using the older way of saying it (which was the only way, until last week).</p>
+    <p><b>The question.</b> When those two instructions disagree, which one should the shared kit obey? The highlighted box in each version is the only thing that moves.</p>
+  </div>
+
+  <div class="cols">
+
+    <!-- ─────────── A ─────────── -->
+    <section class="col pick">
+      <header>
+        <span class="badge rec">Recommended</span>
+        <h3>A — the one box wins</h3>
+        <p class="kicker">The more specific instruction is obeyed.</p>
+      </header>
+      <div class="body">
+        <div class="frame">
+          <table>
+            <thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Total</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="top"><div class="fld">Banana Cav. Cl.3<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>412 available</span></td>
+                <td class="top"><div class="fld num">120</div></td>
+                <td class="top"><div class="fld num">184.50</div></td>
+                <td class="top total">22 140.00</td>
+                <td class="actions ok"><span class="btn">⋯</span></td>
+              </tr>
+              <tr>
+                <td class="top"><div class="fld">Banana Cav. Cl.1<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>96 available</span></td>
+                <td class="top"><div class="fld num">4</div></td>
+                <td class="top"><div class="fld num">9 480.00</div></td>
+                <td class="top total">37 920.00</td>
+                <td class="actions ok"><span class="btn">⋯</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="verdictline"><span class="dotv g"></span> The buttons stay in the middle, as written.</p>
+        <ul class="plain">
+          <li><b>What was agreed</b> when this option was approved a week ago.</li>
+          <li><b>Smallest change of the three</b>; nothing added, nothing removed.</li>
+          <li><b>Nothing on any screen moves today</b> — no app uses the line instruction yet.</li>
+          <li>The older way of writing it keeps working, which real screens rely on.</li>
+        </ul>
+        <div class="spacer"></div>
+      </div>
+    </section>
+
+    <!-- ─────────── B ─────────── -->
+    <section class="col">
+      <header>
+        <span class="badge today">What happens today</span>
+        <h3>B — leave it alone</h3>
+        <p class="kicker">The line wins; the box's instruction is dropped, quietly.</p>
+      </header>
+      <div class="body">
+        <div class="frame">
+          <table>
+            <thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Total</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="top"><div class="fld">Banana Cav. Cl.3<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>412 available</span></td>
+                <td class="top"><div class="fld num">120</div></td>
+                <td class="top"><div class="fld num">184.50</div></td>
+                <td class="top total">22 140.00</td>
+                <td class="top actions no"><span class="btn">⋯</span></td>
+              </tr>
+              <tr>
+                <td class="top"><div class="fld">Banana Cav. Cl.1<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>96 available</span></td>
+                <td class="top"><div class="fld num">4</div></td>
+                <td class="top"><div class="fld num">9 480.00</div></td>
+                <td class="top total">37 920.00</td>
+                <td class="top actions no"><span class="btn">⋯</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="verdictline"><span class="dotv r"></span> The buttons jump to the top. No warning at all.</p>
+        <ul class="plain">
+          <li><b>Nothing is built</b> — the rule is written down instead of changed.</li>
+          <li>The first team to use the line instruction hits this and loses hours to it.</li>
+          <li>It reads as a fault in the shared kit, <b>because it is one</b>.</li>
+          <li>Contradicts what was approved a week ago, so the record needs correcting.</li>
+        </ul>
+        <div class="spacer"></div>
+      </div>
+    </section>
+
+    <!-- ─────────── C ─────────── -->
+    <section class="col">
+      <header>
+        <span class="badge warn">Flags it, doesn't fix it</span>
+        <h3>C — the line wins, but loudly</h3>
+        <p class="kicker">Same screen as B, plus a warning to whoever builds it.</p>
+      </header>
+      <div class="body">
+        <div class="frame">
+          <table>
+            <thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Total</th><th></th></tr></thead>
+            <tbody>
+              <tr>
+                <td class="top"><div class="fld">Banana Cav. Cl.3<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>412 available</span></td>
+                <td class="top"><div class="fld num">120</div></td>
+                <td class="top"><div class="fld num">184.50</div></td>
+                <td class="top total">22 140.00</td>
+                <td class="top actions flag"><span class="btn">⋯</span></td>
+              </tr>
+              <tr>
+                <td class="top"><div class="fld">Banana Cav. Cl.1<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>96 available</span></td>
+                <td class="top"><div class="fld num">4</div></td>
+                <td class="top"><div class="fld num">9 480.00</div></td>
+                <td class="top total">37 920.00</td>
+                <td class="top actions flag"><span class="btn">⋯</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="console">
+          <div class="bar">builder's tools — while the screen is being made</div>
+          <pre><span class="w">⚠</span> A line-wide instruction overruled this box's own
+  instruction. It will sit at the top, not the middle.</pre>
+        </div>
+        <p class="verdictline"><span class="dotv w"></span> Same result on screen as B — just no longer silent.</p>
+        <ul class="plain">
+          <li><b>More work than A, worse result on screen.</b></li>
+          <li>Adds ongoing checking to the busiest part of the shared kit.</li>
+          <li>Listed for completeness; I would not pick it.</li>
+        </ul>
+        <div class="spacer"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="legend">
+    <span class="k"><span class="sw g"></span> instruction kept</span>
+    <span class="k"><span class="sw r"></span> instruction dropped silently</span>
+    <span class="k"><span class="sw w"></span> instruction dropped, with a warning</span>
+  </div>
+
+  <h2>Side by side</h2>
+  <div class="foot">
+    <table>
+      <thead>
+        <tr><th>&nbsp;</th><th>A — the one box wins</th><th>B — leave it alone</th><th>C — loud, but unchanged</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>The buttons box sits…</b></td>
+          <td><span class="yes">where its author put it</span></td>
+          <td><span class="no">at the top, not as written</span></td>
+          <td><span class="mid">at the top, not as written</span></td>
+        </tr>
+        <tr>
+          <td><b>Anyone told when it happens</b></td>
+          <td>nothing to tell — it does what was asked</td>
+          <td><span class="no">no</span></td>
+          <td><span class="yes">yes, while the screen is built</span></td>
+        </tr>
+        <tr>
+          <td><b>Screens that change today</b></td>
+          <td>none</td>
+          <td>none</td>
+          <td>none</td>
+        </tr>
+        <tr>
+          <td><b>Amount of work</b></td>
+          <td><b>smallest</b> — one rule reversed, plus checks</td>
+          <td>none — a note in the manual</td>
+          <td>largest — new checking on every box</td>
+        </tr>
+        <tr>
+          <td><b>Matches what was approved</b></td>
+          <td><span class="yes">yes</span></td>
+          <td><span class="no">no</span></td>
+          <td><span class="no">no</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="lead" style="margin-top:28px;border-left-color:var(--color-success)">
+    <p><b>My recommendation: A.</b> It is the smallest of the three, it is what was already agreed, and it is the only one where the screen ends up looking the way its author asked. Choosing it now costs nothing, because no app has picked up the line instruction yet — the same fix after an app adopts would move things people are already looking at.</p>
+  </div>
+
+</div>
+</body>
+</html>

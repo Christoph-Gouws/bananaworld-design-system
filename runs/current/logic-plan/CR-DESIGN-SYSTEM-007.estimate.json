@@ -1,0 +1,17 @@
+{
+  "files": 2,
+  "lines": 45,
+  "steps": 3,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "This package owns the cell-alignment rule; 5 pinned apps read it, each at its own bump",
+    "DC pins 0633476 (pre-CR-006), 0 uses of valign - provably unaffected",
+    "CRM sales-order grid adopts later, in its own change, against the merged main sha",
+    "RMS, org-admin, Manga Verde unreadable from here; all behind CR-006, none can hit it",
+    "Export surface unmoved: no field added, removed or renamed; barrels byte-identical",
+    "No database, no migration - this package has no schema by construction"
+  ],
+  "migrationExpected": false
+}
