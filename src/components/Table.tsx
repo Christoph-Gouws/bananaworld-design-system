@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  createContext,
   forwardRef,
+  useContext,
   type HTMLAttributes,
   type TdHTMLAttributes,
   type ThHTMLAttributes,
@@ -35,6 +37,10 @@ import { cn } from "../lib";
  *       </TableBody>
  *     </Table>
  *   </TableContainer>
+ *
+ * A row whose cells are of unequal height (a chip or hint sits under one field, making its cell
+ * taller) lines up along the top with `<TableRow valign="top">`, and a single column opts back out
+ * with `<TableCell valign="middle">`. The default is "middle" everywhere and does not move.
  */
 
 // Rounded, bordered frame around the table so the corners read crisply (the table itself can't
@@ -81,26 +87,57 @@ export const TableBody = forwardRef<
   return <tbody ref={ref} className={cn("", className)} {...props} />;
 });
 
+// The vertical axis of a table cell. Module-private, exactly as `Align` below is: a union used only
+// inside interfaces that are already exported needs no export of its own and moves no barrel.
+type VAlign = "top" | "middle" | "bottom";
+
+// Emit exactly ONE vertical-alignment class on every path — the same rule `alignClass` below obeys,
+// and for the same reason: twMerge keeps the LAST of two conflicting classes, so a second one
+// emitted anywhere is a silent, invisible override waiting to happen.
+function valignClass(valign: VAlign | undefined): string {
+  if (valign === "top") return "align-top";
+  if (valign === "bottom") return "align-bottom";
+  return "align-middle";
+}
+
+// A row's answer for its own cells, so a wide grid asks once instead of on every cell. Private —
+// the API is the two `valign` props; this is only how the row reaches its own children.
+const RowValignContext = createContext<VAlign | undefined>(undefined);
+
 export interface TableRowProps extends HTMLAttributes<HTMLTableRowElement> {
   /** Adds hover + pointer affordance for clickable rows. */
   interactive?: boolean;
+  /**
+   * Vertical alignment for every cell in this row — asked once, instead of repeated on all six
+   * cells of a wide grid. A cell's own `valign` wins over it. Defaults to "middle"; see
+   * `TableCellProps.valign` for why that default does not move.
+   */
+  valign?: VAlign;
 }
 
 export const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(function TableRow(
-  { className, interactive, ...props },
+  { className, interactive, valign, ...props },
   ref,
 ) {
+  // Provided ALWAYS, including when `valign` is undefined. A provider renders no DOM node, so the
+  // HTML is untouched either way — and always providing means a row RESETS the value for anything
+  // nested inside it, so a table inside a top-aligned row's cell does not silently inherit that
+  // row's alignment. (Providing only when set keeps the React tree literally unchanged for existing
+  // tables, at the price of exactly that leak; the leak's failure mode is silent visual
+  // misalignment, which is the bug this option exists to fix, so correctness wins.)
   return (
-    <tr
-      ref={ref}
-      className={cn(
-        "border-b border-border last:border-0",
-        interactive &&
-          "cursor-pointer transition-colors duration-fast hover:bg-surface-muted focus-within:bg-surface-muted",
-        className,
-      )}
-      {...props}
-    />
+    <RowValignContext.Provider value={valign}>
+      <tr
+        ref={ref}
+        className={cn(
+          "border-b border-border last:border-0",
+          interactive &&
+            "cursor-pointer transition-colors duration-fast hover:bg-surface-muted focus-within:bg-surface-muted",
+          className,
+        )}
+        {...props}
+      />
+    </RowValignContext.Provider>
   );
 });
 
@@ -180,25 +217,52 @@ export interface TableCellProps extends TdHTMLAttributes<HTMLTableCellElement> {
   numeric?: boolean;
   /** Dim the cell — used for deactivated rows. */
   muted?: boolean;
+  /**
+   * Vertical alignment. Defaults to "middle" — 🔴 AND THAT DEFAULT IS ESTATE-WIDE CONTRACT. Five
+   * apps pin this package by git sha; flipping it would move the contents of every table in the
+   * estate at their next bump. This option is opt-in and nothing else.
+   *
+   * Set "top" when a row holds cells of unequal height — a field with a chip or hint under it makes
+   * its cell taller, and every middle-aligned neighbour then sits visibly lower than it.
+   * `<TableRow valign="top">` asks once for a whole row; this wins over that.
+   *
+   * ⚠ This CONSUMES React's deprecated `TdHTMLAttributes.valign` presentational attribute — exactly
+   * as `align` above consumes `TdHTMLAttributes.align`. Passing it was already possible and already
+   * visually inert (the `align-middle` class beat it); it now does what it says, and is no longer
+   * forwarded to the DOM.
+   */
+  valign?: VAlign;
 }
 
 export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(function TableCell(
-  { className, align, numeric, muted, ...props },
+  { className, align, numeric, muted, valign, ...props },
   ref,
 ) {
   // A numeric cell right-aligns by default (matching its right-aligned header); an explicit `align`
   // always wins. Emit exactly ONE alignment class so twMerge can't drop it (a stray default
   // `text-left` previously overrode `numeric`'s `text-right`, mis-aligning numeric columns).
   const effectiveAlign: Align = align ?? (numeric ? "right" : "left");
+  // The same one-class rule on the vertical axis. The cell's own answer wins over its row's.
+  const rowValign = useContext(RowValignContext);
+  const resolvedValign = valign ?? rowValign;
+  const vertical = valignClass(resolvedValign);
+  const askedForValign = resolvedValign !== undefined;
   return (
     <td
       ref={ref}
       className={cn(
-        "px-3 py-2 align-middle",
+        "px-3 py-2",
+        // NOBODY ASKED: the default sits exactly where `align-middle` has always sat, so an existing
+        // cell's class string is byte-identical — including one that overrides vertical alignment
+        // through `className`, which wins today only because `className` is emitted last.
+        !askedForValign && vertical,
         numeric && "tabular-nums",
         muted && "text-fg-subtle",
         alignClass(effectiveAlign),
         className,
+        // ASKED: emitted AFTER `className` so a stray utility there cannot silently defeat the prop.
+        // twMerge keeps the last of a conflicting pair, so the answer the caller asked for wins.
+        askedForValign && vertical,
       )}
       {...props}
     />
