@@ -461,3 +461,158 @@ describe("valign is consumed, never forwarded; TableHead is out of scope", () =>
     expect(verticalClasses(head)).toEqual([]);
   });
 });
+
+// ---------------------------------------------------------------------------------------------
+// §8 — CR-DESIGN-SYSTEM-007: A ROW'S ANSWER IS A DEFAULT, NOT AN OVERRIDE (T-17 … T-22).
+//
+// 🔴 THE GAP THESE FILL. §5 above covers cell-prop vs `className` (T-7, T-8). §6 covers cell-prop
+//    vs row-prop (T-11). NOTHING covered ROW-prop vs a cell's `className` — T-6's 80-combination
+//    matrix renders every one of its cells inside a PLAIN <TableRow>. CR-006 shipped with
+//    `askedForValign` computed from the RESOLVED value, so a row-sourced answer took the
+//    after-`className` slot and silently beat a cell's own vertical utility.
+//
+//    The precedence these pin, most specific first:
+//      cell `valign` prop  >  cell `className`  >  row `valign` prop  >  the "middle" default
+//    A `className` utility is a CELL-level answer — before CR-006 it was the ONLY way to write one,
+//    which is why T-8 pins the default's position — so a ROW-level answer must not defeat it.
+// ---------------------------------------------------------------------------------------------
+
+describe("TableRow valign is a default for its cells, not an override of them", () => {
+  it("T-17: a cell's own className beats its row's valign — the reported defect, verbatim", () => {
+    // 🔴 REDDENS against the code as CR-006 shipped it: emission was
+    //    cn("px-3 py-2", false, ..., "text-left", "align-middle", "align-top") and twMerge keeps
+    //    the last, so the cell rendered align-top — not the align-middle its author wrote.
+    const container = renderTable(
+      <TableRow valign="top">
+        <TableCell className="align-middle">actions</TableCell>
+      </TableRow>,
+    );
+    expect(verticalClasses(tdClass(container))).toEqual(["align-middle"]);
+  });
+
+  it("T-18: the CRM sales-order shape — five top-aligned cells, one that opted out via className", () => {
+    // The reviewer's scenario in full: a six-cell line grid told to line up along the top, whose
+    // actions cell already carried `className="align-middle"` — the only way to express a per-cell
+    // vertical answer before the row option existed.
+    const container = renderTable(
+      <TableRow valign="top">
+        <TableCell>item</TableCell>
+        <TableCell>container</TableCell>
+        <TableCell numeric>12</TableCell>
+        <TableCell numeric>4.50</TableCell>
+        <TableCell numeric>54.00</TableCell>
+        <TableCell className="align-middle">actions</TableCell>
+      </TableRow>,
+    );
+    const cells = Array.from(container.querySelectorAll("td")).map(
+      (cell) => cell.getAttribute("class") ?? "",
+    );
+    expect(cells).toHaveLength(6);
+    for (const [index, cell] of cells.entries()) {
+      // Exactly one vertical class in every cell — the invariant, still holding on this path.
+      expect(verticalClasses(cell), `cell ${index}`).toHaveLength(1);
+    }
+    for (const cell of cells.slice(0, 5)) {
+      expect(verticalClasses(cell)).toEqual(["align-top"]);
+    }
+    expect(verticalClasses(cells[5] ?? "")).toEqual(["align-middle"]);
+  });
+
+  it("T-19: the cell's own prop still beats its className INSIDE a top-aligned row", () => {
+    // Position (B) is intact: narrowing the predicate to the cell's own prop must not cost the
+    // prop its power over `className` (T-7's guarantee), including inside a row that has asked.
+    const container = renderTable(
+      <TableRow valign="top">
+        <TableCell valign="middle" className="align-bottom">
+          actions
+        </TableCell>
+      </TableRow>,
+    );
+    expect(verticalClasses(tdClass(container))).toEqual(["align-middle"]);
+  });
+
+  it("T-20: a row's answer still reaches a cell whose className is not an alignment", () => {
+    // Guards the opposite error — over-narrowing until the row option stops working at all.
+    const container = renderTable(
+      <TableRow valign="top">
+        <TableCell className="w-40">item</TableCell>
+      </TableRow>,
+    );
+    expect(verticalClasses(tdClass(container))).toEqual(["align-top"]);
+  });
+
+  it("T-21: exactly one vertical class across row-valign x cell-valign x className (80)", () => {
+    // The matrix T-6 never ran: T-6 fixes the row to a plain one. This varies the ROW as well, so
+    // both emission positions are exercised on every combination.
+    const valigns = [undefined, "top", "middle", "bottom"] as const;
+    const classNames = [undefined, "w-40", "align-top", "align-middle", "align-bottom"];
+    let combinations = 0;
+
+    for (const rowValign of valigns) {
+      for (const cellValign of valigns) {
+        for (const className of classNames) {
+          const container = renderTable(
+            <TableRow valign={rowValign}>
+              <TableCell valign={cellValign} className={className}>
+                x
+              </TableCell>
+            </TableRow>,
+          );
+          const label = `row=${String(rowValign)} cell=${String(cellValign)} className=${String(className)}`;
+          const actual = verticalClasses(tdClass(container));
+          expect(actual, label).toHaveLength(1);
+
+          // And it is the RIGHT one, on every single combination — precedence stated as code:
+          // cell prop > cell className > row prop > "middle".
+          const classNameVertical =
+            className !== undefined && /^align-(?:top|middle|bottom)$/.test(className)
+              ? className
+              : undefined;
+          const winner =
+            cellValign !== undefined
+              ? `align-${cellValign}`
+              : (classNameVertical ?? `align-${rowValign ?? "middle"}`);
+          expect(actual, label).toEqual([winner]);
+
+          combinations += 1;
+          cleanup();
+        }
+      }
+    }
+    expect(combinations).toBe(80);
+  });
+
+  it("T-22: the T-1/T-2 shapes are byte-identical inside a row that sets no valign", () => {
+    // The additive claim, re-guarded at the point this change touched: every caller that sets no
+    // `valign` anywhere — i.e. every caller in every consumer today — is untouched, character for
+    // character, including the class ORDER.
+    const shapes: Array<{ name: string; props: TableCellProps; expected: string }> = [
+      { name: "no props", props: {}, expected: "px-3 py-2 align-middle text-left" },
+      {
+        name: "numeric",
+        props: { numeric: true },
+        expected: "px-3 py-2 align-middle tabular-nums text-right",
+      },
+      {
+        name: 'className="w-40"',
+        props: { className: "w-40" },
+        expected: "px-3 py-2 align-middle text-left w-40",
+      },
+      {
+        name: "numeric + muted + className, the widest existing combination",
+        props: { numeric: true, muted: true, className: "w-40" },
+        expected: "px-3 py-2 align-middle tabular-nums text-fg-subtle text-right w-40",
+      },
+    ];
+
+    for (const shape of shapes) {
+      const container = renderTable(
+        <TableRow>
+          <TableCell {...shape.props}>x</TableCell>
+        </TableRow>,
+      );
+      expect(tdClass(container), shape.name).toBe(shape.expected);
+      cleanup();
+    }
+  });
+});

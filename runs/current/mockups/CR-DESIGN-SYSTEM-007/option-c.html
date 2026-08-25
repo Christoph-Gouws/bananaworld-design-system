@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-007 — Option C · the whole line still wins, but never silently</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-accent:#fac80a; --color-accent-subtle:#fef3c7;
+    --color-info:#2563eb; --color-info-subtle:#dbeafe; --color-info-fg:#1e3a8a;
+    --color-success:#15803d; --color-success-subtle:#dcfce7;
+    --color-warning:#b45309; --color-warning-subtle:#fef3c7;
+    --color-danger:#b91c1c; --color-danger-subtle:#fee2e2;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1040px;margin:0 auto;padding:40px 32px 96px}
+  h1{font-size:28px;line-height:1.25;letter-spacing:-.015em;margin:0 0 6px}
+  .sub{color:var(--color-fg-muted);margin:0 0 16px;font-size:15px;max-width:80ch}
+  .tag{display:inline-block;margin-bottom:26px;padding:3px 10px;border-radius:999px;font-size:12px;
+    font-weight:600;background:var(--color-warning-subtle);color:#7c2d12}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-subtle);
+    margin:34px 0 10px;font-weight:600}
+  .note{color:var(--color-fg-muted);font-size:13px;margin:10px 2px 0;max-width:80ch}
+  .note b{color:var(--color-fg);font-weight:600}
+  .block{margin-bottom:30px}
+  .caption{display:flex;align-items:baseline;gap:10px;margin:0 2px 10px;flex-wrap:wrap}
+  .caption .who{font-size:13px;font-weight:600;color:var(--color-fg)}
+  .caption .pill{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+    padding:2px 8px;border-radius:999px}
+  .pill.bad{background:var(--color-danger-subtle);color:#7f1d1d}
+  .pill.warn{background:var(--color-warning-subtle);color:#7c2d12}
+
+  .frame{width:100%;overflow-x:auto;border:1px solid var(--color-border);border-radius:var(--radius-lg);
+    background:var(--color-surface)}
+  table{width:100%;border-collapse:collapse;font-size:14px;color:var(--color-fg)}
+  thead{background:var(--color-surface-muted)}
+  th{padding:10px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--color-fg-muted);border-bottom:1px solid var(--color-border);white-space:nowrap;text-align:left}
+  th.r{text-align:right}
+  tbody tr{border-bottom:1px solid var(--color-border)}
+  tbody tr:last-child{border-bottom:0}
+  td{padding:8px 12px;vertical-align:middle}
+  td.top{vertical-align:top}
+  .fld{height:36px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid var(--color-border);
+    border-radius:var(--radius-md);background:var(--color-surface);font-size:14px;font-weight:500;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fld.num{justify-content:flex-end;font-variant-numeric:tabular-nums}
+  .fld .chev{margin-left:auto;color:var(--color-fg-subtle);font-size:11px}
+  .chip{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:2px 8px;border-radius:999px;
+    font-size:11px;font-weight:600;background:var(--color-success-subtle);color:#14532d}
+  .chip .dot{width:6px;height:6px;border-radius:999px;background:var(--color-success)}
+  .total{font-variant-numeric:tabular-nums;font-weight:600;text-align:right;padding-right:12px}
+  .btn{height:32px;width:32px;display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);
+    color:var(--color-fg-subtle);font-size:15px}
+  .actions{text-align:center}
+  .actions.dropped{outline:2px solid var(--color-warning);outline-offset:-2px;border-radius:var(--radius-sm);
+    background:var(--color-warning-subtle)}
+
+  .console{margin-top:14px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);
+    background:#1c1917;color:#e7e5e4;overflow:hidden}
+  .console .bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#292524;
+    border-bottom:1px solid #3f3f46;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#a8a29e}
+  .console .bar .dots{display:inline-flex;gap:5px}
+  .console .bar .dots i{width:9px;height:9px;border-radius:999px;display:inline-block;background:#57534e}
+  .console pre{margin:0;padding:12px 14px;font-family:"SF Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12px;line-height:1.7;white-space:pre-wrap}
+  .console .w{color:#fbbf24}
+  .console .d{color:#a8a29e}
+
+  .rules{border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);
+    padding:0;overflow:hidden;margin-top:6px}
+  .rules .r{display:flex;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--color-border);font-size:13px}
+  .rules .r:last-child{border-bottom:0}
+  .rules .n{width:22px;height:22px;flex:none;border-radius:999px;background:var(--color-surface-muted);
+    color:var(--color-fg-muted);font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+  .rules .r b{color:var(--color-fg)}
+  .rules .r span{color:var(--color-fg-muted)}
+  .rules .r.struck b{text-decoration:line-through;color:var(--color-warning)}
+
+  .verdict{margin-top:34px;border:1px solid var(--color-border);border-left:3px solid var(--color-warning);
+    border-radius:var(--radius-md);background:var(--color-surface);padding:14px 16px}
+  .verdict h3{margin:0 0 6px;font-size:14px}
+  .verdict p{margin:0;color:var(--color-fg-muted);font-size:13px;max-width:80ch}
+  ul.plain{margin:8px 0 0;padding-left:18px;color:var(--color-fg-muted);font-size:13px;max-width:80ch}
+  ul.plain li{margin:4px 0}
+  ul.plain b{color:var(--color-fg)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Option C — the whole line still wins, but never silently</h1>
+  <p class="sub">The screen looks exactly like Option B. The difference is that the shared kit tells whoever is building the screen, in plain words, that it has just overruled them.</p>
+  <span class="tag">Fixes the silence, not the surprise</span>
+
+  <h2>1 · On screen — identical to leaving it alone</h2>
+  <div class="block">
+    <div class="caption">
+      <span class="who">Customer system — a sales order line; the buttons box was separately told “sit in the middle”</span>
+      <span class="pill warn">overruled, and flagged</span>
+    </div>
+    <div class="frame">
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Container</th><th class="r">Quantity</th><th>Unit</th><th class="r">Unit price</th><th class="r">Line total</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="top"><div class="fld">Banana Cavendish Cl.3<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>412 cartons available</span></td>
+            <td class="top"><div class="fld">Carton 18kg<span class="chev">▾</span></div></td>
+            <td class="top"><div class="fld num">120</div></td>
+            <td class="top"><div class="fld">Cartons<span class="chev">▾</span></div></td>
+            <td class="top"><div class="fld num">184.50</div></td>
+            <td class="top total">22 140.00</td>
+            <td class="top actions dropped"><span class="btn">⋯</span></td>
+          </tr>
+          <tr>
+            <td class="top"><div class="fld">Banana Cavendish Cl.1<span class="chev">▾</span></div><span class="chip"><span class="dot"></span>96 pallets available</span></td>
+            <td class="top"><div class="fld">Pallet 1.2m<span class="chev">▾</span></div></td>
+            <td class="top"><div class="fld num">4</div></td>
+            <td class="top"><div class="fld">Pallets<span class="chev">▾</span></div></td>
+            <td class="top"><div class="fld num">9 480.00</div></td>
+            <td class="top total">37 920.00</td>
+            <td class="top actions dropped"><span class="btn">⋯</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">The buttons still jump to the top. <b>Nobody using the app sees any difference from Option B</b> — the change is entirely for the people building the screens.</p>
+  </div>
+
+  <h2>2 · What the builder sees while building</h2>
+  <div class="block">
+    <div class="console">
+      <div class="bar"><span class="dots"><i></i><i></i><i></i></span> builder's tools — while the screen is being made</div>
+      <pre><span class="w">⚠ warning</span>  A line-wide alignment instruction has overruled this box's own
+          alignment instruction. The box will sit at the top, not in the middle.
+          <span class="d">To keep the box where you put it, use the box's own setting instead.</span>
+<span class="w">⚠ warning</span>  Same again — 1 more box on this screen.</pre>
+    </div>
+    <p class="note">The warning appears only while a screen is being built, never for anyone using the app.</p>
+  </div>
+
+  <h2>3 · The order of who wins</h2>
+  <div class="block">
+    <div class="rules">
+      <div class="r"><span class="n">1</span><b>This one box, said the modern way</b> <span>— always wins</span></div>
+      <div class="r"><span class="n">2</span><b>The whole line</b> <span>— beats anything else said about a single box, and says so out loud</span></div>
+      <div class="r struck"><span class="n">3</span><b>This one box, said the older way</b> <span>— overruled, with a warning</span></div>
+      <div class="r"><span class="n">4</span><b>Nothing said at all</b> <span>— sits in the middle, as it always has</span></div>
+    </div>
+  </div>
+
+  <div class="verdict">
+    <h3>What choosing this means</h3>
+    <p>The screen is still not what its author asked for — the builder is simply told so. It also puts extra checking work into a piece of the shared kit that runs for every single box in every list in every app.</p>
+    <ul class="plain">
+      <li><b>More to build than Option A</b>, for a worse result on screen.</li>
+      <li><b>New running cost</b> in the most-used part of the shared kit, which the standing rule for this kit says to keep as small as possible.</li>
+      <li><b>Listed for completeness.</b> I would not pick it.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

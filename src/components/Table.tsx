@@ -41,6 +41,12 @@ import { cn } from "../lib";
  * A row whose cells are of unequal height (a chip or hint sits under one field, making its cell
  * taller) lines up along the top with `<TableRow valign="top">`, and a single column opts back out
  * with `<TableCell valign="middle">`. The default is "middle" everywhere and does not move.
+ *
+ * Vertical-alignment precedence, most specific first:
+ *   cell `valign` prop  >  cell `className`  >  row `valign` prop  >  the "middle" default
+ * The middle rung is what CR-DESIGN-SYSTEM-007 restored: a `className` utility is a CELL-level
+ * answer — before the row option existed it was the only way to write one — so a ROW-level answer
+ * must not silently override it.
  */
 
 // Rounded, bordered frame around the table so the corners read crisply (the table itself can't
@@ -109,8 +115,12 @@ export interface TableRowProps extends HTMLAttributes<HTMLTableRowElement> {
   interactive?: boolean;
   /**
    * Vertical alignment for every cell in this row — asked once, instead of repeated on all six
-   * cells of a wide grid. A cell's own `valign` wins over it. Defaults to "middle"; see
-   * `TableCellProps.valign` for why that default does not move.
+   * cells of a wide grid. Defaults to "middle"; see `TableCellProps.valign` for why that default
+   * does not move.
+   *
+   * This is a DEFAULT FOR ITS CELLS, not an override of them: a cell that expresses its own
+   * vertical answer — through its `valign` prop OR through a vertical utility in its `className` —
+   * keeps that answer. Precedence is cell prop > cell `className` > this > "middle".
    */
   valign?: VAlign;
 }
@@ -224,7 +234,9 @@ export interface TableCellProps extends TdHTMLAttributes<HTMLTableCellElement> {
    *
    * Set "top" when a row holds cells of unequal height — a field with a chip or hint under it makes
    * its cell taller, and every middle-aligned neighbour then sits visibly lower than it.
-   * `<TableRow valign="top">` asks once for a whole row; this wins over that.
+   * `<TableRow valign="top">` asks once for a whole row; this wins over that, and so does a
+   * vertical utility written in this cell's own `className`. Precedence is
+   * this prop > this cell's `className` > the row's prop > "middle".
    *
    * ⚠ This CONSUMES React's deprecated `TdHTMLAttributes.valign` presentational attribute — exactly
    * as `align` above consumes `TdHTMLAttributes.align`. Passing it was already possible and already
@@ -244,25 +256,31 @@ export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(functi
   const effectiveAlign: Align = align ?? (numeric ? "right" : "left");
   // The same one-class rule on the vertical axis. The cell's own answer wins over its row's.
   const rowValign = useContext(RowValignContext);
-  const resolvedValign = valign ?? rowValign;
-  const vertical = valignClass(resolvedValign);
-  const askedForValign = resolvedValign !== undefined;
+  const vertical = valignClass(valign ?? rowValign);
+  // 🔴 Only the CELL's own prop earns position (B) — after `className`. A row-level answer is a
+  //    DEFAULT for cells that express no vertical answer of their own, so it is emitted at position
+  //    (A), exactly where the untouched `align-middle` default sits, and a cell's own `className`
+  //    still beats it. Computing this from the RESOLVED value let a row-level answer silently beat
+  //    a cell-level one, inverting the cell > row precedence (CR-DESIGN-SYSTEM-007 F1).
+  const cellAskedForValign = valign !== undefined;
   return (
     <td
       ref={ref}
       className={cn(
         "px-3 py-2",
-        // NOBODY ASKED: the default sits exactly where `align-middle` has always sat, so an existing
-        // cell's class string is byte-identical — including one that overrides vertical alignment
-        // through `className`, which wins today only because `className` is emitted last.
-        !askedForValign && vertical,
+        // THE CELL DID NOT ASK: the default — or its row's answer, which is a default for exactly
+        // these cells — sits where `align-middle` has always sat, so an existing cell's class string
+        // is byte-identical, including one that overrides vertical alignment through `className`,
+        // which wins only because `className` is emitted last.
+        !cellAskedForValign && vertical,
         numeric && "tabular-nums",
         muted && "text-fg-subtle",
         alignClass(effectiveAlign),
         className,
-        // ASKED: emitted AFTER `className` so a stray utility there cannot silently defeat the prop.
-        // twMerge keeps the last of a conflicting pair, so the answer the caller asked for wins.
-        askedForValign && vertical,
+        // THE CELL ASKED, on its own prop: emitted AFTER `className` so a stray utility there cannot
+        // silently defeat the prop. twMerge keeps the last of a conflicting pair, so the answer the
+        // caller asked for wins. A ROW's answer never reaches here — see the predicate above.
+        cellAskedForValign && vertical,
       )}
       {...props}
     />
