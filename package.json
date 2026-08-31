@@ -36,18 +36,18 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
-    "@radix-ui/react-checkbox": "^1.3.3",
-    "@radix-ui/react-dialog": "^1.1.15",
-    "@radix-ui/react-dropdown-menu": "^2.1.16",
-    "@radix-ui/react-label": "^2.1.8",
-    "@radix-ui/react-radio-group": "^1.3.8",
-    "@radix-ui/react-select": "^2.2.6",
-    "@radix-ui/react-slot": "^1.2.4",
-    "@radix-ui/react-toast": "^1.2.15",
-    "@radix-ui/react-tooltip": "^1.2.8",
+    "@radix-ui/react-checkbox": "^1.3.11",
+    "@radix-ui/react-dialog": "^1.1.23",
+    "@radix-ui/react-dropdown-menu": "^2.1.24",
+    "@radix-ui/react-label": "^2.1.15",
+    "@radix-ui/react-radio-group": "^1.4.7",
+    "@radix-ui/react-select": "^2.3.7",
+    "@radix-ui/react-slot": "^1.3.3",
+    "@radix-ui/react-toast": "^1.2.23",
+    "@radix-ui/react-tooltip": "^1.2.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.16.0",
+    "lucide-react": "^1.35.0",
     "tailwind-merge": "^3.6.0"
   },
   "peerDependencies": {
@@ -56,15 +56,15 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^6.0.4",
-    "happy-dom": "^20.11.1",
-    "prettier": "^3.4.0",
-    "typescript": "^5.7.0",
-    "vitest": "^4.1.10"
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.6",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.1",
+    "happy-dom": "^20.11.13",
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   },
   "pnpm": {
     "//overrides": "nanoid — TWO high advisories (GHSA-28wg-ghj8-5hjv <3.3.16, GHSA-2v37-7h3g-55p8 <3.3.18; both are infinite-loop DoS on a nonsensical size, no disclosure) reach the prod closure by ONE path: the auto-installed `next` PEER > postcss@8.4.31 > nanoid@3.3.12. They were published after this repo was last touched, so they fail the Dependency Audit on EVERY pull request here, including one that changes nothing. OVERRIDDEN RATHER THAN IGNORED, deliberately: bananaworld-dc met the identical advisory first and resolved it this way (a20cf381, PR #160, 2026-08-08), and the standing next-peer ignore above records its own revisit trigger as \"when the estate advisory batch bumps next\" — which is this. An ignore here would book a 7th standing exception at the exact moment the 6th said to stop. ^3.3.17 resolves 3.3.18 and clears both. Owner CHOSE this over extending ignoreGhsas, in writing, at the CR-DESIGN-SYSTEM-002 decision gate on 2026-08-14 (D-12). No Hard Rule 2 citation belongs here and its absence is the point: an override trades nothing away, so unlike the ignores below it is a fix and not an exception. Verified by running: `pnpm audit --prod --audit-level=high` exits 1 without this and 0 with it; `pnpm install --frozen-lockfile` passes, so the lock and manifest agree.",
