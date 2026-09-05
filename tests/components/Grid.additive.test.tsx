@@ -1,3 +1,4 @@
+import { type ReactElement } from "react";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 
@@ -11,6 +12,7 @@ import {
   TableHeader,
   TablePagination,
   TableRow,
+  useTableControls,
 } from "../../src";
 
 // ============================================================================
@@ -128,31 +130,28 @@ describe("the table primitives keep their signatures byte for byte", () => {
 });
 
 describe("the toolbar the document lists run on is untouched", () => {
+  // 🔴 DRIVEN THROUGH THE REAL ENTRY POINT, NOT A HAND-BUILT PROP BAG. `DataTableToolbar` takes ONE
+  //    `controls` object, and every document list builds it with `useTableControls`. A spec that
+  //    assembled that object by hand would keep passing while the hook's contract drifted underneath
+  //    it — and the hook's contract is the thing a consumer actually depends on.
+  function ReceiptsToolbarHarness(): ReactElement {
+    const controls = useTableControls([{ state: "Draft" }, { state: "Posted" }], {
+      getSearchText: (row) => row.state,
+      filters: [{ kind: "select", key: "state", label: "State", accessor: (row) => row.state }],
+    });
+    return <DataTableToolbar controls={controls} searchPlaceholder="Search receipts…" />;
+  }
+
   it("`DataTableToolbar` still renders its search box and its filters", () => {
-    render(
-      <DataTableToolbar
-        searchValue=""
-        onSearchChange={() => undefined}
-        searchPlaceholder="Search receipts…"
-        filters={[
-          {
-            kind: "select",
-            key: "state",
-            label: "State",
-            options: [
-              { value: "Draft", label: "Draft" },
-              { value: "Posted", label: "Posted" },
-            ],
-          },
-        ]}
-        filterValues={{}}
-        onFilterChange={() => undefined}
-      />,
-    );
+    render(<ReceiptsToolbarHarness />);
     expect(screen.getByPlaceholderText("Search receipts…")).toBeTruthy();
     // 🔴 THE GRID DID NOT REPLACE THIS. The seventeen document lists still run on it, and they adopt
     //    the grid at M-09 of the consuming app's own epic — not here, and not by side effect.
-    expect(screen.getAllByRole("button").length).toBeGreaterThan(0);
+    // ⚠ THE FILTER IS A `combobox`, NOT A `button`. Its trigger is a Radix `SelectTrigger`, which sets
+    //   role="combobox" over the underlying element — so a `getAllByRole("button")` count would find
+    //   nothing here and would be asserting the wrong thing about the shipped control. Naming the
+    //   filter is also a stronger claim than counting anonymous buttons: it says THIS filter rendered.
+    expect(screen.getByLabelText("Filter by State")).toBeTruthy();
   });
 
   it("`TablePagination` still prints its count and its arrows", () => {
