@@ -164,3 +164,48 @@ export {
   type DocumentDateSlotState,
   type DocumentOrigin,
 } from "./DocumentHeader";
+// 🔴 THE GRID CONTROLS (CR-DESIGN-SYSTEM-008). They sit BESIDE the `Table` block above — the table is
+//    not forked, not wrapped, and gains no prop; `TableHead`, `TableRow`, `TableCell` and
+//    `DataTableToolbar` keep their signatures byte for byte, so a consumer that moves its pin and
+//    adopts none of this sees no change at all. That is asserted in this package's own suite
+//    (`tests/components/Grid.additive.test.tsx`) rather than hoped for: no session can read a sibling
+//    consumer to find out what it broke, so the change has to be incapable of breaking one.
+//
+// ⚠ THE CONTROLS LIVE ON THE TABLE, AND THAT IS THE WHOLE DESIGN. Sorting is the header; grouping is
+//   a header dragged into the strip; filtering is the row under the headers; column choice is the
+//   header's own menu. The rejected alternative — a "Customise" panel of column tokens beside the
+//   grid — is the thing these exist instead of. Do not add one here later.
+export {
+  GridHeadCell,
+  type GridHeadCellProps,
+} from "./GridHeadCell";
+export {
+  GridHeaderMenu,
+  GRID_COLUMN_MIME,
+  gridDraggedColumn,
+  type GridHeaderMenuProps,
+  type GridHeaderMenuColumn,
+} from "./GridHeaderMenu";
+export {
+  GridFilterRow,
+  type GridFilterRowProps,
+  type GridFilterCellDef,
+  type GridFilterOption,
+} from "./GridFilterRow";
+export {
+  GridGroupStrip,
+  gridGroupHint,
+  gridSigmaSummary,
+  type GridGroupStripProps,
+  type GridGroupChipView,
+  type GridSigmaOption,
+} from "./GridGroupStrip";
+// The header date range as PERMANENT CHROME (OD-RP-7) — presentation only. Every string it prints is
+// handed to it, because resolving "last 30 days" needs a clock read in the DEPOT's zone and applying
+// "both boxes empty" needs the screen's own default, and neither belongs to a UI package.
+export {
+  DateRangeChrome,
+  type DateRangeChromeProps,
+  type DateRangeQuickChoice,
+  type DateRangeDraft,
+} from "./DateRangeChrome";

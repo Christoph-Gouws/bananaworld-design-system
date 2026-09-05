@@ -44,3 +44,21 @@ export {
   type TablePageState,
   type TablePageRange,
 } from "./table-paging";
+// The grid's pure state arithmetic (CR-DESIGN-SYSTEM-008). Exported in its own right because the
+// consumer needs the SAME shapes the controls produce: what it puts in a URL, what it sends to a
+// server and (later) what it saves under a name all have to be one value, or the screen's idea of the
+// query and the query drift apart.
+export {
+  gridSortToggle,
+  gridSortPosition,
+  gridColumnOrder,
+  gridFilterSet,
+  gridFilterIsEmpty,
+  type GridSortDir,
+  type GridSort,
+  type GridGroupLevel,
+  type GridFilterKind,
+  type GridFilterValue,
+  type GridFilterValues,
+  type GridStoredView,
+} from "./grid-view";
