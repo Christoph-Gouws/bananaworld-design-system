@@ -43,4 +43,19 @@ export {
   tablePageRange,
   type TablePageState,
   type TablePageRange,
+  // The grid's pure state arithmetic (CR-DESIGN-SYSTEM-008). The grid COMPONENTS arrive through the
+  // `export * from "./components"` above; these live in ./lib, so they have to be named here as well
+  // or a consumer cannot reach them from the package root at all.
+  gridSortToggle,
+  gridSortPosition,
+  gridColumnOrder,
+  gridFilterSet,
+  gridFilterIsEmpty,
+  type GridSortDir,
+  type GridSort,
+  type GridGroupLevel,
+  type GridFilterKind,
+  type GridFilterValue,
+  type GridFilterValues,
+  type GridStoredView,
 } from "./lib";
