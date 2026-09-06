@@ -52,5 +52,7 @@ package) — see each app's DevOps notes.
 
 ## Governance
 
-Changes here are change-controlled in **both** apps (it is shared infrastructure). Keep it pure: if a
+Changes here are change-controlled in **both** apps (it is shared infrastructure). A review follow-up may not
+itself have a follow-up — the cap is defined at `docs/CHANGE_FOLLOWUP_CAP.md` and enforced by
+`tests/governance/change-followup-depth.test.ts`; this line states no part of the rule. Keep it pure: if a
 component needs app state (auth, offline queue, routing logic), it belongs in the app, not here.

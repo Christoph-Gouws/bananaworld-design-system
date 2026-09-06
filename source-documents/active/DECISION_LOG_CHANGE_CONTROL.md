@@ -5,6 +5,45 @@
 
 ---
 
+## GOVERNANCE — a review follow-up may not itself have a follow-up
+
+| Field | Value |
+|---|---|
+| Type | GOVERNANCE / DECISION (not a change request; no product code touched) |
+| Status | **ACCEPTED** — owner instruction, guard built and green |
+| Date | 2026-09-06 |
+| Approved by | Human Project Owner (Chris Gouws), direct instruction: one follow-up per change, across the board, no more |
+| Designated home | `docs/CHANGE_FOLLOWUP_CAP.md` — 🔴 **this entry is a record, not the rule's home, and restates no part of it** |
+| Instrument | `tests/governance/change-followup-depth.test.ts` (CI-blocking; a third vitest project, `governance`) |
+
+### What was asked
+
+The owner reviewed the estate's change lanes on 2026-09-06 and found Bananaworld-CRM had queued
+CR-CRM-084 as a review follow-up of CR-CRM-083 — **generation 14** on a single unbroken lineage
+running back to CR-CRM-047. He capped follow-up depth at two generations across the board.
+
+### What this repository's own record shows
+
+Measured from the archives, not assumed: the deepest lineage here is **two** generations,
+CR-DESIGN-SYSTEM-006 → 007. Nothing in this repository violates the cap, and nothing is retro-fitted.
+The rule is adopted here so the drift cannot start, and because the same change runner drives this
+lane.
+
+### Why a guard and not a sentence
+
+Four separate CRM archives already carried the warning that widening a follow-up is how a follow-up
+becomes the next thing needing a follow-up. That lineage still reached thirteen generations, because a
+convention cannot go red. The guard refuses a third generation, refuses a change with no lineage entry
+in `docs/change-lineage.json`, and refuses a change whose archive header calls itself a follow-up while
+its entry claims to be a root — the one way around the cap. Two mutations applied, two caught.
+
+### What replaces a third-generation change
+
+Recorded at the designated home. In short: the finding is written down and routed to the owner, and
+enters as a root change with its own plan only if the owner scopes it.
+
+---
+
 ## CR-DESIGN-SYSTEM-007 — when a row instruction and a single box disagree, the box wins
 
 | Field | Value |

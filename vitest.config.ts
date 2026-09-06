@@ -19,6 +19,13 @@ export default defineConfig({
         },
       },
       {
+        test: {
+          name: "governance",
+          include: ["tests/governance/**/*.test.ts"],
+          environment: "node",
+        },
+      },
+      {
         plugins: [react()],
         test: {
           name: "components",

@@ -1,0 +1,41 @@
+{
+  "$schema": "one entry per change request; `parent` is the change whose review finding this change was built to fix",
+  "rule": "docs/CHANGE_FOLLOWUP_CAP.md is the canonical home of the cap this file is data for",
+  "capEffectiveAfter": "CR-DESIGN-SYSTEM-008",
+  "changes": {
+    "CR-DESIGN-SYSTEM-001": {
+      "parent": null,
+      "archive": "runs/change-01"
+    },
+    "CR-DESIGN-SYSTEM-002": {
+      "parent": null,
+      "archive": "runs/change-02"
+    },
+    "CR-DESIGN-SYSTEM-003": {
+      "parent": null,
+      "archive": "runs/change-03"
+    },
+    "CR-DESIGN-SYSTEM-004": {
+      "parent": null,
+      "archive": "runs/change-04"
+    },
+    "CR-DESIGN-SYSTEM-005": {
+      "parent": null,
+      "archive": "runs/change-05"
+    },
+    "CR-DESIGN-SYSTEM-006": {
+      "parent": null,
+      "archive": "runs/change-06"
+    },
+    "CR-DESIGN-SYSTEM-007": {
+      "parent": "CR-DESIGN-SYSTEM-006",
+      "kind": "review-follow-up",
+      "archive": "runs/change-07",
+      "evidence": "runs/change-07/output/implementation-summary.md:3"
+    },
+    "CR-DESIGN-SYSTEM-008": {
+      "parent": null,
+      "evidence": "commit 6ed975d (PR #20) — raised by EPIC-028-M-02 (DEP-028-02), not by a review finding"
+    }
+  }
+}
