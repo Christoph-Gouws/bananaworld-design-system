@@ -1,25 +1,24 @@
 # Known issues — CR-DESIGN-SYSTEM-009
 
 > What is left open, what moved under this change, and what a reader should not re-investigate.
-> Open **defects in the change: 0.** Open **gates: 1**, and it is §A.
+> Open **defects in the change: 0.** Open **gates: 0** — §A's decision gate was answered by the owner.
+> Open **actions owed by someone else: 1**, and it is §A.
 
 ---
 
-## §A · 🔴 THREE HIGH/CRITICAL ADVISORIES BLOCK THE PR — and they are not this change's
+## §A · 🔴 READ THIS FIRST · CI's `dependency-audit` WILL BE RED, and RELAUNCHING THE BUILD SESSION WILL NOT FIX IT
 
-**Status: OPEN. It is why this session did not open a pull request.**
+**Status: DECIDED by the owner (option A). Execution OWED by an actor who may run a package manager.**
+**Not a defect in this change, and not something a rebuild can clear.**
 
-Three advisories were published **2026-09-08 — the day before this session** — against packages
-already in this repo's production closure:
+Three advisories were published **2026-09-08 — the day before this change was built** — against
+packages already in this repo's production closure:
 
 | Advisory | Severity | Package | Fixed in |
 |---|---|---|---|
 | `GHSA-2xp9-vwfh-vxw4` | **critical** | `next` — unauthenticated RCE in the Image Optimization API (AVIF) | **15.5.24** |
 | `GHSA-p293-qw3h-jr36` | **critical** | `next` — unauthenticated RCE on windows-hosted servers | **15.5.24** |
 | `GHSA-rgj7-g3m4-5g8c` | high | `sharp` — inherited libheif CVEs | **0.35.4** |
-
-Confirmed against **two independent sources** (the npm bulk endpoint that `pnpm audit` uses, and the
-GitHub advisory API) because this probe has a history of lying — see `defect-log.md` D-2.
 
 **Why it blocks.** `autoInstallPeers: true`, so `next@15.5.19` sits in the lockfile's **production
 `dependencies`** (`pnpm-lock.yaml:50`) — exactly what `pnpm audit --prod` walks. CI's
@@ -31,24 +30,69 @@ branch protection requires that workflow green.
 (2026-08-25) reported 6 highs, all ignored, **0 blocking** — the difference is thirteen days of
 advisory publication, not thirteen days of code.
 
-**Why it was not simply fixed here.** The remedy is small and sits **inside the already-declared
-`^15.0.0` peer range**: refresh `next` to ≥ 15.5.24 (15.5.25 widens its optional `sharp` range to
-`^0.34.3 || ^0.35.4`, so the patched `sharp` follows). Verified against the same endpoint — **at
-`next@15.5.25` + `sharp@0.35.4`, zero high/critical remain.** But:
+### What the owner decided
 
-- every dependency-mutating command (`pnpm update`, `pnpm install` without `--frozen-lockfile`) is
-  **permission-blocked in this worktree**; and
-- the only other route is adding two unauthenticated-RCE GHSAs to the owner-approved
-  `pnpm.auditConfig.ignoreGhsas` list, which is **not a change's call** and is the wrong instinct
-  regardless.
+**Option A — take the repaired versions.** Refresh `next` to **≥ 15.5.24**, inside the `^15.0.0` peer
+range this package already declares; `next@15.5.25` widens its optional `sharp` range to
+`^0.34.3 || ^0.35.4`, so the patched `sharp` follows from the one bump. **Nothing is added to
+`pnpm.auditConfig.ignoreGhsas`** — the owner declined that route explicitly.
 
-**Escalated, not absorbed:** `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` (the owner's
-card) and a PROPOSED entry in `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md`.
+### The one command that is owed
+
+On this branch, by an actor with package-manager permission, before CI can go green:
+
+```
+pnpm update next          # 15.5.19 -> 15.5.25 (head of 15.5.x); pulls sharp >= 0.35.4
+pnpm install --frozen-lockfile && pnpm typecheck && pnpm test && pnpm audit --prod --audit-level=high
+git commit -m "CR-DESIGN-SYSTEM-009 - take the repaired next/sharp versions (owner decision A)" pnpm-lock.yaml
+```
+
+`package.json` needs **no edit** — 15.5.25 already satisfies the declared `^15.0.0`. Only
+`pnpm-lock.yaml` moves.
+
+### Why this session did not do it — both routes, and why each was refused
+
+1. **Running `pnpm` is permission-gated in a build worktree and an unattended session has no
+   approver.** `pnpm --version`, `pnpm audit` and `pnpm update` were each refused. **The gate was
+   honoured, not evaded.** It exists so that a version change is never made quietly in the middle of
+   other work — which is precisely what this would have been. Invoking pnpm's JS entry point through
+   `node` would have satisfied the letter of the block and defeated its point, so it was not done.
+2. **Hand-authoring `pnpm-lock.yaml` was rejected**, and it is the more tempting of the two.
+   `next@15.5.19 → 15.5.25` plus `sharp@0.34.5 → 0.35.4` is ~35 new package records — `@next/env`,
+   eight `@next/swc-*` platform builds, and sharp's `@img/sharp-*` matrix — each needing a registry
+   integrity hash and a correct snapshot dependency graph. **One wrong hash fails
+   `pnpm install --frozen-lockfile` in every CI job and for every consumer; one missing transitive
+   edge installs a broken tree silently.** A lockfile is a generated artefact, and generating one by
+   hand into a package four apps pin by sha is not a defensible trade.
+
+**B was not quietly substituted for A because A was unreachable.** The owner's card said plainly that
+an unauthenticated RCE is not what the accepted list is for; choosing B on his behalf would have been
+this change deciding a security posture he had just declined.
+
+### Re-measured this session, independently — the numbers are not carried forward
+
+The closure was walked from `pnpm-lock.yaml` and queried against the same npm bulk endpoint
+`pnpm audit` uses (`pnpm` itself being unavailable):
+
+| | |
+|---|---|
+| Prod closure | **66** name@version pairs deps-only · **106** with optional edges |
+| Advisories in that closure | **16** |
+| On the standing `ignoreGhsas` list | 6 (5 high + the sharp `<0.35.0` one) |
+| 🔴 **Blocking** (high/critical, not ignored) | **3** — the table above |
+| Verdict | `pnpm audit --prod --audit-level=high` **would exit 1** |
+| Third sanity check (handover's standing demand) | **16 ids parsed, 0 empty or non-GHSA** ✅ |
+| Same closure at `next@15.5.25` + `sharp@0.35.4` | **0 blocking** — verdict exit 0 |
+
+Two incidental confirmations from the same walk: the `nanoid@<3.3.17` override **is working**
+(resolved `3.3.18`, and the `<3.3.18` high does not appear), and the two high PostCSS advisories that
+*do* appear are both already on the ignore list.
 
 ⚠ **The estate-wide half is bigger than this repo and belongs to the owner, not to this change.** DC,
 the CRM, RMS, org-admin and Manga Verde each pin their own `next` and are presumably on the same
 vulnerable range. This package's peer refresh fixes **this repo's CI**; it does not patch a single
-running app. That is five separate lanes and a compliance-register question.
+running app. That is five separate lanes and a compliance-register question. Flagged on the owner's
+card and repeated here rather than left looking handled.
 
 ---
 

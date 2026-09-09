@@ -302,7 +302,7 @@ density, C one-line values, D the per-column width scale) shipped complete.
 | Document | Amendment | Status |
 |---|---|---|
 | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` | A CHANGE/DECISION entry for **CR-DESIGN-SYSTEM-009**: what was asked, what was decided at the plan gate, the layout picked (**B**), the ship mode (**on-green**), all four recorded owner responses including the two revise notes, and the eight in-session decisions (D-1…D-8) | **Applied** |
-| `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` | **D-9, the advisory question — recorded PROPOSED, not decided.** Refresh the pinned `next`/`sharp`, extend the ignore list, or accept a red audit gate | **Proposed** |
+| `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` | **D-9, the advisory question — DECIDED by the owner: option A**, refresh `next` to ≥ 15.5.24 (pulling `sharp` ≥ 0.35.4); the ignore list is **not** extended. **D-10** records that its execution is owed, why both available routes were refused, and the one command that clears it | **Decided (A); execution owed** |
 
 🔴 **No Stage 07 amendment to a rule, contract or workflow was required, and here is the reason** — an
 unrecorded N/A would be a skip:
@@ -355,11 +355,11 @@ The same table is carried, with its reasoning, in
 
 ## 16. Blocking Reports
 
-**One, raised at the end of Stage 04 and unresolved by design — it is the owner's to answer.**
+**One, raised at the end of Stage 04. The owner has since answered it; its execution is owed.**
 
 | Report | Raised | Status |
 |---|---|---|
-| 🔴 **`NEEDS_OWNER: decision` — three high/critical advisories block the merge** | Stage 04, dependency audit | **OPEN.** Recorded PROPOSED as **D-9** in `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md`; plain-English card written to `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
+| 🔴 **`NEEDS_OWNER: decision` — three high/critical advisories block the merge** | Stage 04, dependency audit | **ANSWERED — the owner chose option A**, take the repaired versions (`next` ≥ 15.5.24, which pulls `sharp` ≥ 0.35.4). Recorded as **D-9 DECIDED**. 🔴 **Its execution is OWED, not done** (**D-10**): `pnpm` is permission-gated in a build worktree with no approver, and the gate was honoured rather than evaded; hand-authoring the lockfile was rejected as the larger risk. **CI's `dependency-audit` will be red until one `pnpm update next` commit lands on this branch** — a rebuild of the change cannot produce it. Re-measured at the resumed session: 3 blocking now, **0 blocking after the bump** |
 
 **No `CHANGE_BLOCKED` was raised.** The change itself is complete, green and additive; what is blocked
 is the merge, by a repository-wide condition that predates this branch.
@@ -457,4 +457,4 @@ explicitly.
 | All required stage outputs produced / updated | **Yes** — Stage 04: `test-results.md`, `qa-report.md`, `defect-log.md`, `deployed-verification.md`. Stage 05: `revision-review.md`, `simplification-opportunities.md`, `accepted-refactors.md`, `readable-code-scorecard.md`, `centrality-scorecard.md`. Plus `changed-files.md`, `implementation-summary.md`, `known-issues.md`, `technical-debt.md`, `truncate-probe.html`. **Each as its own file — no roll-up substituted for one** (Rule 9.1) |
 | Session handover (`runs/current/SESSION_HANDOVER.md`) updated | **Yes** — rewritten for CR-DESIGN-SYSTEM-009, and `runs/current/active-milestone.md` reconciled with it. Both name this CR |
 | Context Usage Summary recorded (§19) and appended to the global log | **Yes** — §19 above, and one row appended with `--project bananaworld-design-system` |
-| Owner notified: "Milestone [ID] is closed and ready for the next session" | 🔴 **No — and deliberately not.** This change is **BLOCKED**, not closed (§18). What the owner is handed instead is a decision card at `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md`, and the session ends on `NEEDS_OWNER: decision`. Reporting it as closed would be the false claim this pack exists to prevent |
+| Owner notified: "Milestone [ID] is closed and ready for the next session" | **Partly, and the part that is not is stated rather than rounded up.** The decision card was answered (**option A**) and the change is now built, green, closed out, pushed and **PR open**. 🔴 **What is NOT true is that it can merge:** CI's `dependency-audit` job will be red until the owed `pnpm update next` commit lands (**D-10**), and this session is not permitted to produce it. The session ends on `CHANGE_PR`, not on a claim of green CI. Reporting this as merge-ready would be the false claim this pack exists to prevent |

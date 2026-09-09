@@ -92,20 +92,33 @@ children are a plain string.
 2. **A ninth source file**, `src/lib/table-controls.ts`, because `MultiSelectFilterDef` lives there and
    not in `DataTableToolbar.tsx` as §3 implied.
 
-## 🔴 Why there is no pull request
+## 🔴 The PR is open, and CI's `dependency-audit` job will be RED
 
-**The change is complete, green and additive. It is not mergeable today, for a reason that is not
-its own.** Three high/critical advisories published **2026-09-08** — two unauthenticated Next.js RCEs
-and a `sharp` high — sit in the production closure CI audits, and `pnpm audit --prod --audit-level=high`
-will fail. `package.json` and `pnpm-lock.yaml` are byte-identical to `main`, so **`main` fails the same
-audit right now.**
+**The change is complete, green and additive. What is red is not its own.** Three high/critical
+advisories published **2026-09-08** — two unauthenticated Next.js RCEs and a `sharp` high — sit in the
+production closure CI audits, so `pnpm audit --prod --audit-level=high` exits 1. `package.json` and
+`pnpm-lock.yaml` are byte-identical to `main`, so **`main` fails the same audit right now**, and so
+would a PR that changed nothing.
 
-The remedy is inside the already-declared `^15.0.0` peer range and clears all three
-(`next` ≥ 15.5.24 pulls `sharp` ≥ 0.35.4; verified — zero high/critical remain). But every
-lockfile-writing command is permission-blocked in this worktree, and the alternative — ignoring two
-RCEs — is not a change's call. **Escalated as `NEEDS_OWNER: decision`** with a plain-English card at
-`runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md`. The work is committed and pushed on the
-branch; nothing is lost, and the resumed session picks up from the owner's answer.
+**The owner was asked and answered: option A — take the repaired versions.** `next` ≥ 15.5.24 (which
+pulls `sharp` ≥ 0.35.4) is inside the already-declared `^15.0.0` peer range, and was re-verified this
+session against the same endpoint `pnpm audit` uses: **at `next@15.5.25` + `sharp@0.35.4`, 0 blocking.**
+Nothing goes on the ignore list — the owner declined that route.
+
+🔴 **The bump is OWED, not done, and a rebuild will not produce it.** `pnpm` is permission-gated in a
+build worktree and an unattended session has no approver; that gate exists so a version change is never
+made quietly mid-build, so it was honoured rather than routed around via `node`. Hand-authoring ~35
+lockfile records with registry integrity hashes was rejected as the larger risk — one wrong hash breaks
+`pnpm install --frozen-lockfile` for every job and every consumer.
+
+**One command, on this branch, by an actor who may run a package manager** — full text in
+`known-issues.md` §A, reasoning in decisions **D-9/D-10**:
+
+```
+pnpm update next     # 15.5.19 -> 15.5.25; package.json needs no edit, only pnpm-lock.yaml moves
+```
+
+Everything else in this change is finished, green and pushed.
 
 ## What the owner will see when this eventually lands
 

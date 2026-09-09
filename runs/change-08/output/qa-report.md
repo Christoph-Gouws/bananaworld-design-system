@@ -131,6 +131,12 @@ it answers OQ-8 in one click.**
 
 **Blocking the merge: 1, and it is not this change's.** Three high/critical advisories published
 2026-09-08 against the auto-installed `next` peer and `sharp` will fail CI's `dependency-audit` job.
-`main` fails the same audit today. The remedy is an owner decision and every route to it is
-permission-blocked here — `test-results.md` §7, `known-issues.md` §A, and the decision card at
-`runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md`.
+`main` fails the same audit today.
+
+**The owner has since answered the card: option A** — take the repaired versions (`next` ≥ 15.5.24,
+which pulls `sharp` ≥ 0.35.4). Re-measured independently at the resumed session: **3 blocking now, 0
+after the bump** (`test-results.md` §7a). 🔴 **Execution is owed, not done** — `pnpm` is
+permission-gated in a build worktree with no approver, that gate was honoured rather than routed
+around, and hand-authoring the lockfile was refused as the larger risk. **CI's `dependency-audit` will
+be red until one `pnpm update next` commit lands on this branch, and a rebuild cannot produce it.**
+See `known-issues.md` §A and decisions **D-9 / D-10**.

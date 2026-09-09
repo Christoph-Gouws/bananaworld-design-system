@@ -66,7 +66,8 @@ an unreviewed rendering change in four apps.
 | Item | Why it is not debt |
 |---|---|
 | **OQ-8 — the truncation cap is unverified in a browser** | an **open verification**, not accepted debt. `known-issues.md` §C, with a ready-to-run probe and a named fallback |
-| **The three blocking advisories** | pre-existing on `main` and not created by this change. An open **gate**, escalated to the owner — `known-issues.md` §A |
+| **The three blocking advisories** | pre-existing on `main` and not created by this change. Escalated to the owner and **ANSWERED — option A**, take the repaired versions. What remains is an **owed action**, not accepted debt: one `pnpm update next` commit on this branch by an actor with package-manager permission (`known-issues.md` §A, decisions **D-9 / D-10**). Filing it as debt would imply someone chose to live with two unauthenticated RCEs, and the owner chose the opposite |
+| **Patching `next`/`sharp` in the four consuming apps** | 🔴 **Real, and deliberately not this change's to carry.** Repairing this package's peer fixes **this repo's CI** and patches no running app — DC, the CRM, RMS, org-admin and Manga Verde each pin their own `next` and are presumably on the same vulnerable range. That is five separate lanes and a `COMPLIANCE_REGISTER.md` question. Flagged on the owner's card and in the decision log so it is not mistaken for handled; it belongs to the owner, and a change may not open five other apps' lanes |
 | **`quality-sensors.mjs` ignoring justifications on CRLF** | a bug in **estate tooling**, outside this project's lane — `known-issues.md` §D |
 | **`Table.tsx` / `GridFilterRow.tsx` over 300 lines** | **justified in the source** with `QUALITY-JUSTIFY RC-05` and the measurement behind it; the sensor reports **0 open findings**. A justified finding is a decision, not a debt |
 | **No prettier / eslint / `audit:deps` config** | pre-existing repo drift, out of lane, recorded for the fourth time |

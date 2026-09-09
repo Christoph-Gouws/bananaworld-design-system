@@ -10,7 +10,7 @@
 | Field | Value |
 |---|---|
 | Type | CHANGE / DECISION |
-| Status | **BUILT, GREEN, CLOSED OUT — MERGE BLOCKED.** Plan-gate decisions ACCEPTED (D-1…D-8). **D-9 is PROPOSED and open** |
+| Status | **BUILT, GREEN, CLOSED OUT, PR OPEN.** Plan-gate decisions ACCEPTED (D-1…D-8). **D-9 DECIDED by the owner — option A.** Its execution is **owed, not done** — see D-9 and D-10 |
 | Date | 2026-09-09 |
 | Branch point | `origin/main` @ `6ed975d` (CR-DESIGN-SYSTEM-008, merged as PR #20) |
 | Approved layout | **B** — three column width steps, per column |
@@ -47,12 +47,14 @@ of that table is a package export.
 | D-6 | **The compact density is asked ONCE on `<Table>` and reaches the head, the filter row and the body. The package default does NOT move.** | *"I want reports to just open smaller"* (owner, plan note 3) settles **OQ-5**: the app chooses, there is no reader-facing switch, and DC writes `density="compact"` once. But the CRM, RMS, org-admin and Manga Verde render tables from these same parts and none asked to shrink — moving the default would be the lane rule broken in the one way that is invisible until four apps bump their pins. One switch reaching all three rows makes "a compact table with a tall filter row" unreachable by construction |
 | D-7 | **Long values are CUT with an ellipsis (owner's option 2), at a NAMED THREE-STEP WIDTH declared per column — layout B** | *"I wouldn't want all the columns to be equally narrow… some deserve to be wider, like a customer name"* (owner, plan note 3) settles **OQ-7**. Revision 2's single `columnMaxWidth` cut every over-long column at the same place, which is the awkwardness he described. Three steps (`narrow`/`medium`/`wide`) plus `full` express "roomy / ordinary / tight" and stop 27 magic numbers being invented column by column. A step is a **ceiling, not a fixed width**, so a date column still shrinks to its content. `<colgroup>` was rejected as positional (a hidden column shifts every width by one) and `table-layout: fixed` as giving every column an equal share — the owner's complaint restated as a layout mode |
 | D-8 | **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` is NOT created here** | It still does not exist. **Eighth consecutive change to raise it** (CR-001 D-12, CR-002 D-10, CR-003, CR-004, CR-005 D-12, CR-006 D-12, CR-007 D-7, here). Creating it is a governance decision for the owner, not something a change may invent. The plan's eight-seam map (§2) plus `runs/change-08/` is the record meanwhile |
-| **D-9** | 🔴 **PROPOSED, NOT DECIDED — three new high/critical advisories block the merge.** How should they be cleared? | Published **2026-09-08**, the day before the build: `GHSA-2xp9-vwfh-vxw4` and `GHSA-p293-qw3h-jr36` (**critical**, unauthenticated Next.js RCEs) and `GHSA-rgj7-g3m4-5g8c` (high, `sharp`). `autoInstallPeers: true` puts `next@15.5.19` in the lockfile's production dependencies, so CI's `pnpm audit --prod --audit-level=high` fails and branch protection refuses the merge. **Not caused by this change** — `package.json` and `pnpm-lock.yaml` are byte-identical to `main`, which fails the same audit today. **Options:** (a) refresh `next` to ≥ 15.5.24 — **inside the `^15.0.0` range already declared**, and it pulls `sharp` ≥ 0.35.4; verified to clear all three; (b) add the three GHSAs to the owner-approved ignore list; (c) accept a red audit gate. **Recommendation: (a).** Not taken here because every lockfile-writing command is permission-blocked in a build worktree, and (b) means ignoring two unauthenticated RCEs, which is not a change's call. Owner card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
+| **D-9** | ✅ **DECIDED 2026-09-09 — the owner answered `A`: take the repaired versions.** Refresh the `next` peer to **≥ 15.5.24** (which pulls `sharp` **≥ 0.35.4**), inside the `^15.0.0` range this package already declares. **Not** (b) add the GHSAs to the ignore list, and **not** (c) leave the gate red. | Three advisories published **2026-09-08**, the day before the build: `GHSA-2xp9-vwfh-vxw4` and `GHSA-p293-qw3h-jr36` (**critical**, unauthenticated Next.js RCEs) and `GHSA-rgj7-g3m4-5g8c` (high, `sharp` → libheif). `autoInstallPeers: true` puts `next@15.5.19` in the lockfile's production dependencies, so CI's `pnpm audit --prod --audit-level=high` exits 1 and branch protection refuses the merge. **Not caused by this change** — `package.json` and `pnpm-lock.yaml` are byte-identical to `main`, which fails the same audit today. **Re-measured independently this session** (the closure walked from `pnpm-lock.yaml`, the same npm bulk endpoint `pnpm audit` uses): 66 prod pairs deps-only / 106 with optional edges, **16 advisories, 3 blocking, verdict exit 1** — and at `next@15.5.25` + `sharp@0.35.4`, **0 blocking**. `next@15.5.25` is the head of `15.5.x` and is the version that widens its optional `sharp` range to `^0.34.3 \|\| ^0.35.4`, so the patched `sharp` follows from the one bump. Owner card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
+| **D-10** | 🔴 **D-9's execution is OWED, not done. This build session could not perform it, and did not fake a way around it.** The bump is one command plus one commit on `change/cr-design-system-009`, by an actor with package-manager permission: `pnpm update next && pnpm install --lockfile-only`, then commit `package.json` (unchanged) + `pnpm-lock.yaml` with **CR-DESIGN-SYSTEM-009** in the subject. Until it lands, CI's `dependency-audit` job stays red and the PR cannot merge. | Every `pnpm` invocation is permission-gated in a build worktree and an unattended session has no approver — `pnpm --version`, `pnpm audit` and `pnpm update` were each refused. **That gate is deliberate and was honoured rather than evaded:** it exists so a version change is never made quietly in the middle of other work, which is exactly what this would have been. Invoking pnpm's JS entry point through `node` would have satisfied the letter and defeated the point, so it was not done. **Hand-authoring the lockfile was also rejected**, and this is the more tempting of the two: `next@15.5.19 → 15.5.25` plus `sharp@0.34.5 → 0.35.4` is ~35 new package records — `@next/env`, eight `@next/swc-*` platform builds and sharp's `@img/sharp-*` matrix — each needing a registry integrity hash and a correct snapshot dep graph. One wrong hash fails `pnpm install --frozen-lockfile` in **every** CI job and for every consumer; one missing transitive edge installs a broken tree silently. A lockfile is a generated artefact and generating it by hand into a package four apps pin by sha is not a defensible trade. **Escalated in the PR body, `known-issues.md` §A and the handover — a relaunch of the build session will NOT clear it.** |
 
 ### Clarify questions and answers
 
-Four owner responses are recorded for this change. **All four are material and all four are reflected
-in the plan that was built:**
+**Five** owner responses are recorded for this change — four at the plan gate, one at the decision
+gate. **All five are material and all five are reflected in what was built or in what is recorded as
+owed:**
 
 - **`[plan]` — plan REVISE:** *"What I really want to try and avoid is for column fields to wrap. What
   would be the best way to achieve that, for it not to wrap and for it to still show all the columns?"*
@@ -74,6 +76,20 @@ in the plan that was built:**
   in the plan's owner brief and is a one-word edit per column, not a rebuild.
 - **`[plan]` — plan APPROVED (layout B) — ship on-green.** → **Layout B** is the three-sizes-per-column
   option from `comparison.html`, i.e. plan §C.4, and it is what was built.
+- **`[decision]` — `A`.** → The answer to the **D-9** card
+  (`runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md`), which offered: **A** take the repaired
+  versions *(recommended)*, **B** add the three advisories to the accepted list, **C** leave the gate
+  refusing. The owner chose **A**, so `next` goes to ≥ 15.5.24 and `sharp` to ≥ 0.35.4 and **nothing is
+  added to `pnpm.auditConfig.ignoreGhsas`** — the two unauthenticated RCEs are repaired, not accepted.
+  🔴 **The decision is recorded and its execution is owed** (D-10): this session is not permitted to run
+  a package manager, so the version bump is not in this commit. **B was NOT quietly substituted for A**
+  because A was unreachable — the owner's card said explicitly that the ignore list is not where an
+  unauthenticated RCE belongs, and picking B on his behalf would have been the change deciding a
+  security posture the owner had just declined.
+  ⚠ **The estate half the card flagged is unchanged and is the owner's, not this change's:** repairing
+  this package's peer fixes **this repo's CI**. It patches no running app. DC, the CRM, RMS, org-admin
+  and Manga Verde each pin their own `next` and are presumably on the same vulnerable range — five
+  separate lanes and a `COMPLIANCE_REGISTER.md` question, raised here rather than left to look handled.
 
 ### What was built, and how the additive claim was proven
 

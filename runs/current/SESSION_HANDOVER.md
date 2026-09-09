@@ -11,9 +11,9 @@
 | Branch | `change/cr-design-system-009`, off `origin/main` @ `6ed975d` (CR-008, PR #20) |
 | Approved layout | **B** — three column width steps, per column |
 | Ship mode | **on-green** |
-| Status | 🔴 **Built, tested green, closed out, committed and pushed. NO PR — merge blocked on an owner decision (D-9).** |
+| Status | **Built, tested green, closed out, pushed, PR OPEN.** 🔴 CI's `dependency-audit` job will be **red** on a pre-existing, repo-wide advisory condition — **not this change's**, and **a rebuild cannot clear it** (D-10) |
 | Archive | `runs/change-08/` |
-| Open defects | **0** · Open decisions: **1 (D-9)** · Technical debt created: **1 (TD-1)** |
+| Open defects | **0** · Open decisions: **0** (D-9 answered — owner chose **A**) · **1 action owed by someone with package-manager permission (D-10)** · Technical debt created: **1 (TD-1)** |
 
 ### What it did
 
@@ -75,9 +75,21 @@ production dependencies, which is what `--prod` walks.
 **The remedy, already verified:** `next` ≥ 15.5.24 is **inside the `^15.0.0` peer range this project
 already declares**, and 15.5.25 widens its optional `sharp` range so the patched `sharp` follows. At
 `next@15.5.25` + `sharp@0.35.4`, **zero high/critical remain**.
-⚠ This session could not do it: **every lockfile-writing command is permission-blocked in a build
-worktree.** ⚠ **Do NOT add these to `pnpm.auditConfig.ignoreGhsas`** — two are unauthenticated RCEs.
+✅ **The owner decided this: option A, take the repaired versions.** Re-measured independently at the
+resumed session by walking the closure out of `pnpm-lock.yaml` (66 pairs deps-only / 106 with optional
+edges, 16 advisories, third sanity check **0 empty or non-GHSA**): **3 blocking now, 0 after the bump.**
+
+🔴 **Owed, not done — and no build session can do it.** `pnpm update next` + commit `pnpm-lock.yaml`,
+on this branch, by an actor with package-manager permission. Every `pnpm` invocation is permission-gated
+in a build worktree and an unattended session has no approver; **the gate was honoured rather than
+routed around** via `node`, because it exists precisely so a version change is never made quietly
+mid-build. Hand-authoring the lockfile was also refused: ~35 new records (`@next/env`, eight
+`@next/swc-*`, sharp's `@img/sharp-*` matrix) each needing a registry integrity hash, where one wrong
+hash breaks `pnpm install --frozen-lockfile` for every job and every consumer.
+⚠ **Do NOT add these to `pnpm.auditConfig.ignoreGhsas`** — two are unauthenticated RCEs, and the owner
+declined that route explicitly.
 ⚠ **The estate half is bigger:** every consuming app pins its own `next` and needs the same update.
+Fixing it here fixes **this repo's CI** and patches no running app.
 
 ## What the next session needs to know
 
@@ -149,11 +161,17 @@ worktree.** ⚠ **Do NOT add these to `pnpm.auditConfig.ignoreGhsas`** — two a
 
 ## State of the repository
 
-- **`main` is at `6ed975d`** (CR-008, PR #20). CR-009 sits on its own branch, **pushed, with no PR**.
+- **`main` is at `6ed975d`** (CR-008, PR #20). CR-009 sits on its own branch, **pushed, PR open**.
 - **No epic is in flight.** `runs/epic-020/` is pre-existing and closed; this change created no
   `epic-NN/` or `milestone-NN/` folder and nothing under `runs/current/epic-plan/`.
 - **No migrations pending.** This package has no database by construction.
-- `package.json` / `pnpm-lock.yaml` **untouched** — ⚠ and that is now the open question (D-9).
+- `package.json` / `pnpm-lock.yaml` **untouched, and byte-identical to `main`** — 🔴 which is exactly
+  why CI's audit is red for a reason that is not this change's. **The owner decided A** (take the
+  repaired versions: `next` ≥ 15.5.24, pulling `sharp` ≥ 0.35.4 — re-measured, 3 blocking → 0).
+  **Owed, not done:** `pnpm update next` + commit `pnpm-lock.yaml` on this branch, by an actor with
+  package-manager permission. `pnpm` is permission-gated in a build worktree with no approver; the gate
+  was honoured rather than routed around via `node`, and hand-authoring ~35 lockfile records with
+  registry integrity hashes was rejected as the larger risk. Full reasoning: `known-issues.md` §A, D-10.
 
 ## Where the paper trail is
 
@@ -167,7 +185,7 @@ worktree.** ⚠ **Do NOT add these to `pnpm.auditConfig.ignoreGhsas`** — two a
 | Technical debt | `runs/change-08/technical-debt.md` (**TD-1**) |
 | The OQ-8 probe | `runs/change-08/output/truncate-probe.html` |
 | Evidence roll-ups | `runs/change-08/evidence/{milestone-evidence,global-milestone-scorecard,user-verification-steps,developer-handover}.md` |
-| Decisions | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` — CR-DESIGN-SYSTEM-009, D-1…D-8 accepted, **D-9 PROPOSED** |
-| 🔴 The owner's open decision | `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
+| Decisions | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` — CR-DESIGN-SYSTEM-009, D-1…D-8 accepted, **D-9 DECIDED (owner: A)**, **D-10 execution owed** |
+| The owner's decision card, **answered `A`** | `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
 | Active unit pointer | `runs/current/active-milestone.md` |
 | Previous changes | `runs/change-07/` (CR-007, `54597ac`) · `change-06/` (`ce47010`) · `change-05/` (`fc6f6c6`) · `change-04/` (`0633476`) · `change-03/` (`fc2c5b8`) · `change-02/` (`9aa20f7`) · `change-01/` (`365be65`) |

@@ -7,15 +7,15 @@
 
 | | |
 |---|---|
-| `pnpm typecheck` | **clean** |
+| `pnpm typecheck` | **clean** — re-run at the resumed session, still clean |
 | `pnpm test` — **baseline, measured BEFORE any edit** | **314 passed / 17 files** |
-| `pnpm test` — final | **363 passed / 17 files** |
+| `pnpm test` — final | **363 passed / 17 files** — re-run at the resumed session, **363/363 still green** |
 | New specs | **+49** |
 | 🔴 Existing specs edited | **0** |
 | 🔴 Existing specs reddened | **0** |
 | Byte-identity, measured | **1,972 caller shapes, 0 differences** |
 | Mutation battery | **8 run, 8 caught** |
-| Dependency audit | 🔴 **3 NEW BLOCKING advisories — see §7. Pre-existing on `main`, not caused by this change, and it stops the PR** |
+| Dependency audit | 🔴 **3 BLOCKING advisories — see §7 and §7a.** Pre-existing on `main`, not caused by this change. **Owner decided option A** (take the repaired versions); the bump is **owed, not done** — `pnpm` is permission-gated here. CI's `dependency-audit` job will be RED |
 | Migration | **none** — this package has no database by construction |
 | Throwaway Postgres | **never started; nothing left behind** (no container, no stopped container, no port held) |
 
@@ -207,6 +207,41 @@ optional range to `^0.34.3 || ^0.35.4`). Verified against the same endpoint: **a
 and the only other route — adding two unauthenticated-RCE GHSAs to the owner-approved
 `pnpm.auditConfig.ignoreGhsas` list — is not a change's call and is the wrong instinct regardless.
 
+### 7a. Re-run at the resumed session (2026-09-09, after the owner answered the D-9 card)
+
+The owner answered **A — take the repaired versions.** The audit was therefore **re-measured from
+scratch** rather than quoted, by a second, independently-written probe that walks the production
+closure out of `pnpm-lock.yaml` and queries the same npm bulk endpoint `pnpm audit` uses:
+
+```
+direct prod deps (16)
+PROD closure — deps only      : 66 name@version pairs
+PROD closure — with optional  : 106 name@version pairs
+  next: 15.5.19 · sharp: 0.34.5 · postcss: 8.4.31 · nanoid: 3.3.18
+ALL advisories in the PROD closure: 16   (2 critical, 7 high, 7 moderate)
+BLOCKING (high/critical, not on ignoreGhsas): 3
+  critical GHSA-p293-qw3h-jr36 next  >=13.4.0 <15.5.24
+  critical GHSA-2xp9-vwfh-vxw4 next  >=10.0.0 <15.5.24
+  high     GHSA-rgj7-g3m4-5g8c sharp <0.35.4
+VERDICT: `pnpm audit --prod --audit-level=high` would exit 1
+SANITY: advisories parsed = 16 | empty or non-GHSA = 0
+```
+
+**Independently reproduces the first session's finding exactly** — same 3 blocking, same closure sizes
+(66 / 106), same 16 parsed ids, same third-sanity-check result. And at `next@15.5.25` +
+`sharp@0.35.4` against the same closure: **0 blocking, verdict exit 0.**
+
+Two incidental confirmations worth recording: the `nanoid@<3.3.17` override **is working** (resolved
+`3.3.18`; the `<3.3.18` high does not appear), and both high PostCSS advisories that appear
+(`GHSA-6g55-p6wh-862q`, `GHSA-r28c-9q8g-f849`) are already on the ignore list — so the 3 blocking are
+the whole of it.
+
+🔴 **The bump itself is still NOT in this commit.** `pnpm` remains permission-gated and an unattended
+session has no approver; the gate was honoured rather than routed around, and hand-authoring ~35
+lockfile records with registry integrity hashes was rejected as a worse risk than a red gate. The one
+owed command, and the full reasoning for both refusals, are in `known-issues.md` §A and decision
+**D-10**.
+
 **Seven moderate advisories** sit below the `--audit-level=high` threshold and do not block. Both of
 the handover's standing watch items are still present: `GHSA-fxqj-rqcc-2cmp` (PostCSS, *incomplete fix
 of* `GHSA-6g55-p6wh-862q`, which **is** on the ignore list — **third** change to raise it) and
@@ -222,7 +257,7 @@ before the PR rather than after it.
 |---|---|
 | Any consumer app's test suite | Four of five consumer repos are **not readable from a build worktree**; `bananaworld-dc` is readable but **READ-ONLY** and cannot be built here. **Eighth change to record this.** No consumer suite was executed and nothing in this pack claims one was |
 | `pnpm audit` itself | permission-blocked; reproduced in Node and labelled as a reproduction throughout |
-| `pnpm update` / any lockfile write | **permission-blocked in this worktree** — the direct cause of the open gate in §7 |
+| `pnpm update` / any lockfile write | **permission-gated in this worktree, with no approver in an unattended session.** The direct reason owner decision **A** is recorded but not executed (§7a, D-10). The gate was honoured, not routed around |
 | A real-browser check of OQ-8 | **No browser binary can be executed from this sandbox** (paths outside the worktree are refused). The probe is shipped ready to run instead — `qa-report.md` §4 |
 | `pnpm lint` | **no `lint` script and no eslint config exist** in this repo — pre-existing drift, out of lane |
 | `pnpm format:check` | **no prettier config exists**, so it fails repo-wide across all `src/` files including ones this change never opened — pre-existing drift, out of lane, and **not a CI job** |

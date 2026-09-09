@@ -1,5 +1,28 @@
 # A decision for you — CR-DESIGN-SYSTEM-009
 
+> ## ✅ ANSWERED — you chose **A**, 2026-09-09. Nothing further is needed from you here.
+>
+> **What that means:** we move to the repaired versions of both building blocks. Nothing was added to
+> the "known and accepted" list — the two serious holes get repaired, not tolerated.
+>
+> **One honest catch, so it doesn't surprise you.** The build session that was told your answer is
+> deliberately not allowed to change which versions we use — that safeguard exists so a version change
+> is never made quietly in the middle of other work, and it did its job. So **your decision is recorded
+> but not yet carried out.** It is one command, run by someone (or something) that holds that
+> permission, on the same branch:
+>
+> ```
+> pnpm update next
+> ```
+>
+> Until that runs, the automatic safety check keeps refusing, and **your change cannot go through** —
+> re-running the build session will not help, because it will hit the same locked door.
+>
+> Everything else about your change is finished, tested and handed over. Details:
+> `runs/change-08/output/known-issues.md` §A.
+
+---
+
 **Date:** 2026-09-09 · **Takes about two minutes** · **Nothing is broken and nothing is at risk right
 now**
 

@@ -45,7 +45,7 @@ suite already does, for the reason its own comment gives).
 
 | | Why |
 |---|---|
-| `package.json`, `pnpm-lock.yaml` | No new dependency — Radix `DropdownMenu` was already a direct import in both files. ⚠ **See `known-issues.md` §A: an unrelated advisory event now argues these SHOULD move, and that is an owner decision, not this change's.** |
+| `package.json`, `pnpm-lock.yaml` | No new dependency — Radix `DropdownMenu` was already a direct import in both files, so they stay **byte-identical to `main`**. ⚠ **See `known-issues.md` §A: an unrelated advisory event argues `pnpm-lock.yaml` SHOULD move, and the owner has now decided it should (option A). It is NOT moved here** — `pnpm` is permission-gated in a build worktree, and hand-authoring a lockfile was refused (**D-10**). Still 0 lines changed in both. |
 | `src/lib/tokens.css` | No new token. Every compact class is stock Tailwind spacing or a type token a shipped component already emits. |
 | `tests/components/__snapshots__/DataTableToolbar.test.tsx.snap` | **Shows as modified with a ZERO-LINE diff** — the known CRLF artifact (standing handover note 12). Not staged, and its content being unchanged is this change's strongest single piece of toolbar evidence. |
 | Any `runs/epic-NN/`, any `milestone-NN/`, anything under `runs/current/epic-plan/` | A Change Request creates none of these. |
@@ -61,4 +61,22 @@ Not in the list above because they are not in the change; their **results** are 
 | `tests/components/__byte-identity.test.tsx` | **1,972 caller shapes, whole `innerHTML`, 0 differences** | `test-results.md` §4 |
 | `tmp-baseline/mutate.mjs` | **8/8 mutations caught, 8/8 restores verified byte for byte** | `test-results.md` §5 |
 | `tmp-baseline/audit.mjs` | 3 new blocking advisories found | `test-results.md` §7 |
+| `node_modules/.cr009-audit-probe.mjs` — the **resumed** session's independently-written re-measurement (closure walked from `pnpm-lock.yaml`) | **Reproduced the first session's finding exactly**: 66/106 closure, 16 advisories, 3 blocking, 0 empty-or-non-GHSA ids | `test-results.md` §7a |
 | `tmp-baseline/truncate-probe.html` | **KEPT** — copied to `runs/change-08/output/truncate-probe.html` | see `qa-report.md` §4 |
+
+## Second round — the resumed session (after the owner answered the D-9 card)
+
+**No source or test file was touched.** `src/` and `tests/` are unchanged from the first round; the
+list above is still the complete set Stage 05 reviewed. What the second commit changes is the paper
+trail, to record the owner's answer and what it did and did not achieve:
+
+| File | What changed |
+|---|---|
+| `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` | **D-9 PROPOSED → DECIDED (owner: A)**; new **D-10** recording that its execution is owed and why both routes to it were refused; the `[decision] A` response added to the clarify Q&A |
+| `runs/change-08/output/known-issues.md` | §A rewritten: decided, the one owed command, both refusals, and the re-measurement |
+| `runs/change-08/output/test-results.md` | new **§7a** — the independent re-measurement; headline rows re-verified this session |
+| `runs/change-08/output/qa-report.md` · `implementation-summary.md` · `changed-files.md` · `technical-debt.md` | the same correction, each in its own place |
+| `runs/change-08/evidence/*` (4 files) | roll-ups reconciled; Security stays **BLOCKED** deliberately — a category is scored on measured state, not on an intention |
+| `runs/current/SESSION_HANDOVER.md` · `active-milestone.md` · `decisions-pending/CR-DESIGN-SYSTEM-009.md` | reconciled; the card marked **ANSWERED — A** |
+
+🔴 **`pnpm-lock.yaml` is still not among them, and that is the point of D-10** — not an oversight.

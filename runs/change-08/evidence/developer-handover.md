@@ -132,6 +132,6 @@ Also: `multiSelectTriggerLabel` and `MultiSelectItem` were **moved** out of `Dat
 | Technical debt | `runs/change-08/technical-debt.md` — **TD-1**, the one plan §9 predicted |
 | Evidence roll-ups | `runs/change-08/evidence/{milestone-evidence,global-milestone-scorecard,user-verification-steps,developer-handover}.md` |
 | The OQ-8 probe | `runs/change-08/output/truncate-probe.html` |
-| Decisions | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` — CR-DESIGN-SYSTEM-009, D-1…D-8 applied, **D-9 PROPOSED** |
+| Decisions | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` — CR-DESIGN-SYSTEM-009, D-1…D-8 applied, **D-9 DECIDED (owner: option A)**, **D-10 records that D-9's execution is owed** — `pnpm update next` on this branch by an actor with package-manager permission, or CI's `dependency-audit` stays red |
 | The owner's open decision | `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
 | Previous changes | `runs/change-07/` (CR-007) · `change-06/` (`ce47010`) · `change-05/` (`fc6f6c6`) · `change-04/` (`0633476`) · `change-03/` · `change-02/` · `change-01/` |

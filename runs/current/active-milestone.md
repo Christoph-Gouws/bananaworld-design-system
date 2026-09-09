@@ -3,7 +3,7 @@
 > This is a FILE, not a unit folder. It records what is currently in flight.
 > Updated 2026-09-09.
 
-## Current: CR-DESIGN-SYSTEM-009 — **BUILT, GREEN, CLOSED OUT · MERGE BLOCKED on an owner decision**
+## Current: CR-DESIGN-SYSTEM-009 — **BUILT, GREEN, CLOSED OUT, PR OPEN · CI audit red, remedy owed**
 
 | Field | Value |
 |---|---|
@@ -15,8 +15,8 @@
 | Ship mode | **on-green** |
 | Build status | **Complete.** `pnpm typecheck` clean · `pnpm test` **363 passed / 17 files** (baseline **re-measured before any edit: 314 / 17**) · **+49 specs, 0 existing edited, 0 reddened** · **0 open defects** · `src/` +763 / −90 across 10 files |
 | Additive proof | **1,972 caller shapes** rendered against `main@6ed975d` and diffed on whole `innerHTML` — **0 differences**; the seven shipped toolbar screens' DOM snapshot **zero-line diff**; **8 mutations run, 8 caught**; quality sensors **0 open findings** |
-| PR | 🔴 **NOT opened** — see below |
-| Remaining | 🔴 **One owner decision (D-9).** Card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
+| PR | **Open.** 🔴 CI's `dependency-audit` job will be **red** — see below |
+| Remaining | 🔴 **One `pnpm update next` commit on this branch**, by an actor who may run a package manager (D-10). Nothing else |
 
 ### What it did
 
@@ -37,17 +37,21 @@ Four **strictly opt-in** additions, every one defaulting to today's behaviour:
 **moved** out of `DataTableToolbar` into `components/MultiSelectMenu.tsx` and now serve both surfaces;
 `selectAll` defaults to the row every shipped toolbar renders today.
 
-### 🔴 Why there is no PR
+### 🔴 Why CI will be red, and what clears it
 
 Three advisories published **2026-09-08** — two **critical unauthenticated Next.js RCEs**
 (`GHSA-2xp9-vwfh-vxw4`, `GHSA-p293-qw3h-jr36`) and one high on `sharp` (`GHSA-rgj7-g3m4-5g8c`) — fail
-CI's `dependency-audit` job.
+CI's `dependency-audit` job. **Not caused by this change:** `package.json` and `pnpm-lock.yaml` are
+**byte-identical to `main`**, which fails the same audit today.
 
-**Not caused by this change:** `package.json` and `pnpm-lock.yaml` are **byte-identical to `main`**,
-which fails the same audit today. The remedy is `next` ≥ 15.5.24, **inside the `^15.0.0` range already
-declared** (it pulls `sharp` ≥ 0.35.4; verified to clear all three) — but every lockfile-writing
-command is permission-blocked in a build worktree, and extending the owner-approved ignore list with
-two RCEs is not a change's call. Recorded **PROPOSED as D-9**; the work is committed and pushed.
+**The owner answered the card: option A** — take the repaired versions. `next` ≥ 15.5.24 is inside the
+`^15.0.0` range already declared and pulls `sharp` ≥ 0.35.4; re-measured this session, **3 blocking now,
+0 after**. Nothing goes on the ignore list.
+
+🔴 **Owed, not done (D-10): `pnpm update next` + commit `pnpm-lock.yaml` on this branch.** `pnpm` is
+permission-gated in a build worktree with no approver; the gate was honoured, not routed around, and
+hand-authoring ~35 lockfile records with integrity hashes was rejected as the larger risk.
+**Relaunching the build session will not clear it** — it needs package-manager permission.
 
 ### Also open, not blocking
 
@@ -74,7 +78,7 @@ folder, **no** `milestone-NN/` folder, and nothing under `runs/current/epic-plan
 
 ## Next units (not started; most are not in this repository)
 
-1. 🔴 **The owner's D-9 answer.** Everything else in this lane waits on it.
+1. 🔴 **The owed `pnpm update next` commit (D-10).** The merge waits on it, and on nothing else.
 2. 🔴 **DC's half of this change — a separate CR.** Bump the pin to the **MERGED `main` sha** (never a
    branch sha, KI-M001E19-002), then pass `density="compact"`, `wrap="truncate"`, a `width` per column
    and `multiple` on its filter cells, and move its query writer to `append` / `getAll`.

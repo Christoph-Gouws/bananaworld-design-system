@@ -15,13 +15,18 @@ Layout:     B (owner-approved)      Ship mode: on-green
 |---|---|---|---|
 | Readable code | **11 / 11** dimensions | PASS | ✅ **Pass** |
 | Centrality | **8 / 8** dimensions | PASS | ✅ **Pass** |
-| Security | dependency audit **FAILS** | PASS | 🔴 **BLOCKED** |
+| Security | dependency audit **FAILS** — remedy decided (owner: A), **execution owed** | PASS | 🔴 **BLOCKED** |
 | QA | **18 / 18** acceptance criteria met | PASS | ✅ **Pass** |
 | Evidence | **16 / 16** required artifacts, each its own file | PASS | ✅ **Pass** |
 | **Overall** | **4 of 5** | **PASS** | 🔴 **BLOCKED — on Security only** |
 
 🔴 **The single blocked category is not this change's doing.** `package.json` and `pnpm-lock.yaml` are
 **byte-identical to `main`**, which fails the same audit today. See §3.
+
+**It stays BLOCKED, deliberately, and is not marked resolved by the owner's answer.** The owner
+decided *what* to do (**A** — take the repaired versions); nobody has yet *done* it, because `pnpm` is
+permission-gated in a build worktree. A category is scored on the measured state, not on an intention,
+so this row moves to Pass only when the `pnpm update next` commit lands and the audit is re-run green.
 
 ---
 
@@ -77,9 +82,15 @@ non-zero and branch protection refuses the merge.
 
 **Not this change's:** the lockfile is byte-identical to `main`. CR-007 (2026-08-25) reported 0
 blocking; the difference is thirteen days of advisory publication.
-**Not fixable here:** every lockfile-writing command is permission-blocked in this worktree, and
-adding two RCEs to the owner-approved ignore list is not a change's call.
-**Escalated:** decision card + PROPOSED decision **D-9**.
+**Not fixable here:** every lockfile-writing command is permission-gated in this worktree with no
+approver, and adding two RCEs to the owner-approved ignore list is not a change's call.
+**Escalated, and ANSWERED:** the owner chose **option A** — take the repaired versions (`next` ≥ 15.5.24,
+pulling `sharp` ≥ 0.35.4); nothing goes on the ignore list. Recorded as **D-9 DECIDED**.
+🔴 **Its execution is OWED, not done** (**D-10**): one `pnpm update next` commit on this branch, by an
+actor with package-manager permission. Until it lands, CI's `dependency-audit` job stays red and the PR
+cannot merge — **and relaunching the build session will not clear it.** Re-measured at the resumed
+session from the lockfile closure (66 deps-only / 106 with optional edges, 16 advisories, third sanity
+check 0 empty or non-GHSA): **3 blocking now, 0 blocking after the bump.**
 
 Six previously-known highs remain correctly ignored; seven moderates sit below the threshold.
 
@@ -111,7 +122,7 @@ Every artifact exists **as its own file**; no consolidated roll-up was substitut
 | `changed-files.md` · `implementation-summary.md` · `known-issues.md` | ✅ |
 | `technical-debt.md` | ✅ — one item, the one the plan §9 predicted |
 | Evidence roll-ups × 4 | `milestone-evidence.md` (template **copied and filled**, artifacts **cited** not restated) · this file · `user-verification-steps.md` · `developer-handover.md` ✅ |
-| Decision log entry | ✅ CR-DESIGN-SYSTEM-009, D-1…D-8 applied + **D-9 PROPOSED** |
+| Decision log entry | ✅ CR-DESIGN-SYSTEM-009, D-1…D-8 applied + **D-9 DECIDED (owner: A)** + **D-10** (execution owed, both refused routes stated) |
 | Handover + active-milestone, both naming this CR | ✅ |
 | Context-usage row (`--project bananaworld-design-system`) | ✅ |
 | Extra, not required | `truncate-probe.html` — the OQ-8 check this session could not run, shipped ready to run |
