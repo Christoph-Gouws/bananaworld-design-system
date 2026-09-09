@@ -5,6 +5,38 @@
 // — one filtering layer, not a bespoke filter per table). Pure functions only: no React, no network, no
 // warehouse_id (the rows arrive already DC-scoped from the repository). The React glue + the toolbar UI
 // live in `src/components/ui/DataTableToolbar.tsx`; this file is unit-tested in isolation.
+//
+// ============================================================================
+// 🔴 THE SHAPES LIVE HERE BECAUSE THE CONTROLS OWN THEM, NOT THE SCREEN
+// ============================================================================
+// A screen decides WHICH filters exist and what each one means; it does not get to invent what
+// "filtered to three depots" LOOKS LIKE as data, because the control that produces that state is the
+// toolbar. A screen that re-declared it would drift from the control the day a fourth filter kind
+// arrived — and a stale mirror of a control's state is the defect class (CR-DC-049) the estate has
+// already paid for once. The same argument, one altitude down, that `lib/grid-view.ts` makes for the
+// grid's own four filter kinds.
+//
+// What is in this file, in the order it appears:
+//   SelectOption / *FilterDef   what a screen DECLARES — one def per filter kind, four kinds
+//   *FilterValue / FilterValues what the operator's choices ARE — one value shape per kind
+//   emptyFilterValue            the "nothing narrowed" value for a kind; one empty state, never two
+//   filterValueFromStored       reading a SAVED value back, and saying when it could not be
+//   storedFromFilterValue       the narrowest storable shape — a bare string for one, an array for many
+//   deriveSelectOptions         the options a categorical filter offers when a screen fixes none
+//   hasActiveControls           has the operator narrowed anything at all — drives "Clear"
+//   applyTableControls          search, then filter, then sort — the visible rows
+//
+// ⚠ AN "ALL" FILTER IS ONE STATE, NOT TWO. A select holding nothing is `value: null` and a
+//   multiSelect holding nothing is `values: []` — both mean "not narrowed", so `clear()`,
+//   `emptyFilterValue` and `hasActiveControls` need no special case for either. A second spelling of
+//   "empty" is how a toolbar ends up with a Clear button that will not switch off.
+//
+// QUALITY-JUSTIFY RC-05 — 197 executable lines carrying one engine, and its size is almost entirely
+// the TYPE SURFACE: four filter kinds, each with a def, a live value and an empty value, plus the
+// pure functions that consume them. Splitting the types from the functions that read them is the one
+// arrangement guaranteed to let the two drift, and a stale mirror of a control's state is exactly the
+// defect class (CR-DC-049) this file was centralised to remove. CR-DESIGN-SYSTEM-009 added 14 lines
+// here, every one of them the doc comment on a single optional field.
 
 export type SortDir = "asc" | "desc";
 
@@ -37,6 +69,20 @@ export interface MultiSelectFilterDef<Row> {
   readonly accessor: (row: Row) => string | null;
   // Fixed options. Omit to derive the present values from the data, exactly as "select" does.
   readonly options?: readonly SelectOption[];
+  /**
+   * What the tick-list's TOP ROW is (CR-DESIGN-SYSTEM-009 §A.5).
+   *
+   * - "allOption" — an "All depots" tick that clears the filter. **The default, and it is exactly
+   *   what every toolbar in the estate renders today.**
+   * - "master" — a tri-state "Select all" carrying "3 of 12", which the owner picked for the grid's
+   *   filter cell on 2026-09-09.
+   *
+   * 🔴 THE DEFAULT IS WHY NOTHING MOVES. Four apps pin this package by git sha; no shipped caller
+   *    passes this field, so no shipped toolbar changes. A screen that wants to match the grid flips
+   *    one word in its own change, at its own gate, against a merged sha. That is convergence as a
+   *    switch rather than as a promise — see this change's `technical-debt.md` for the two flips owed.
+   */
+  readonly selectAll?: "allOption" | "master";
 }
 
 export interface DateRangeFilterDef<Row> {

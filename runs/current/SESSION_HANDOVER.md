@@ -1,149 +1,173 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-08-25, at the close of **CR-DESIGN-SYSTEM-007**.
+> Last updated: 2026-09-09, at the close of **CR-DESIGN-SYSTEM-009**.
 
-## Most recent unit of work: CR-DESIGN-SYSTEM-007
+## Most recent unit of work: CR-DESIGN-SYSTEM-009
 
 | Field | Value |
 |---|---|
-| Unit | **Change Request CR-DESIGN-SYSTEM-007** (not an epic, not a milestone) |
-| Title | When a row instruction and a single box disagree, the box wins |
-| Type | **Review follow-up on CR-DESIGN-SYSTEM-006** — 1 finding (F1, medium/medium) |
-| Branch | `change/cr-design-system-007`, off `origin/main` @ `ce47010` |
-| Approved layout | **A** — the cell's own answer wins (owner, plan gate) |
+| Unit | **Change Request CR-DESIGN-SYSTEM-009** (not an epic, not a milestone) |
+| Title | A grid filter cell holds several values, and the grid reads at a compact density |
+| Branch | `change/cr-design-system-009`, off `origin/main` @ `6ed975d` (CR-008, PR #20) |
+| Approved layout | **B** — three column width steps, per column |
 | Ship mode | **on-green** |
-| Status | **Built, tested green, closed out. PR opened; the conductor polls CI and merges.** |
-| Archive | `runs/change-07/` |
-| Open defects | **0** · open decisions: **none** · technical debt created: **none** |
+| Status | 🔴 **Built, tested green, closed out, committed and pushed. NO PR — merge blocked on an owner decision (D-9).** |
+| Archive | `runs/change-08/` |
+| Open defects | **0** · Open decisions: **1 (D-9)** · Technical debt created: **1 (TD-1)** |
 
 ### What it did
 
-CR-006 shipped with `askedForValign` computed from the **row-resolved** value, so a row-level
-`valign` took the after-`className` emission slot and **silently beat a cell's own vertical utility
-written in `className`**. That inverts D-6 (cell > row > default) for that pair.
+Four **strictly opt-in** additions to the shared package, every one defaulting to today's behaviour:
 
-🔴 **The finding was re-confirmed against the code as it is now before any fix was planned** — read
-verbatim at `Table.tsx:249`, and confirmed a second way by mutation M-1. Nothing was fixed that was
-not there.
+- **A** — `GridFilterCellDef.multiple` turns a `select` filter cell into a Radix tick-list that
+  **stays open** while ticking, with the owner's option **C** tri-state "Select all" carrying `3 of 12`.
+- **B** — `<Table density="compact">`, asked once and reaching the head, the filter row and the body
+  together (≈24px rows vs ~36–44px). **The package default does not move.**
+- **C** — `wrap="wrap" | "nowrap" | "truncate"`: values stay on one line, cut with a "…", hover to read.
+- **D** — `width="narrow" | "medium" | "wide" | "full"` per column (layout B) — a **ceiling, not a
+  fixed width**, so a customer name gets more room than a reference code.
 
-**The fix is one predicate:** `cellAskedForValign = valign !== undefined` — *"the cell itself asked"*,
-not *"anybody asked"*. Both emission positions keep their places, re-keyed on it.
+🔴 **The value shape decision.** The `select` arm gained **one optional field** (`values?`). A fifth
+`kind` was rejected (27 DC columns would migrate); **widening `value` to a union was rejected too, and
+it is the one that looks cheapest** — DC's `appendFilters` calls `value.value.trim()`, so a union
+breaks DC's typecheck *the moment it bumps its pin*. The wire encoding is a **repeated parameter**
+(`f_room=A&f_room=B`), stated in `lib/grid-view.ts`'s header: one value is byte-identical to today's
+and reads the same under `get` and `getAll`, so saved views round-trip.
 
-**Final precedence, now written into the file header and BOTH `valign` doc-comments:**
-
-```
-cell `valign` prop  >  cell `className`  >  row `valign` prop  >  the "middle" default
-```
-
-- **Two files:** `src/components/Table.tsx` (**+31 / −13**, of which **3 lines are behaviour**) and
-  `tests/components/Table.test.tsx` (**+155 / −0**, a new §8 with T-17 … T-22).
-- 🔴 **0 existing specs edited, 0 reddened.** All three barrels byte-identical.
-- 🔴 **No field added or removed, no default moved, no export changed.** D-2 intact.
+🔴 **No second multi-select was written.** `multiSelectTriggerLabel` and `MultiSelectItem` were
+**moved** out of `DataTableToolbar` into `components/MultiSelectMenu.tsx` (internal, not barrelled)
+and now serve both surfaces. `MultiSelectFilterDef.selectAll` defaults to the row every shipped
+toolbar renders today, so nothing moves for anyone.
 
 ### Verification
 
 | Gate | Result |
 |---|---|
 | `pnpm typecheck` | clean |
-| `pnpm test` | **269 passed / 14 files** (baseline re-measured before any edit: **263 / 14**) |
-| New specs | **6**; **0 existing specs edited** |
-| 🔴 **Byte-identity, measured** | **1,536 caller shapes** rendered against `main@ce47010` and against this component, whole `innerHTML` compared — **byte-identical** |
-| ⚠ **Declared behaviour change, measured** | 576 row-`valign` shapes: 456 identical, 72 class-**order**-only (identical rendering), **48 rendering changes — every one exactly the defect's shape** |
-| Mutation check | **5 run, 5 caught.** M-1 restores the shipped defect and reddens T-17/T-18 |
-| Dependency audit | 6 highs, **all six on the standing ignore list, 0 new, 0 blocking**. Reproduced in Node. **The demanded third sanity check was implemented and PASSED** |
+| `pnpm test` | **363 passed / 17 files** (baseline **re-measured before any edit: 314 / 17**) |
+| New specs | **+49**; **0 existing specs edited, 0 reddened** |
+| 🔴 **Byte-identity, measured** | **1,972 caller shapes** rendered against `main@6ed975d` and against this build, whole `innerHTML` compared — **0 differences** |
+| 🔴 **Seven shipped toolbar screens** | whole-DOM snapshot, **zero-line diff** |
+| Mutation battery | **8 run, 8 caught**, every restore verified byte for byte |
+| Quality sensors | **0 open findings**, 5 justified, 0 weak |
+| Dependency audit | 🔴 **3 BLOCKING** — see below |
 | Migration | none — this package has no database |
-| Throwaway Postgres | never started; nothing left behind |
-| In-session defect | **1 found, 1 fixed** (`defect-log.md` D-1) |
+| Throwaway Postgres | **never started; nothing left behind** |
 | Context-usage row | logged ✅ (`--project bananaworld-design-system`) |
 
-## State of the repository
+## 🔴 THE ONE THING THE NEXT SESSION MUST DO FIRST
 
-- **`main` is at `ce47010`** (CR-006 merged as PR #17). CR-007 sits on its own branch with a PR open;
-  the conductor merges.
-- **No epic is in flight.** `runs/epic-020/` is pre-existing and closed; this change created no
-  `epic-NN/` or `milestone-NN/` folder and nothing under `runs/current/epic-plan/`.
-- **No migrations pending.** This package has no database by construction.
-- `package.json` / `pnpm-lock.yaml` **untouched** — no new dependency.
+**Answer or act on `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md`.**
+
+Three advisories published **2026-09-08** fail CI's `dependency-audit` job
+(`pnpm audit --prod --audit-level=high`):
+
+| Advisory | Severity | Package | Fixed in |
+|---|---|---|---|
+| `GHSA-2xp9-vwfh-vxw4` | **critical** | `next` — unauthenticated RCE (Image Optimization, AVIF) | **15.5.24** |
+| `GHSA-p293-qw3h-jr36` | **critical** | `next` — unauthenticated RCE, windows-hosted servers | **15.5.24** |
+| `GHSA-rgj7-g3m4-5g8c` | high | `sharp` — inherited libheif CVEs | **0.35.4** |
+
+**Not caused by this change** — `package.json` and `pnpm-lock.yaml` are byte-identical to `main`,
+which fails the same audit today. `autoInstallPeers: true` puts `next@15.5.19` in the lockfile's
+production dependencies, which is what `--prod` walks.
+
+**The remedy, already verified:** `next` ≥ 15.5.24 is **inside the `^15.0.0` peer range this project
+already declares**, and 15.5.25 widens its optional `sharp` range so the patched `sharp` follows. At
+`next@15.5.25` + `sharp@0.35.4`, **zero high/critical remain**.
+⚠ This session could not do it: **every lockfile-writing command is permission-blocked in a build
+worktree.** ⚠ **Do NOT add these to `pnpm.auditConfig.ignoreGhsas`** — two are unauthenticated RCEs.
+⚠ **The estate half is bigger:** every consuming app pins its own `next` and needs the same update.
 
 ## What the next session needs to know
 
-1. 🔴 **This change fixes NO screen**, and neither did CR-006. The CRM's sagging sales-order row is
-   fixed only after three steps **in order**: this merges → **the CRM bumps its pin to the MERGED
-   `main` sha** (never a branch sha, KI-M001E19-002) → the CRM passes `valign="top"` in its own
-   change. Fixing precedence now means the CRM **never meets the bug**; that window closes at step 2.
-2. 🔴 **DO NOT collapse `TableCell`'s two class-emission positions into one.** Standing since CR-006
-   and **now more load-bearing, not less** — this change *is* about which slot a row-level answer
-   lands in; with one slot there is no fix to express. Position (A) holds the default *or the row's
-   answer* (so a cell's `className` still beats it — T-8); position (B) holds only the cell's own prop
-   (so `className` cannot defeat it — T-7, T-19). Mutations M-2/M-4 redden T-8; M-3 reddens T-7/T-19.
-   **Also:** never flip or re-position the `"middle"` default (M-2), never re-introduce a
-   `resolvedValign` intermediate (it *was* the defect's mechanism), and never read the row context
-   conditionally — `valign ?? useContext(...)` short-circuits and calls a hook conditionally.
-3. 🔴 **Every consumer owes ONE grep before it bumps its pin: `grep -rn "valign" src`.** The prop name
-   knowingly shadows React's deprecated `TdHTMLAttributes.valign`. **DC is proven clean — 0
-   occurrences repo-wide, re-verified this session.** **CRM, RMS, org-admin and Manga Verde were NOT
-   opened and are unverifiable from here.** Fallback name if a live usage is found: `verticalAlign`.
-   **New:** a consumer adopting `<TableRow valign>` should also `grep -rn "align-\(top\|middle\|bottom\)" src`
-   — cells carrying a vertical utility in `className` now keep their own answer, which is intended but
-   *is* a rendering difference from what CR-006 would have produced.
-4. **This package is ADDITIVE-ONLY, and that is a lane rule, not a preference.** Five repos pin it by
-   git sha and each bumps when it chooses. Never remove a field, change a default, or move an export.
-   ⚠ Recorded pin values disagree between documents — **read the app's own `package.json`.**
-5. **The additive claim is reproducible, not rhetorical.** Render every caller shape against
-   `git show <main-sha>:src/components/Table.tsx` and diff whole `innerHTML`. **Reuse this** — ~10
-   minutes, 1,536 shapes this round. Then **classify every difference** (same class set ⇒ order-only
-   ⇒ identical rendering; different set ⇒ a real change needing an explanation). That turned "48
-   things changed" into "48 changes, all exactly the defect's shape, nothing else".
-6. 🔴 **`git checkout --` restores from the INDEX, not from your working copy.** This session's
-   mutation harness used it while the fix was still **unstaged**, and the first restore silently
-   reverted the change under test — every later mutation would have been scored against `main`'s
-   component while the report claimed otherwise. **`git add` before starting a mutation battery**, and
-   verify after each restore. `defect-log.md` **D-1**.
-7. 🔴 **Do not infer audit health from an unchanged dependency tree** — CR-002 did and CI proved it
-   wrong. `pnpm audit` is permission-blocked; reproduce in Node, or read CI's own job.
-   ⚠ **Three probes in a row lied on their first run** (CR-004 mis-parsed peer-suffixed store dirs;
-   CR-005 walked a symlink's lexical parent and compared numeric ids to GHSA strings; CR-006 read a
-   `github_advisory_id` field that **does not exist** — the id lives in `url` — so all six approved
-   ignores read as BLOCKING). **This round's probe did not lie**, because the demanded third check was
-   implemented: *assert every parsed advisory id is non-empty and matches `/^GHSA-/` before comparing
-   anything.* **Keep it.** One refinement: the standing "~70 packages" figure matches the
-   **deps-only** closure (measured **66**); following `optionalDependencies` gives **106**, and that
-   is the number you want — **`sharp` reaches this tree only via an optional edge** and carries one of
-   the six approved ignores. **Report both.**
-8. **DC solved this problem first by abandoning the primitive.** `SalesOrderForm.tsx:1026` hand-rolls
-   `<td>` with `align-top` and does not import `TableCell` at all. DC **may** fold back onto
-   `TableCell` — **its lane, its call** (CR-006 OQ-5). Nothing in DC is broken; no action required.
-9. **Still owed from earlier changes, none affected by CR-007:** the CRM's pin bump + `dcLabel`
-   adoption (CR-005 — the other half of **CR-CRM-015**'s unblock, blocked since 2026-08-18); DC's pin
-   bumps for CR-002 and CR-004, then CR-DC-052; the CRM's seven-point saved-view obligation (CR-003);
-   CR-001's colour-stage chips. **DC still keeps a byte-for-byte private copy of
-   `src/lib/table-controls.ts` that nothing in DC imports** — DC's lane to delete.
-10. **Consumer repos cannot be read or run from a build worktree.** **No consumer suite was executed
-    and nothing claims one was. Seventh change to record it.** `bananaworld-dc` is readable but
-    **READ-ONLY** — this session issued reads only.
-11. **Watch items for the owner, neither blocking:** **GHSA-fxqj-rqcc-2cmp** (*"PostCSS: incomplete
-    fix of GHSA-6g55-p6wh-862q"* — its parent **is** on the standing ignore list, whose revisit
-    trigger reads "when the estate advisory batch bumps next"; **second change to raise it**) and
-    **GHSA-qx2v-qp2m-jg93** (PostCSS XSS via unescaped `</style>`). Both moderate. Owner decisions.
-12. **Pre-existing repo drift, all out of lane, all re-verified:** **no prettier config**, so
-    `pnpm format:check` fails repo-wide across all 48 `src/` files — and it is **not** a CI job; **no
-    `lint` script and no eslint config**; **no `audit:deps` script**; stale `ci.yml` test-job label.
-    ⚠ `tests/components/__snapshots__/DataTableToolbar.test.tsx.snap` shows as modified after any
-    `vitest` run with an **empty content diff** — a CRLF artifact, not an edit. Not staged.
-13. **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` still does not exist** — **seventh** change to
-    raise it. A governance decision for the owner, not something a change may invent.
+1. 🔴 **This change fixes NO screen yet.** The report opens smaller only after: this merges → **DC
+   bumps its pin to the MERGED `main` sha** (never a branch sha, KI-M001E19-002) → DC passes
+   `density="compact"`, `wrap="truncate"`, a `width` per column and `multiple`, and moves its query
+   writer to `append`/`getAll`. DC's own change, DC's own gate. The report's **width**
+   (`max-w-[1440px]`) is DC's too and was never in this one.
+2. 🔴 **DO NOT unify `SelectCell` and `MultiSelectCell`.** The one-value path being the shipped
+   function *unedited* is what makes byte-identity provable rather than argued (plan §A.4).
+3. 🔴 **`HEAD_WRAP` and `CELL_WRAP` are two records on purpose.** A head **already never wraps**; a
+   shared record would map `wrap → ""` and strip `whitespace-nowrap` from **every header in the
+   estate**. Mutation M-1; `Table.test.tsx` T-24 pins the exact string.
+4. 🔴 **A width class is emitted ONLY under `truncate`** (M-3), and **all three of a column's rows must
+   take the same `width`** — head, filter cell, body cell. The widest wins, so wiring two of three
+   defeats the cap **silently** and looks like a package bug (M-7, plan §C.4a).
+5. 🔴 **`values` must stay ABSENT below arity 2** — a consumer stores this shape on disk (M-4). And
+   **never drop `onSelect={(e) => e.preventDefault()}`** on a menu CheckboxItem (M-5).
+6. **Never call a hook conditionally** — `wrap ?? useTableWrap()` short-circuits. `useCellLayout` now
+   makes this structural; keep it that way. Same trap CR-007 recorded on the row context.
+7. 🔴 **Do NOT restore a mutated file with `git checkout --` on Windows.** Staging first fixes the
+   *index* hazard CR-007 recorded, but autocrlf then rewrites line endings, so the restored file is
+   byte-different and every later **multi-line** anchor silently stops matching — two mutations never
+   ran and it reported `6/8`. **Keep the original bytes and write them back**, verify with
+   `Buffer.equals`, and make a skipped mutation say so loudly. `defect-log.md` **D-1**.
+8. 🔴 **A pnpm store directory name is NOT parseable on Windows.** Long dirs are shortened to
+   `@radix-ui+react-checkbox@1._c2b24e…` — truncated version, hashed peer suffix. **Read each
+   package's own manifest.** This is the **fourth** distinct way this one probe has been wrong (CR-004
+   peer suffixes, CR-005 symlink parents + numeric-vs-GHSA ids, CR-006 a `github_advisory_id` field
+   that does not exist, now truncated store dirs). **Keep every S-assertion:** S1 (closure size
+   plausible) caught this one, S4 (ids non-empty and `/^GHSA-/`) caught CR-006's. Reconciled figures:
+   **102 with optional edges, 66 deps-only** against the standing "~70". `defect-log.md` **D-2**.
+9. ⚠ **`quality-sensors.mjs` silently ignores every `QUALITY-JUSTIFY` on a CRLF checkout** — `.` does
+   not match `\r`, so `(.*)$` never anchors. The scorecard returns BLOCKED with correct justifications
+   sitting in the source. Normalise changed files to LF (git stores LF anyway, so commits are
+   unaffected). **Estate tooling bug, not fixed here** — `known-issues.md` §D. Also: `CE-01/05` and
+   `CE-08`/`RC-09` are **not scanned at all** for this project (no globs configured).
+10. ⚠ **Radix mints a fresh `id` per render**, so an `innerHTML` diff of two renders of the *same*
+    component shows differences. Normalise `radix-[A-Za-z0-9_:-]+` before comparing. The byte-identity
+    harness is otherwise reusable as-is — ~10 minutes for 1,972 shapes.
+11. **This package is ADDITIVE-ONLY, and that is a lane rule, not a preference.** Five repos pin it by
+    git sha and each bumps when it chooses. Never remove a field, move a default, or change an export
+    surface. ⚠ Recorded pin values disagree between documents — **read the app's own `package.json`**.
+12. **Consumer repos cannot be read or run from a build worktree.** `bananaworld-dc` is readable but
+    **READ-ONLY**; this session issued **reads only** (four files, to re-verify the plan's citations).
+    **No consumer suite was executed and nothing claims one was — eighth change to record it.**
+    ⚠ Three of the plan's DC citations had drifted in path/line; **every underlying fact held**,
+    including the load-bearing one (DC's `filterCells` sets no `multiple` and no `width`).
+13. ⚠ **OQ-8 is unverified:** whether `max-width` caps a `<td>` under `table-layout: auto`. **No
+    browser binary is executable from this sandbox.** Bounded — the failure mode is "the column does
+    not narrow", it cannot move any existing render, and the fallback (an inner
+    `<span class="block truncate">`) is recorded and untaken. **A ready-to-run probe ships at
+    `runs/change-08/output/truncate-probe.html`** — one click settles it.
+14. **Pre-existing repo drift, all re-verified, all out of lane:** **no prettier config**, so
+    `pnpm format:check` fails repo-wide (and it is **not** a CI job); **no `lint` script and no eslint
+    config**; **no `audit:deps` script**; the `DataTableToolbar.test.tsx.snap` CRLF artifact that shows
+    as modified with a **zero-line content diff** (not staged).
+15. **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` still does not exist — eighth change to raise it.**
+    A governance decision for the owner. The plan's eight-seam map (§2) is the record meanwhile.
+    ⚠ Separately: **there is no decision-log entry for CR-DESIGN-SYSTEM-008** — the log jumps 007 → 009.
+16. **Still owed from earlier changes, none affected here:** the CRM's pin bump + `dcLabel` adoption
+    (CR-005 — the other half of **CR-CRM-015**'s unblock, blocked since 2026-08-18); DC's pin bumps for
+    CR-002 and CR-004, then CR-DC-052; the CRM's seven-point saved-view obligation (CR-003); CR-001's
+    colour-stage chips. **DC still keeps a dead byte-for-byte private copy of
+    `src/lib/table-controls.ts`** that nothing in DC imports — DC's lane to delete.
+17. **Technical debt created: TD-1.** The grid's tick-list and the toolbars' read differently in their
+    **top row** until DC and the CRM each pass `selectAll: "master"` in their own change. One optional
+    flag on one shared component, not two implementations — what the owner accepted when he picked C.
+
+## State of the repository
+
+- **`main` is at `6ed975d`** (CR-008, PR #20). CR-009 sits on its own branch, **pushed, with no PR**.
+- **No epic is in flight.** `runs/epic-020/` is pre-existing and closed; this change created no
+  `epic-NN/` or `milestone-NN/` folder and nothing under `runs/current/epic-plan/`.
+- **No migrations pending.** This package has no database by construction.
+- `package.json` / `pnpm-lock.yaml` **untouched** — ⚠ and that is now the open question (D-9).
 
 ## Where the paper trail is
 
 | What | Where |
 |---|---|
-| Approved plan (the contract this was built to) | `runs/current/logic-plan/CR-DESIGN-SYSTEM-007.md` |
-| Approved mockups (layout A) | `runs/current/mockups/CR-DESIGN-SYSTEM-007/` |
-| Stage 04 artifacts | `runs/change-07/output/{test-results,qa-report,defect-log,deployed-verification}.md` |
-| Stage 05 artifacts | `runs/change-07/output/{revision-review,simplification-opportunities,accepted-refactors,readable-code-scorecard,centrality-scorecard}.md` |
-| Changed files · summary · open items | `runs/change-07/output/{changed-files,implementation-summary,known-issues}.md` |
-| Evidence roll-ups | `runs/change-07/evidence/{milestone-evidence,global-milestone-scorecard,user-verification-steps,developer-handover}.md` |
-| Technical debt | **none created** — reason recorded in `runs/change-07/output/known-issues.md` §D |
-| Decisions | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` (CR-DESIGN-SYSTEM-007, D-1…D-8) |
+| Approved plan (the contract this was built to) | `runs/current/logic-plan/CR-DESIGN-SYSTEM-009.md` |
+| Approved mockups (layout B) | `runs/current/mockups/CR-DESIGN-SYSTEM-009/` |
+| Stage 04 artifacts | `runs/change-08/output/{test-results,qa-report,defect-log,deployed-verification}.md` |
+| Stage 05 artifacts | `runs/change-08/output/{revision-review,simplification-opportunities,accepted-refactors,readable-code-scorecard,centrality-scorecard}.md` |
+| Changed files · summary · open items | `runs/change-08/output/{changed-files,implementation-summary,known-issues}.md` |
+| Technical debt | `runs/change-08/technical-debt.md` (**TD-1**) |
+| The OQ-8 probe | `runs/change-08/output/truncate-probe.html` |
+| Evidence roll-ups | `runs/change-08/evidence/{milestone-evidence,global-milestone-scorecard,user-verification-steps,developer-handover}.md` |
+| Decisions | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` — CR-DESIGN-SYSTEM-009, D-1…D-8 accepted, **D-9 PROPOSED** |
+| 🔴 The owner's open decision | `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
 | Active unit pointer | `runs/current/active-milestone.md` |
-| Previous changes | `runs/change-06/` (CR-006, merged as `ce47010`) · `runs/change-05/` (`fc6f6c6`) · `runs/change-04/` (`0633476`) · `runs/change-03/` (`fc2c5b8`) · `runs/change-02/` (`9aa20f7`) · `runs/change-01/` (`365be65`) |
+| Previous changes | `runs/change-07/` (CR-007, `54597ac`) · `change-06/` (`ce47010`) · `change-05/` (`fc6f6c6`) · `change-04/` (`0633476`) · `change-03/` (`fc2c5b8`) · `change-02/` (`9aa20f7`) · `change-01/` (`365be65`) |

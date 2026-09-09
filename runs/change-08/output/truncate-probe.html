@@ -1,0 +1,82 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>OQ-8 — does max-width cap a &lt;td&gt; under table-layout: auto?</title>
+<style>
+  body { font: 12px/1.4 system-ui, sans-serif; margin: 0; padding: 16px; }
+  /* Exactly what the package emits: the container's overflow-x-auto, an auto-layout table, and a
+     truncating cell carrying ONE max-width step. No table-layout: fixed anywhere. */
+  .container { width: 900px; overflow-x: auto; border: 1px solid #ccc; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 6px 12px; border-bottom: 1px solid #eee; text-align: left; }
+  /* Tailwind's `truncate` is exactly these three declarations. */
+  .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .narrow { max-width: 6rem; }
+  .medium { max-width: 11rem; }
+  .wide   { max-width: 20rem; }
+  #out { white-space: pre; font-family: ui-monospace, monospace; margin-top: 16px; }
+</style>
+<div class="container">
+  <table>
+    <thead>
+      <tr>
+        <th class="truncate narrow" id="h-narrow">Reference</th>
+        <th class="truncate wide" id="h-wide">Customer</th>
+        <th class="truncate medium" id="h-medium">Note</th>
+        <th id="h-uncapped">Uncapped</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="truncate narrow" id="c-narrow">SO-2026-000148-REV-B-LONG</td>
+        <td class="truncate wide" id="c-wide">Freshmark Distribution Centre — Gauteng North Regional</td>
+        <td class="truncate medium" id="c-medium">Held back pending a quality re-check on the second pallet</td>
+        <td id="c-uncapped">Freshmark Distribution Centre — Gauteng North Regional</td>
+      </tr>
+      <tr>
+        <td class="truncate narrow">08 Sep</td>
+        <td class="truncate wide">Boxer</td>
+        <td class="truncate medium">—</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div id="out"></div>
+<script>
+  // 🔴 THE MEASUREMENT, NOT A SCREENSHOT. `scrollWidth > clientWidth` on a cell whose overflow is
+  //    hidden is what "the text is being clipped, so the ellipsis is showing" MEANS in the box model.
+  //    A cell whose width sat at its content width would report the two as equal and this would fail.
+  const rows = [];
+  function probe(id, cap) {
+    const el = document.getElementById(id);
+    const w = el.getBoundingClientRect().width;
+    const clipped = el.scrollWidth > el.clientWidth;
+    rows.push([id, cap, w.toFixed(1), String(el.scrollWidth), String(el.clientWidth), clipped ? "CLIPPED" : "not clipped"].join(" | "));
+    return { w, clipped };
+  }
+  const narrow = probe("c-narrow", "6rem=96px");
+  const wide = probe("c-wide", "20rem=320px");
+  const medium = probe("c-medium", "11rem=176px");
+  const uncapped = probe("c-uncapped", "none");
+  probe("h-narrow", "6rem=96px");
+  probe("h-wide", "20rem=320px");
+
+  const verdicts = [];
+  verdicts.push(["cap honoured: narrow <= 96px", narrow.w <= 96.5]);
+  verdicts.push(["cap honoured: medium <= 176px", medium.w <= 176.5]);
+  verdicts.push(["cap honoured: wide <= 320px", wide.w <= 320.5]);
+  verdicts.push(["narrow actually clips its long value", narrow.clipped]);
+  verdicts.push(["medium actually clips its long value", medium.clipped]);
+  // The whole point of a SCALE: a customer name gets more room than a reference code.
+  verdicts.push(["wide is roomier than medium is roomier than narrow", wide.w > medium.w && medium.w > narrow.w]);
+  // A column that declares no cap is NOT capped — `full` must really mean uncapped.
+  verdicts.push(["an uncapped column is not clipped", uncapped.clipped === false]);
+
+  const all = verdicts.every(([, ok]) => ok);
+  document.getElementById("out").textContent =
+    "id | cap | width | scrollWidth | clientWidth | clipped?\n" +
+    rows.join("\n") +
+    "\n\n" +
+    verdicts.map(([name, ok]) => (ok ? "PASS  " : "FAIL  ") + name).join("\n") +
+    "\n\nOQ-8 VERDICT: " + (all ? "MAX-WIDTH HOLDS ON A <td> UNDER AUTO LAYOUT" : "DOES NOT HOLD — take the inner-span fallback");
+</script>

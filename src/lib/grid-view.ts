@@ -16,6 +16,23 @@
 // ⚠ FILTER VALUE SHAPES ARE PART OF THIS CONTRACT, deliberately. `GridFilterRow` renders exactly four
 //   kinds, so the four value shapes are the package's to state. What each one MEANS in a query is the
 //   app's business and is nowhere in this file.
+//
+// ============================================================================
+// 🔴 THE WIRE ENCODING FOR A MULTI-VALUE `select` (CR-DESIGN-SYSTEM-009 §A.3)
+// ============================================================================
+// A `select` filter may now hold SEVERAL option ids. This package writes no URL — the parameter names
+// and the saved-view definition are the consuming app's — so what it states instead is the ENCODING a
+// consumer's parser is built to. **A REPEATED PARAMETER, in displayed-option order:**
+//
+//     one value    f_room=cold-1                                  ← byte-identical to what is written today
+//     several      f_room=cold-1&f_room=cold-2&f_room=ripening-3
+//     none         the parameter is absent                        ← unchanged
+//
+// Why this one and not `f_room=a,b`: a repeated parameter needs no escaping, so an option id holding a
+// comma cannot silently become two filters; and ONE value reads identically under both readers —
+// `params.get()` returns "cold-1" and `params.getAll()` returns ["cold-1"] — so a view already saved
+// to disk round-trips to the same rows through the old parser AND the new one. A consumer adopting
+// this writes `append` instead of `set` and `getAll` instead of `get`, and migrates nothing.
 
 /** Which way a column is sorted. Lower-case, matching `TableHead`'s existing `SortDirection`. */
 export type GridSortDir = "asc" | "desc";
@@ -99,7 +116,26 @@ export type GridFilterKind = "text" | "select" | "numberMin" | "dateRange";
 
 export type GridFilterValue =
   | { readonly kind: "text"; readonly value: string }
-  | { readonly kind: "select"; readonly value: string }
+  | {
+      readonly kind: "select";
+      /**
+       * The FIRST chosen id in displayed-option order. Required, and it keeps the meaning it has
+       * always had — which is what lets every reader written before CR-DESIGN-SYSTEM-009 keep
+       * compiling and keep reading a real chosen id.
+       */
+      readonly value: string;
+      /**
+       * ⚠ PRESENT ONLY WHEN TWO OR MORE ARE CHOSEN, and then it holds ALL of them in displayed-option
+       *   order with `values[0] === value`. Absent for zero or one — the narrowest shape that can
+       *   express the state, exactly as `storedFromFilterValue` already writes a bare string for one
+       *   value and an array only for several (`table-controls.ts`).
+       *
+       * 🔴 NEVER AUTHORED BY HAND. Two fields that can disagree is a defect class; the way it is kept
+       *    out is that `gridFilterSelect` is the only constructor and `gridFilterSelected` the only
+       *    reader, so no caller in this package or in a consumer ever builds this object itself.
+       */
+      readonly values?: readonly string[];
+    }
   | { readonly kind: "numberMin"; readonly value: string }
   | { readonly kind: "dateRange"; readonly from: string | null; readonly to: string | null };
 
@@ -126,7 +162,40 @@ export function gridFilterSet(
 /** Is this value "no narrowing"? Whitespace-only text counts as empty; "0" does not. */
 export function gridFilterIsEmpty(value: GridFilterValue): boolean {
   if (value.kind === "dateRange") return value.from === null && value.to === null;
+  // A select is empty when NOTHING is chosen — neither the first id nor any of the rest. For every
+  // value expressible before CR-DESIGN-SYSTEM-009 this answers bit for bit what it answered then,
+  // because `values` did not exist and an absent list is an empty one.
+  if (value.kind === "select") {
+    return value.value.trim().length === 0 && (value.values ?? []).length === 0;
+  }
   return value.value.trim().length === 0;
+}
+
+/**
+ * Every id a `select` value has chosen, whatever its arity — `[]` for absent, empty, or another kind.
+ *
+ * The ONE reader of the two-field shape above. A caller that reached for `.value` directly would read
+ * a three-room filter as one room, which is the failure this exists to make unavailable.
+ */
+export function gridFilterSelected(value: GridFilterValue | undefined): readonly string[] {
+  if (value === undefined || value.kind !== "select") return [];
+  if (value.values !== undefined && value.values.length > 0) return value.values;
+  return value.value.trim().length === 0 ? [] : [value.value];
+}
+
+/**
+ * The value for a set of chosen ids, or `null` for none — which `gridFilterSet` then DROPS, so the
+ * empty state stays the one it has always been (`{}`, never a key holding nothing).
+ *
+ * The ONE constructor of the two-field shape above: it takes the ids in displayed-option order, drops
+ * blanks and repeats, and writes `values` only once there are two or more.
+ */
+export function gridFilterSelect(ids: readonly string[]): GridFilterValue | null {
+  const chosen = [...new Set(ids.filter((id) => id.trim().length > 0))];
+  const first = chosen[0];
+  if (first === undefined) return null;
+  if (chosen.length === 1) return { kind: "select", value: first };
+  return { kind: "select", value: first, values: chosen };
 }
 
 /**

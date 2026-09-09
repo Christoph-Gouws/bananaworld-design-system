@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option C — no cutting at all, slide sideways</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-warning:#b45309; --color-warning-subtle:#fef3c7;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1100px;margin:0 auto;padding:36px 28px 80px}
+  h1{font-size:24px;line-height:1.25;letter-spacing:-.015em;margin:0 0 6px}
+  .sub{color:var(--color-fg-muted);margin:0 0 20px;font-size:15px;max-width:80ch}
+  .sub b{color:var(--color-fg)}
+  .frame{width:100%;border:1px solid var(--color-border);border-radius:var(--radius-md);
+    background:var(--color-surface);overflow-x:auto}
+  table{width:100%;min-width:1180px;border-collapse:collapse;color:var(--color-fg);font-size:12px}
+  thead.hd{background:var(--color-surface-muted)}
+  th.col{font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-muted);
+    border-bottom:1px solid var(--color-border);white-space:nowrap;text-align:left;
+    vertical-align:middle;padding:4px 6px;font-size:10px}
+  th.col.r,td.r{text-align:right}
+  td{vertical-align:middle;border-bottom:1px solid var(--color-border);white-space:nowrap;padding:4px 6px}
+  tbody tr:last-child td{border-bottom:0}
+  td.num{font-variant-numeric:tabular-nums}
+  .warn{background:var(--color-warning-subtle);border:1px solid #fcd34d;border-radius:var(--radius-md);
+    padding:12px 14px;margin-top:20px;font-size:13px;color:#78350f;max-width:80ch}
+  .warn b{color:#451a03}
+  .hint{font-size:12px;color:var(--color-fg-subtle);margin:10px 2px 0}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Option C — nothing is cut, the report slides sideways</h1>
+  <p class="sub">Every value is shown whole, so each column ends up as wide as its longest value. The
+  report is then wider than the screen and the last columns sit off the edge until you drag it across.
+  <b>Try dragging the table below sideways.</b></p>
+
+  <div class="frame">
+    <table>
+      <thead class="hd">
+        <tr>
+          <th class="col">Date</th>
+          <th class="col">Customer</th>
+          <th class="col">Reference</th>
+          <th class="col">Room</th>
+          <th class="col">Note</th>
+          <th class="col r">Cases</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>2026-09-08</td><td>Freshmark Distribution Centre — Gauteng North</td>
+          <td>SO-2026-04417</td><td>Cold room 1</td>
+          <td>Held back pending quality re-check on Monday</td><td class="r num">48</td></tr>
+        <tr><td>2026-09-08</td><td>Boxer Superstores</td>
+          <td>SO-2026-04418</td><td>Cold room 1</td><td>—</td><td class="r num">52</td></tr>
+        <tr><td>2026-09-08</td><td>Shoprite Checkers Western Cape Depot</td>
+          <td>SO-2026-04419</td><td>Cold room 2</td><td>Split delivery</td><td class="r num">40</td></tr>
+        <tr><td>2026-09-07</td><td>Spar Eastern Cape</td>
+          <td>SO-2026-04420</td><td>Ripening 3</td>
+          <td>Customer asked for the earlier ripening stage</td><td class="r num">60</td></tr>
+        <tr><td>2026-09-07</td><td>Woolworths Regional Fresh Produce Hub</td>
+          <td>SO-2026-04421</td><td>Cold room 1</td><td>—</td><td class="r num">36</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">↔ the Cases column is off the right-hand edge until you drag.</p>
+
+  <div class="warn"><b>Why this is not the recommendation.</b> It is the answer you already turned down
+  on the wrapping question, and making the writing smaller does not rescue it: one long note in one row
+  widens that column for the whole report, and the figures you actually came for end up off the screen.
+  Sliding sideways stays available as a safety net either way — it just should not be the everyday
+  behaviour.</div>
+</div>
+</body>
+</html>

@@ -5,6 +5,105 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-009 — a filter cell holds several values, and the grid reads at a compact density
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **BUILT, GREEN, CLOSED OUT — MERGE BLOCKED.** Plan-gate decisions ACCEPTED (D-1…D-8). **D-9 is PROPOSED and open** |
+| Date | 2026-09-09 |
+| Branch point | `origin/main` @ `6ed975d` (CR-DESIGN-SYSTEM-008, merged as PR #20) |
+| Approved layout | **B** — three column width steps, per column |
+| Ship mode | **on-green** |
+| Archive | `runs/change-08/` |
+
+### What was asked
+
+The owner, about the reporting module this package's grid controls render:
+
+1. *"If I look at the columns and I want to filter by things in the column, I can only select one item
+   at a time. That's not very helpful because maybe I want to select multiple items. We have to make it
+   so that you can filter by multiple items: a Select All or where you can select individual items or
+   multiple items."*
+2. *"The report needs to be a little bit wider. I see on some screens that the entire report doesn't
+   fit on the screen. If we can make it a little bit wider, we can make the font smaller, a lot
+   smaller. I want the rows to be much more compact."*
+
+Ask 2's **width** half is the consuming app's (`bananaworld-dc` caps content at `max-w-[1440px]`) and
+was excluded by the CR itself. The **font and row-height** half is this package's, because every part
+of that table is a package export.
+
+### What was decided at the plan gate
+
+**APPROVED, layout B, ship mode on-green**, after three plan revisions driven by the owner's notes.
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-1 | **Widen the existing `select` value with ONE optional field (`values?: readonly string[]`). No fifth `kind`.** | A fifth `kind: "multiSelect"` would make **all 27** of DC's `kind: "select"` columns a migration on both sides of the wire, and would turn every stored `f_room=cold-1` into a value of a kind that no longer exists. **Widening `value` to `string \| readonly string[]` was rejected too, and it is the one that looks cheapest** — DC's `appendFilters` calls `value.value.trim()`, so a union breaks DC's typecheck **the moment it bumps its pin**: a consumer that adopted nothing would be broken by adopting nothing, which is exactly what the lane rule forbids. An optional extra property is assignable into DC's narrower type, so DC compiles unchanged |
+| D-2 | **The wire encoding is a REPEATED PARAMETER** — `f_room=A&f_room=B` — stated in `lib/grid-view.ts`'s header; **this package ships no URL codec** | No escaping and no separator to collide with, so an option id containing a comma cannot silently become two filters. And **one value reads identically under both readers**: `get` returns `"cold-1"`, `getAll` returns `["cold-1"]` — so views already saved to disk round-trip to the same rows through the old parser and the new one. A comma-joined parameter was rejected as a second escaping contract. The `f_` prefix and the saved-view definition are DC's vocabulary; a codec here would import an app's names into a pure UI package (**OQ-2**) |
+| D-3 | **The multi cell is OPT-IN (`multiple?: boolean`), and the one-value path is left literally untouched** | If the cell went multi by default, DC would pick up a menu that can emit two ids while its own writer still writes one — three ticks on screen, one room in the query, and a total the manager cannot tell is wrong. Opt-in makes that unreachable. It also means the shipped `SelectCell` is the *unedited* function, which is what makes byte-identity **provable** rather than argued |
+| D-4 | 🔴 **No second multi-select menu. The shared parts are MOVED, not copied**, into `components/MultiSelectMenu.tsx`; `MultiSelectFilterDef.selectAll` defaults to today's render | The CR named the alternative as the defect: *"two multi-select menus in one product that look or count differently."* One implementation, one arithmetic, one wording — with a documented two-value top row. The default is what keeps every shipped toolbar unmoved; convergence is a one-word opt-in per consumer, at each consumer's own gate, against a merged sha (**TD-1**) |
+| D-5 | **The owner picked tick-list option C — a tri-state "Select all" master row carrying `3 of 12`** | Chosen over option A (the shipped `All depots` item) at the mockup gate. Built as a Radix `CheckboxItem` with `checked="indeterminate"`, which emits `aria-checked="mixed"` for free — the single strongest reason not to hand-roll a dash |
+| D-6 | **The compact density is asked ONCE on `<Table>` and reaches the head, the filter row and the body. The package default does NOT move.** | *"I want reports to just open smaller"* (owner, plan note 3) settles **OQ-5**: the app chooses, there is no reader-facing switch, and DC writes `density="compact"` once. But the CRM, RMS, org-admin and Manga Verde render tables from these same parts and none asked to shrink — moving the default would be the lane rule broken in the one way that is invisible until four apps bump their pins. One switch reaching all three rows makes "a compact table with a tall filter row" unreachable by construction |
+| D-7 | **Long values are CUT with an ellipsis (owner's option 2), at a NAMED THREE-STEP WIDTH declared per column — layout B** | *"I wouldn't want all the columns to be equally narrow… some deserve to be wider, like a customer name"* (owner, plan note 3) settles **OQ-7**. Revision 2's single `columnMaxWidth` cut every over-long column at the same place, which is the awkwardness he described. Three steps (`narrow`/`medium`/`wide`) plus `full` express "roomy / ordinary / tight" and stop 27 magic numbers being invented column by column. A step is a **ceiling, not a fixed width**, so a date column still shrinks to its content. `<colgroup>` was rejected as positional (a hidden column shifts every width by one) and `table-layout: fixed` as giving every column an equal share — the owner's complaint restated as a layout mode |
+| D-8 | **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` is NOT created here** | It still does not exist. **Eighth consecutive change to raise it** (CR-001 D-12, CR-002 D-10, CR-003, CR-004, CR-005 D-12, CR-006 D-12, CR-007 D-7, here). Creating it is a governance decision for the owner, not something a change may invent. The plan's eight-seam map (§2) plus `runs/change-08/` is the record meanwhile |
+| **D-9** | 🔴 **PROPOSED, NOT DECIDED — three new high/critical advisories block the merge.** How should they be cleared? | Published **2026-09-08**, the day before the build: `GHSA-2xp9-vwfh-vxw4` and `GHSA-p293-qw3h-jr36` (**critical**, unauthenticated Next.js RCEs) and `GHSA-rgj7-g3m4-5g8c` (high, `sharp`). `autoInstallPeers: true` puts `next@15.5.19` in the lockfile's production dependencies, so CI's `pnpm audit --prod --audit-level=high` fails and branch protection refuses the merge. **Not caused by this change** — `package.json` and `pnpm-lock.yaml` are byte-identical to `main`, which fails the same audit today. **Options:** (a) refresh `next` to ≥ 15.5.24 — **inside the `^15.0.0` range already declared**, and it pulls `sharp` ≥ 0.35.4; verified to clear all three; (b) add the three GHSAs to the owner-approved ignore list; (c) accept a red audit gate. **Recommendation: (a).** Not taken here because every lockfile-writing command is permission-blocked in a build worktree, and (b) means ignoring two unauthenticated RCEs, which is not a change's call. Owner card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
+
+### Clarify questions and answers
+
+Four owner responses are recorded for this change. **All four are material and all four are reflected
+in the plan that was built:**
+
+- **`[plan]` — plan REVISE:** *"What I really want to try and avoid is for column fields to wrap. What
+  would be the best way to achieve that, for it not to wrap and for it to still show all the columns?"*
+  → Answered in plan §C. Measured rather than assumed: **only `TableCell` wraps today** — `TableHead`
+  and the filter cells already carry `whitespace-nowrap`. And the honest constraint was put to him
+  plainly: *not wrapping does not create space*, it moves the overflow sideways. There are exactly
+  three levers — **cut**, **slide**, **show fewer** — and the question was which is the default.
+- **`[plan]` — plan REVISE:** *"Okay we'll go for C in both cases and then we'll go for 2 on the
+  wording cutoff"* → tick-list **C** (the tri-state master row, D-5), density **C** (the scale in plan
+  §B.3, D-6), long values **2** (cut with a "…", recoverable on hover, D-7).
+- **`[plan]` — plan REVISE:** *"I want reports to just open smaller. One thing is we've selected the
+  narrower option now for the columns but I don't want all columns necessarily to be equally narrow
+  because then that will also look awkward. Some columns deserve to be wider, like a customer name for
+  instance. Just bear that in mind. I don't know how to approach that but I wouldn't want all the
+  columns to be equally narrow. That would also not look practical."* → **Two decisions.** It settled
+  **OQ-5** (no reader-facing density switch — the app chooses; D-6) and it **replaced** revision 2's
+  single pixel cap with the per-column named scale (D-7). The assumption he was asked to check —
+  names and addresses `wide`, most columns `medium`, dates/references/numbers `narrow` — is recorded
+  in the plan's owner brief and is a one-word edit per column, not a rebuild.
+- **`[plan]` — plan APPROVED (layout B) — ship on-green.** → **Layout B** is the three-sizes-per-column
+  option from `comparison.html`, i.e. plan §C.4, and it is what was built.
+
+### What was built, and how the additive claim was proven
+
+Four opt-in additions across 10 source files and 5 test files (+1,588 / −92): the multi-value filter
+cell, the compact density, the wrap treatment, and the per-column width scale. **363/363 specs green**
+(baseline **re-measured before any edit: 314**), `pnpm typecheck` clean, **+49 specs, 0 existing specs
+edited or reddened**.
+
+🔴 **The additive claim was measured, not asserted:** every shape an existing caller can pass was
+rendered against `git show 6ed975d:` and against this build and compared on whole `innerHTML` —
+**1,972 shapes, 0 differences** — and the seven shipped `DataTableToolbar` screens' DOM snapshot has a
+**zero-line diff**. An **8-mutation battery caught 8 of 8**, so the specs are known to redden against
+a real defect rather than merely to pass.
+
+**Two departures from the plan's letter, both disclosed, neither behavioural:** one
+`TableLayoutContext` where §B.1 sketched two private contexts (identical exported surface), and a
+ninth source file because `MultiSelectFilterDef` lives in `lib/table-controls.ts`, not where §3
+implied.
+
+**One verification could not be run and is stated as such:** **OQ-8**, whether `max-width` caps a
+`<td>` under `table-layout: auto`. No browser binary is executable from a build worktree. A ready-to-
+run probe ships at `runs/change-08/output/truncate-probe.html`; the named fallback is recorded and
+untaken.
+
+⚠ **Housekeeping note for the owner:** there is **no decision-log entry for CR-DESIGN-SYSTEM-008**,
+which merged as PR #20 — this log jumps from 007 to 009. Not this change's to write, and flagged
+rather than filled in.
+
+---
+
 ## CR-DESIGN-SYSTEM-007 — when a row instruction and a single box disagree, the box wins
 
 | Field | Value |

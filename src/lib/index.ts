@@ -54,6 +54,12 @@ export {
   gridColumnOrder,
   gridFilterSet,
   gridFilterIsEmpty,
+  // The `select` filter's arity, as the only reader and the only constructor of its two-field shape
+  // (CR-DESIGN-SYSTEM-009 §A.2). Exported because the consumer that puts this value in a URL has to
+  // ask the same question the cell asks — "which ids are chosen?" — rather than reach for `.value`
+  // and read a three-room filter as one room.
+  gridFilterSelected,
+  gridFilterSelect,
   type GridSortDir,
   type GridSort,
   type GridGroupLevel,
