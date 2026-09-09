@@ -302,7 +302,7 @@ density, C one-line values, D the per-column width scale) shipped complete.
 | Document | Amendment | Status |
 |---|---|---|
 | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` | A CHANGE/DECISION entry for **CR-DESIGN-SYSTEM-009**: what was asked, what was decided at the plan gate, the layout picked (**B**), the ship mode (**on-green**), all four recorded owner responses including the two revise notes, and the eight in-session decisions (D-1…D-8) | **Applied** |
-| `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` | **D-9, the advisory question — DECIDED by the owner: option A**, refresh `next` to ≥ 15.5.24 (pulling `sharp` ≥ 0.35.4); the ignore list is **not** extended. **D-10** records that its execution is owed, why both available routes were refused, and the one command that clears it | **Decided (A); execution owed** |
+| `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` | **D-9, the advisory question — DECIDED by the owner: option A**, refresh `next` to ≥ 15.5.24; the ignore list is **not** extended. **D-10** recorded that its execution was owed and why both routes then available were refused. **D-11** records that it is now executed — the mechanism (two `pnpm.overrides` floors + `pnpm install --lockfile-only`), the additive check, the verification, and the correction that `sharp` needed its own floor | **Decided (A); EXECUTED (D-11); D-10 superseded** |
 
 🔴 **No Stage 07 amendment to a rule, contract or workflow was required, and here is the reason** — an
 unrecorded N/A would be a skip:
@@ -332,7 +332,7 @@ eight-seam map (§2) plus this archive is the record in its place.
 | Scope compliance | 100% | **Pass** — all four approved parts built, nothing beyond them; the two departures from the plan's letter are non-behavioural and disclosed |
 | Gate completion | 100% | **Pass** — 6 gates passed, 2 N/A with reasons (§5). No gate deferred |
 | Test coverage | 100% | **Pass** — 363/363; +49 specs; 0 existing edited or reddened; **8/8 mutations caught** |
-| Security compliance | **BLOCKED** | 🔴 the dependency audit **fails** on 3 advisories published 2026-09-08. **Not caused by this change** — `main` fails identically. Escalated, not absorbed |
+| Security compliance | 100% | **Pass** — the dependency audit failed on 3 advisories published 2026-09-08 (**not caused by this change**; `main` failed identically). Escalated, not absorbed; owner decided **A**; executed in the CI-fix round. Re-measured **3 blocking → 0** |
 | Code quality | 100% | **Pass** — sensors report **0 open findings**, 5 justified, 0 weak; 2 simplifications applied, 6 rejected with reasons |
 | Documentation | 100% | **Pass** — every new field carries a doc comment stating what it does *and why the default does not move*; the wire encoding is written into the file that owns it |
 | Evidence completeness | 95% | **Pass with one open item** — every required artifact exists as its own file; the single gap is OQ-8's browser check, which is **stated as not run** rather than claimed, and shipped as a one-click probe |
@@ -343,10 +343,10 @@ eight-seam map (§2) plus this archive is the record in its place.
 |---|---|---|---|
 | Readable code | 11/11 dimensions | PASS | **Pass** |
 | Centrality | 8/8 dimensions | PASS | **Pass** |
-| Security | — | PASS | 🔴 **Blocked** — 3 new high/critical advisories, **pre-existing on `main`**, owner decision pending |
+| Security | audit **0 blocking** | PASS | ✅ **Pass** — the 3 high/critical advisories were **pre-existing on `main`**; owner decision **A** executed, re-measured green |
 | QA | 18/18 acceptance criteria met (2 class-level only, stated) | PASS | **Pass** |
 | Evidence | 16/16 required artifacts present as their own files | PASS | **Pass** |
-| **Overall** | **4 of 5** | **PASS** | 🔴 **BLOCKED on Security — see §18** |
+| **Overall** | **5 of 5** | **PASS** | ✅ **PASS** |
 
 The same table is carried, with its reasoning, in
 `runs/change-08/evidence/global-milestone-scorecard.md`.
@@ -355,14 +355,15 @@ The same table is carried, with its reasoning, in
 
 ## 16. Blocking Reports
 
-**One, raised at the end of Stage 04. The owner has since answered it; its execution is owed.**
+**One, raised at the end of Stage 04. The owner answered it, and it is now closed.**
 
 | Report | Raised | Status |
 |---|---|---|
-| 🔴 **`NEEDS_OWNER: decision` — three high/critical advisories block the merge** | Stage 04, dependency audit | **ANSWERED — the owner chose option A**, take the repaired versions (`next` ≥ 15.5.24, which pulls `sharp` ≥ 0.35.4). Recorded as **D-9 DECIDED**. 🔴 **Its execution is OWED, not done** (**D-10**): `pnpm` is permission-gated in a build worktree with no approver, and the gate was honoured rather than evaded; hand-authoring the lockfile was rejected as the larger risk. **CI's `dependency-audit` will be red until one `pnpm update next` commit lands on this branch** — a rebuild of the change cannot produce it. Re-measured at the resumed session: 3 blocking now, **0 blocking after the bump** |
+| ✅ **`NEEDS_OWNER: decision` — three high/critical advisories block the merge** | Stage 04, dependency audit | **ANSWERED — the owner chose option A**, take the repaired versions. Recorded as **D-9 DECIDED**. **EXECUTED in the CI-fix round** (**D-11**, superseding D-10): two `pnpm.overrides` floors re-resolved with `pnpm install --lockfile-only` → `next` **15.5.25**, `sharp` **0.35.4**, nothing added to `ignoreGhsas`. Audit re-measured **3 blocking → 0**, the walk first validated against CI's own published pre-fix numbers. 🔴 A correction surfaced by running it: `sharp` did **not** follow from the `next` bump and needed its own floor |
 
-**No `CHANGE_BLOCKED` was raised.** The change itself is complete, green and additive; what is blocked
-is the merge, by a repository-wide condition that predates this branch.
+**No `CHANGE_BLOCKED` was raised**, and none was warranted: the change itself was always complete,
+green and additive; what blocked was the merge, by a repository-wide condition that predated this
+branch and has now been repaired.
 
 **No `NEEDS_OWNER: decision` was raised for anything the plan already answered** — the plan gate
 settled every design question (OQ-1…OQ-9), and none was re-opened.
@@ -372,19 +373,22 @@ settled every design question (OQ-1…OQ-9), and none was re-opened.
 ## 17. Handoff
 
 ```
-Next agent:            Human Owner (decision), then the Software Developer Agent on resume
-Required next action:  Answer the decision card at
-                       runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md — how to clear the three
-                       advisories that fail CI's dependency-audit job. Optionally, open
+Next agent:            The conductor (poll CI, merge on green). Then bananaworld-dc, in its own change.
+Required next action:  None from this lane. Optionally, open
                        runs/change-08/output/truncate-probe.html to close OQ-8 in one click.
-Blocking status:       Blocked
-Blocking reason:       CI's dependency-audit job (ci.yml:68) fails on GHSA-2xp9-vwfh-vxw4 and
+Blocking status:       Not blocked
+Resolved reason:       CI's dependency-audit job (ci.yml:68) failed PR #22 on GHSA-2xp9-vwfh-vxw4 and
                        GHSA-p293-qw3h-jr36 (critical, unauthenticated Next.js RCEs) and
                        GHSA-rgj7-g3m4-5g8c (high, sharp), all published 2026-09-08. NOT caused by
-                       this change — package.json and pnpm-lock.yaml are byte-identical to main, and
-                       main fails the same audit. Every lockfile-writing command is permission-blocked
-                       in this worktree, and extending the ignore list is not a change's call.
-                       The code is committed and pushed on change/cr-design-system-009; no PR opened.
+                       this change — package.json and pnpm-lock.yaml were byte-identical to main, and
+                       main failed the same audit. The owner chose option A; the CI-fix round applied
+                       two pnpm.overrides floors (next >= 15.5.24, sharp >= 0.35.4) and re-resolved
+                       with pnpm install --lockfile-only. next 15.5.25, sharp 0.35.4, nothing added
+                       to ignoreGhsas. Audit closure re-measured 3 blocking -> 0, the walk validated
+                       against CI's own published pre-fix numbers first.
+                       The code is committed and pushed on change/cr-design-system-009; PR #22 open.
+Follow-up created:     4 of 6 standing ignoreGhsas entries are now inert and want retiring in a
+                       standalone housekeeping change. Non-blocking. known-issues.md section A.
 ```
 
 ---
@@ -392,11 +396,19 @@ Blocking reason:       CI's dependency-audit job (ci.yml:68) fails on GHSA-2xp9-
 ## 18. Status
 
 ```
-BLOCKED
+PASS
 ```
 
-**The work is complete; the merge is not permitted.** Stating that as PASS would be the false claim
-this pack exists to prevent.
+**The work is complete and the one condition that blocked the merge has been repaired and
+re-measured.** For two rounds this section correctly read `BLOCKED`: the audit failed, the remedy was
+decided but not executed, and stating that as PASS would have been the false claim this pack exists to
+prevent. It now reads PASS on the same standard — a measurement (`3 blocking → 0`, validated against
+CI's own published pre-fix numbers), not an intention.
+
+**What remains true and is not rounded up:** OQ-8's real-browser truncation check was never run —
+no browser binary is executable from this sandbox — and ships as a one-click probe
+(`runs/change-08/output/truncate-probe.html`). No consumer app's test suite was executed. Neither is
+claimed anywhere in this pack.
 
 **What must be resolved before this change can close:**
 
@@ -457,4 +469,4 @@ explicitly.
 | All required stage outputs produced / updated | **Yes** — Stage 04: `test-results.md`, `qa-report.md`, `defect-log.md`, `deployed-verification.md`. Stage 05: `revision-review.md`, `simplification-opportunities.md`, `accepted-refactors.md`, `readable-code-scorecard.md`, `centrality-scorecard.md`. Plus `changed-files.md`, `implementation-summary.md`, `known-issues.md`, `technical-debt.md`, `truncate-probe.html`. **Each as its own file — no roll-up substituted for one** (Rule 9.1) |
 | Session handover (`runs/current/SESSION_HANDOVER.md`) updated | **Yes** — rewritten for CR-DESIGN-SYSTEM-009, and `runs/current/active-milestone.md` reconciled with it. Both name this CR |
 | Context Usage Summary recorded (§19) and appended to the global log | **Yes** — §19 above, and one row appended with `--project bananaworld-design-system` |
-| Owner notified: "Milestone [ID] is closed and ready for the next session" | **Partly, and the part that is not is stated rather than rounded up.** The decision card was answered (**option A**) and the change is now built, green, closed out, pushed and **PR open**. 🔴 **What is NOT true is that it can merge:** CI's `dependency-audit` job will be red until the owed `pnpm update next` commit lands (**D-10**), and this session is not permitted to produce it. The session ends on `CHANGE_PR`, not on a claim of green CI. Reporting this as merge-ready would be the false claim this pack exists to prevent |
+| Owner notified: "Milestone [ID] is closed and ready for the next session" | **Yes.** The decision card was answered (**option A**), that decision is executed (**D-11**), and the change is built, green, closed out, pushed and **PR open** with the fix on it. ⚠ **What is still NOT claimed:** that CI is green. The local gates are — `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm test` **363/363**, and the audit closure at **0 blocking** — but this session does not wait on CI and does not merge; that is the conductor's job. The session ends on `CHANGE_PR`, not on a claim of green CI |

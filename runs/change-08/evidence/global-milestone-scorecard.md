@@ -15,18 +15,20 @@ Layout:     B (owner-approved)      Ship mode: on-green
 |---|---|---|---|
 | Readable code | **11 / 11** dimensions | PASS | ✅ **Pass** |
 | Centrality | **8 / 8** dimensions | PASS | ✅ **Pass** |
-| Security | dependency audit **FAILS** — remedy decided (owner: A), **execution owed** | PASS | 🔴 **BLOCKED** |
+| Security | dependency audit **0 blocking** — owner's remedy (A) **executed** | PASS | ✅ **Pass** |
 | QA | **18 / 18** acceptance criteria met | PASS | ✅ **Pass** |
 | Evidence | **16 / 16** required artifacts, each its own file | PASS | ✅ **Pass** |
-| **Overall** | **4 of 5** | **PASS** | 🔴 **BLOCKED — on Security only** |
+| **Overall** | **5 of 5** | **PASS** | ✅ **PASS** |
 
-🔴 **The single blocked category is not this change's doing.** `package.json` and `pnpm-lock.yaml` are
-**byte-identical to `main`**, which fails the same audit today. See §3.
+**Security was scored 🔴 BLOCKED for the first two rounds and has now moved to Pass on a
+measurement, not on an intention** — which is the rule that kept it blocked in the first place. The
+owner decided *what* to do (**A** — take the repaired versions) at the decision gate; the CI-fix round
+*did* it. `next` → **15.5.25**, `sharp` → **0.35.4**, **nothing added to `ignoreGhsas`**, and the
+closure re-walks **3 blocking → 0**. That walk was validated by first reproducing CI's own published
+pre-fix numbers exactly, so the row rests on the failing job's own arithmetic. See §3.
 
-**It stays BLOCKED, deliberately, and is not marked resolved by the owner's answer.** The owner
-decided *what* to do (**A** — take the repaired versions); nobody has yet *done* it, because `pnpm` is
-permission-gated in a build worktree. A category is scored on the measured state, not on an intention,
-so this row moves to Pass only when the `pnpm update next` commit lands and the audit is re-run green.
+⚠ The category was never this change's doing to begin with: when it was red, `package.json` and
+`pnpm-lock.yaml` were byte-identical to `main`, which failed the same audit.
 
 ---
 
@@ -62,13 +64,14 @@ construction (TECH-COMP-003 / ADR-001).
 demanded: *"two multi-select menus in one product that look or count differently is the defect, not
 the feature."*
 
-## 3. Security — 🔴 BLOCKED
+## 3. Security — ✅ PASS (was BLOCKED for two rounds)
 
 **Application surface: clean, structurally.** No network call, no record, no authorisation, no
-tenancy, no secret, no `process.env`. This change adds **no import of any kind** and no dependency.
+tenancy, no secret, no `process.env`. This change adds **no import of any kind** and no runtime
+dependency.
 
-**Dependency surface: three new blocking advisories, published 2026-09-08 — the day before this
-session.**
+**Dependency surface: three blocking advisories, published 2026-09-08 — the day before the build
+session — now REPAIRED.**
 
 | Advisory | Severity | Package | Fixed in |
 |---|---|---|---|
@@ -80,19 +83,37 @@ Verified against **two independent sources**. `autoInstallPeers: true` puts `nex
 lockfile's production `dependencies`, so `pnpm audit --prod --audit-level=high` (CI's job) exits
 non-zero and branch protection refuses the merge.
 
-**Not this change's:** the lockfile is byte-identical to `main`. CR-007 (2026-08-25) reported 0
-blocking; the difference is thirteen days of advisory publication.
-**Not fixable here:** every lockfile-writing command is permission-gated in this worktree with no
-approver, and adding two RCEs to the owner-approved ignore list is not a change's call.
-**Escalated, and ANSWERED:** the owner chose **option A** — take the repaired versions (`next` ≥ 15.5.24,
-pulling `sharp` ≥ 0.35.4); nothing goes on the ignore list. Recorded as **D-9 DECIDED**.
-🔴 **Its execution is OWED, not done** (**D-10**): one `pnpm update next` commit on this branch, by an
-actor with package-manager permission. Until it lands, CI's `dependency-audit` job stays red and the PR
-cannot merge — **and relaunching the build session will not clear it.** Re-measured at the resumed
-session from the lockfile closure (66 deps-only / 106 with optional edges, 16 advisories, third sanity
-check 0 empty or non-GHSA): **3 blocking now, 0 blocking after the bump.**
+**Not this change's:** at the time it was red, the lockfile was byte-identical to `main`. CR-007
+(2026-08-25) reported 0 blocking; the difference was thirteen days of advisory publication.
+**Escalated, and ANSWERED:** the owner chose **option A** — take the repaired versions; nothing goes on
+the ignore list. Recorded as **D-9 DECIDED**.
+✅ **EXECUTED in the CI-fix round** (**D-11**, superseding D-10):
 
-Six previously-known highs remain correctly ignored; seven moderates sit below the threshold.
+```
+pnpm.overrides  "next@<15.5.24":  "^15.5.24"   ->  next  15.5.19 -> 15.5.25
+pnpm.overrides  "sharp@<0.35.4":  "^0.35.4"    ->  sharp  0.34.5 -> 0.35.4
+```
+
+| Measurement | pre-fix | post-fix |
+|---|---|---|
+| 🔴 Blocking high/critical | **3** | **0** ✅ |
+| High/critical ignored | 6 | 2 (both PostCSS) |
+| Moderate-or-below | 7 | 2 |
+
+**The green reading is anchored, not asserted:** the same closure walk was first run on the *pre-fix*
+tree and reproduced CI's own published line (`7 moderate | 7 high (6 ignored) | 2 critical`) exactly —
+the same three GHSAs. `pnpm install --frozen-lockfile`, `pnpm typecheck` and `pnpm test` (**363/363**)
+are all green on the bumped tree.
+
+**Additive:** `peerDependencies.next` was **not** tightened (stays `^15.0.0`), and pnpm honours
+`overrides` only in the root workspace project — so no consumer's resolution moves. `pnpm update` and
+`pnpm audit` remain permission-gated and were not routed around; `pnpm install --lockfile-only` is
+permitted and did the work. **The lockfile is generated, never hand-authored.**
+
+Two previously-known PostCSS highs remain correctly ignored; two moderates sit below the threshold.
+⚠ **Four of the six standing `ignoreGhsas` entries are now inert** and want retiring in a standalone
+housekeeping change — deliberately not done here, because retiring an owner-approved accepted-risk
+entry is a posture change, not a side effect of a CI fix (`known-issues.md` §A).
 
 ## 4. QA — PASS
 
@@ -122,7 +143,7 @@ Every artifact exists **as its own file**; no consolidated roll-up was substitut
 | `changed-files.md` · `implementation-summary.md` · `known-issues.md` | ✅ |
 | `technical-debt.md` | ✅ — one item, the one the plan §9 predicted |
 | Evidence roll-ups × 4 | `milestone-evidence.md` (template **copied and filled**, artifacts **cited** not restated) · this file · `user-verification-steps.md` · `developer-handover.md` ✅ |
-| Decision log entry | ✅ CR-DESIGN-SYSTEM-009, D-1…D-8 applied + **D-9 DECIDED (owner: A)** + **D-10** (execution owed, both refused routes stated) |
+| Decision log entry | ✅ CR-DESIGN-SYSTEM-009, D-1…D-8 applied + **D-9 DECIDED (owner: A)** + **D-10** (execution owed — now **superseded**) + **D-11** (D-9 executed, mechanism and the `sharp` correction stated) |
 | Handover + active-milestone, both naming this CR | ✅ |
 | Context-usage row (`--project bananaworld-design-system`) | ✅ |
 | Extra, not required | `truncate-probe.html` — the OQ-8 check this session could not run, shipped ready to run |
@@ -134,9 +155,11 @@ Every artifact exists **as its own file**; no consolidated roll-up was substitut
 
 ## Verdict
 
-**The engineering is complete and the evidence supports it.** One category blocks, for a
-repository-wide condition that predates this branch and that a build session is not permitted to
-resolve. The correct close is **BLOCKED with the decision escalated**, not PASS.
+**The engineering is complete, the evidence supports it, and all five categories PASS.**
 
-Resolution path: owner answers the decision card → a resumed session applies it, re-runs the audit,
-opens the PR → the conductor merges on green.
+Security was the one category that blocked, for a repository-wide advisory condition that predated
+this branch. It was escalated rather than absorbed, the owner decided (**A**), and the CI-fix round
+executed that decision and re-measured the audit at **0 blocking**. The row moved on a measurement.
+
+Path taken: audit red at Stage 04 → escalated as a decision card → owner answered **A** → conductor
+relaunched on CI red → bump applied, audit re-measured green, PR updated → conductor merges on green.

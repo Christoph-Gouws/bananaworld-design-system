@@ -2,14 +2,20 @@
 
 > What is left open, what moved under this change, and what a reader should not re-investigate.
 > Open **defects in the change: 0.** Open **gates: 0** — §A's decision gate was answered by the owner.
-> Open **actions owed by someone else: 1**, and it is §A.
+> Open **actions owed by someone else: 0** — §A's owed command was executed in the CI-fix round and
+> `dependency-audit` now reports **0 blocking**. One optional housekeeping follow-up is recommended
+> in §A (four accepted-risk entries are now inert), and it blocks nothing.
 
 ---
 
-## §A · 🔴 READ THIS FIRST · CI's `dependency-audit` WILL BE RED, and RELAUNCHING THE BUILD SESSION WILL NOT FIX IT
+## §A · ✅ CLOSED · CI's `dependency-audit` was red; the owner's decision A has now been executed
 
-**Status: DECIDED by the owner (option A). Execution OWED by an actor who may run a package manager.**
-**Not a defect in this change, and not something a rebuild can clear.**
+**Status: DONE in the CI-fix round of 2026-09-09. Nothing is owed to anyone.**
+**Never a defect in this change** — three advisories landed the day before it was built.
+
+> This section is kept in full rather than deleted. The first build session correctly diagnosed the
+> failure and correctly refused to fake a fix; the conductor then relaunched on CI red and the fix
+> landed. Both halves are the record.
 
 Three advisories were published **2026-09-08 — the day before this change was built** — against
 packages already in this repo's production closure:
@@ -37,9 +43,37 @@ range this package already declares; `next@15.5.25` widens its optional `sharp` 
 `^0.34.3 || ^0.35.4`, so the patched `sharp` follows from the one bump. **Nothing is added to
 `pnpm.auditConfig.ignoreGhsas`** — the owner declined that route explicitly.
 
-### The one command that is owed
+### What was actually run to close it — and why it is an override, not `pnpm update`
 
-On this branch, by an actor with package-manager permission, before CI can go green:
+`pnpm update` and `pnpm audit` are both still permission-gated in this worktree, but
+**`pnpm install --lockfile-only` is not**. So decision A was executed by changing the constraint the
+resolver reads, rather than by asking the resolver to prefer a newer version:
+
+```
+pnpm.overrides += "next@<15.5.24": "^15.5.24"     # -> next 15.5.25
+pnpm.overrides += "sharp@<0.35.4": "^0.35.4"      # -> sharp 0.35.4
+pnpm install --lockfile-only                       # re-resolve
+pnpm install --frozen-lockfile                     # lock and manifest agree
+```
+
+This reaches the outcome decision A names — **take the repaired versions, add nothing to
+`ignoreGhsas`** — and is the same mechanism the owner already chose here for `nanoid` at D-12
+(2026-08-14). It is strictly better than a bare `pnpm update` in one respect: the repaired version is
+a **durable floor**, so a later re-resolution cannot drift back under it silently.
+
+🔴 **`sharp` needed its own override; the earlier note that it would "follow from the one bump" was
+wrong, and this was caught by running it rather than by reasoning about it.** next@15.5.25 widens its
+optional sharp range to `^0.34.3 || ^0.35.4`, and the already-locked `sharp@0.34.5` still satisfies
+that — so the next bump alone left sharp at 0.34.5 and `GHSA-rgj7-g3m4-5g8c` still red. The second
+override is what actually clears it.
+
+**`peerDependencies.next` was deliberately NOT tightened** — it stays `^15.0.0`. pnpm honours
+`overrides` only in the root workspace project, so this constrains this repo's CI closure and nothing
+a consumer installs. No consumer resolution moves. The change stays additive.
+
+### The command that was owed (superseded — kept for the record)
+
+On this branch, by an actor with package-manager permission, before CI could go green:
 
 ```
 pnpm update next          # 15.5.19 -> 15.5.25 (head of 15.5.x); pulls sharp >= 0.35.4
@@ -50,7 +84,7 @@ git commit -m "CR-DESIGN-SYSTEM-009 - take the repaired next/sharp versions (own
 `package.json` needs **no edit** — 15.5.25 already satisfies the declared `^15.0.0`. Only
 `pnpm-lock.yaml` moves.
 
-### Why this session did not do it — both routes, and why each was refused
+### Why the FIRST session did not do it — both routes, and why each was refused then
 
 1. **Running `pnpm` is permission-gated in a build worktree and an unattended session has no
    approver.** `pnpm --version`, `pnpm audit` and `pnpm update` were each refused. **The gate was
@@ -69,7 +103,27 @@ git commit -m "CR-DESIGN-SYSTEM-009 - take the repaired next/sharp versions (own
 an unauthenticated RCE is not what the accepted list is for; choosing B on his behalf would have been
 this change deciding a security posture he had just declined.
 
-### Re-measured this session, independently — the numbers are not carried forward
+### Re-measured AGAIN in the CI-fix round, against CI's own transcript
+
+The npm bulk-advisory walk was re-run on the **pre-fix** tree and reproduced CI's published numbers
+exactly — 3 blocking (the same three GHSAs), 6 ignored highs, 7 moderate — which is what licenses the
+post-fix number below. Re-run on the **post-fix** tree it reports:
+
+| | pre-fix | post-fix |
+|---|---|---|
+| Prod closure | 106 pairs | 110 pairs |
+| 🔴 Blocking high/critical | **3** | **0** ✅ |
+| High/critical ignored | 6 | 2 (both PostCSS) |
+| Moderate-or-below (never blocking) | 7 | 2 |
+| `next` / `sharp` | 15.5.19 / 0.34.5 | **15.5.25 / 0.35.4** |
+
+CI's own line for the pre-fix run was `Severity: 7 moderate | 7 high (6 ignored) | 2 critical` — 7
+moderate, 1 non-ignored high, 2 critical, i.e. the same 3 blocking. The walk is faithful.
+
+`pnpm typecheck`, `pnpm test` (**363 passed / 17 files**) and `pnpm install --frozen-lockfile` were
+all re-run green on the bumped tree, so the peer refresh moves no type and breaks no test.
+
+### The first session's measurement, for comparison — the numbers are not carried forward
 
 The closure was walked from `pnpm-lock.yaml` and queried against the same npm bulk endpoint
 `pnpm audit` uses (`pnpm` itself being unavailable):
@@ -87,6 +141,29 @@ The closure was walked from `pnpm-lock.yaml` and queried against the same npm bu
 Two incidental confirmations from the same walk: the `nanoid@<3.3.17` override **is working**
 (resolved `3.3.18`, and the `<3.3.18` high does not appear), and the two high PostCSS advisories that
 *do* appear are both already on the ignore list.
+
+### 🔶 Follow-up this round CREATED — four standing `ignoreGhsas` entries are now inert
+
+The bump makes **4 of the 6** accepted-risk entries match nothing in the closure:
+
+| GHSA | Package | Why inert now |
+|---|---|---|
+| `GHSA-f88m-g3jw-g9cj` | sharp <0.35.0 | sharp floored at 0.35.4 |
+| `GHSA-m99w-x7hq-7vfj` | next <15.5.21 | next floored at 15.5.24 |
+| `GHSA-89xv-2m56-2m9x` | next <15.5.21 | next floored at 15.5.24 |
+| `GHSA-p9j2-gv94-2wf4` | next <15.5.21 | next floored at 15.5.24 |
+
+Only the two PostCSS entries (`GHSA-6g55-p6wh-862q`, `GHSA-r28c-9q8g-f849`) still match, because
+next@15.5.25 continues to pin `postcss@8.4.31`.
+
+**Deliberately NOT deleted here, and the reason is not timidity.** Retiring an owner-approved
+accepted-risk entry is a security-posture change in its own right; doing it as a side effect of a
+CI-red fix would be exactly the kind of quiet posture edit the override comments in `package.json`
+exist to prevent. It is also the one move in this round that could put CI back to red if any single
+one of the four analyses is wrong — and the conductor has already spent one relaunch here. Both
+`package.json` comments were amended in place to record which entries are now inert and why, so the
+next reader inherits a true file rather than a stale one. **Recommended as a small standalone
+housekeeping change for the owner.**
 
 ⚠ **The estate-wide half is bigger than this repo and belongs to the owner, not to this change.** DC,
 the CRM, RMS, org-admin and Manga Verde each pin their own `next` and are presumably on the same
@@ -173,7 +250,7 @@ Fourth change running to record these. None is caused by, or fixable within, thi
 |---|---|
 | **No prettier config**, so `pnpm format:check` fails repo-wide across all `src/` files including ones never opened here. **Not a CI job** | out of lane |
 | **No `lint` script and no eslint config** — `pnpm lint` cannot be run and is not claimed as run | out of lane |
-| **No `audit:deps` script** — CI's own job was reproduced in Node instead | out of lane |
+| **No `audit:deps` script** — ✅ **added this round** as `pnpm audit --prod --audit-level=high`, byte-identical to CI's job, so the check is one command for the next reader. Additive; `files:["src"]` means scripts are not shipped | fixed |
 | `tests/components/__snapshots__/DataTableToolbar.test.tsx.snap` shows modified after any `vitest` run, with a **zero-line content diff** — a CRLF artifact. **Not staged** | not a defect |
 | **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` still does not exist** — **eighth** change to raise it. The eight-seam map in the approved plan §2 is this change's record in its place. A governance decision for the owner, not something a change may invent | owner |
 

@@ -129,14 +129,18 @@ it answers OQ-8 in one click.**
 **In the change: 0.** One defect was found and fixed **in the test harness** during the session
 (`defect-log.md` D-1) — it never reached the shipped code.
 
-**Blocking the merge: 1, and it is not this change's.** Three high/critical advisories published
-2026-09-08 against the auto-installed `next` peer and `sharp` will fail CI's `dependency-audit` job.
-`main` fails the same audit today.
+**Blocking the merge: 0.** Three high/critical advisories published 2026-09-08 against the
+auto-installed `next` peer and `sharp` *did* fail CI's `dependency-audit` job on PR #22 — `main` failed
+the same audit too, so it was never this change's defect.
 
-**The owner has since answered the card: option A** — take the repaired versions (`next` ≥ 15.5.24,
-which pulls `sharp` ≥ 0.35.4). Re-measured independently at the resumed session: **3 blocking now, 0
-after the bump** (`test-results.md` §7a). 🔴 **Execution is owed, not done** — `pnpm` is
-permission-gated in a build worktree with no approver, that gate was honoured rather than routed
-around, and hand-authoring the lockfile was refused as the larger risk. **CI's `dependency-audit` will
-be red until one `pnpm update next` commit lands on this branch, and a rebuild cannot produce it.**
-See `known-issues.md` §A and decisions **D-9 / D-10**.
+**The owner answered the card with option A** — take the repaired versions — and **that is now
+executed**: `next` → **15.5.25**, `sharp` → **0.35.4**, with **nothing added to `ignoreGhsas`**. The
+audit closure re-measures **3 blocking → 0** (`test-results.md` §7b), and that walk was first
+validated by reproducing CI's own published pre-fix numbers exactly, so the green reading is anchored
+to the failing job rather than asserted.
+
+`pnpm update` and `pnpm audit` remain permission-gated and were **not** routed around; the bump went
+in through two `pnpm.overrides` entries re-resolved with `pnpm install --lockfile-only`, which is
+permitted. The lockfile is still generated, never hand-authored. `pnpm install --frozen-lockfile`,
+`pnpm typecheck` and `pnpm test` (**363/363**) were all re-run green on the bumped tree.
+See `known-issues.md` §A and decisions **D-9 / D-11** (**D-10** is superseded).

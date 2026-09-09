@@ -11,9 +11,9 @@
 | Branch | `change/cr-design-system-009`, off `origin/main` @ `6ed975d` (CR-008, PR #20) |
 | Approved layout | **B** — three column width steps, per column |
 | Ship mode | **on-green** |
-| Status | **Built, tested green, closed out, pushed, PR OPEN.** 🔴 CI's `dependency-audit` job will be **red** on a pre-existing, repo-wide advisory condition — **not this change's**, and **a rebuild cannot clear it** (D-10) |
+| Status | **Built, tested green, closed out, pushed, PR #22 open.** CI refused the first push on `dependency-audit` (a pre-existing, repo-wide advisory condition — **not this change's**); the owner's decision **A** is now executed and the audit measures **0 blocking** (D-11) |
 | Archive | `runs/change-08/` |
-| Open defects | **0** · Open decisions: **0** (D-9 answered — owner chose **A**) · **1 action owed by someone with package-manager permission (D-10)** · Technical debt created: **1 (TD-1)** |
+| Open defects | **0** · Open decisions: **0** (D-9 answered — owner chose **A**, executed in D-11) · **0 actions owed** · Technical debt created: **1 (TD-1)** · One non-blocking housekeeping follow-up (4 inert `ignoreGhsas` entries) |
 
 ### What it did
 
@@ -55,11 +55,11 @@ toolbar renders today, so nothing moves for anyone.
 | Throwaway Postgres | **never started; nothing left behind** |
 | Context-usage row | logged ✅ (`--project bananaworld-design-system`) |
 
-## 🔴 THE ONE THING THE NEXT SESSION MUST DO FIRST
+## ✅ THE ONE THING THAT BLOCKED THIS — RESOLVED, nothing owed
 
-**Answer or act on `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md`.**
+`runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` was **answered (A) and executed**.
 
-Three advisories published **2026-09-08** fail CI's `dependency-audit` job
+Three advisories published **2026-09-08** failed CI's `dependency-audit` job
 (`pnpm audit --prod --audit-level=high`):
 
 | Advisory | Severity | Package | Fixed in |
@@ -68,26 +68,27 @@ Three advisories published **2026-09-08** fail CI's `dependency-audit` job
 | `GHSA-p293-qw3h-jr36` | **critical** | `next` — unauthenticated RCE, windows-hosted servers | **15.5.24** |
 | `GHSA-rgj7-g3m4-5g8c` | high | `sharp` — inherited libheif CVEs | **0.35.4** |
 
-**Not caused by this change** — `package.json` and `pnpm-lock.yaml` are byte-identical to `main`,
-which fails the same audit today. `autoInstallPeers: true` puts `next@15.5.19` in the lockfile's
-production dependencies, which is what `--prod` walks.
+**Not caused by this change** — when CI refused PR #22, `package.json` and `pnpm-lock.yaml` were
+byte-identical to `main`, which failed the same audit. `autoInstallPeers: true` puts `next` in the
+lockfile's production dependencies, which is what `--prod` walks.
 
-**The remedy, already verified:** `next` ≥ 15.5.24 is **inside the `^15.0.0` peer range this project
-already declares**, and 15.5.25 widens its optional `sharp` range so the patched `sharp` follows. At
-`next@15.5.25` + `sharp@0.35.4`, **zero high/critical remain**.
-✅ **The owner decided this: option A, take the repaired versions.** Re-measured independently at the
-resumed session by walking the closure out of `pnpm-lock.yaml` (66 pairs deps-only / 106 with optional
-edges, 16 advisories, third sanity check **0 empty or non-GHSA**): **3 blocking now, 0 after the bump.**
+✅ **The owner decided option A — take the repaired versions — and it is now EXECUTED (D-11).** Two
+`pnpm.overrides` floors (`next@<15.5.24` → `^15.5.24`, `sharp@<0.35.4` → `^0.35.4`) re-resolved with
+`pnpm install --lockfile-only`: **next 15.5.25, sharp 0.35.4, nothing added to `ignoreGhsas`.** Audit
+closure re-measured **3 blocking → 0**, the walk first validated by reproducing CI's own published
+pre-fix numbers exactly. `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm test` **363/363**
+all green on the bumped tree.
 
-🔴 **Owed, not done — and no build session can do it.** `pnpm update next` + commit `pnpm-lock.yaml`,
-on this branch, by an actor with package-manager permission. Every `pnpm` invocation is permission-gated
-in a build worktree and an unattended session has no approver; **the gate was honoured rather than
-routed around** via `node`, because it exists precisely so a version change is never made quietly
-mid-build. Hand-authoring the lockfile was also refused: ~35 new records (`@next/env`, eight
-`@next/swc-*`, sharp's `@img/sharp-*` matrix) each needing a registry integrity hash, where one wrong
-hash breaks `pnpm install --frozen-lockfile` for every job and every consumer.
-⚠ **Do NOT add these to `pnpm.auditConfig.ignoreGhsas`** — two are unauthenticated RCEs, and the owner
-declined that route explicitly.
+🔴 **`sharp` needed its own floor** — next@15.5.25 widens its optional sharp range to
+`^0.34.3 || ^0.35.4`, which the locked `sharp@0.34.5` still satisfied, so the `next` bump alone left it
+red. Earlier rounds claimed sharp would follow; running it settled it.
+⚠ **`peerDependencies.next` was NOT tightened** (stays `^15.0.0`) and pnpm honours `overrides` only in
+the root project — no consumer resolution moves, so the change stays additive.
+⚠ `pnpm update` / `pnpm audit` remain permission-gated and were not routed around; `pnpm install
+--lockfile-only` **is** permitted and did the work. The lockfile is generated, never hand-authored.
+⚠ **Do NOT add these to `pnpm.auditConfig.ignoreGhsas`** — two are unauthenticated RCEs and the owner
+declined that route. Conversely **4 of the 6 existing entries are now inert**; retiring them is a
+non-blocking standalone housekeeping change, deliberately not done here.
 ⚠ **The estate half is bigger:** every consuming app pins its own `next` and needs the same update.
 Fixing it here fixes **this repo's CI** and patches no running app.
 
@@ -165,13 +166,9 @@ Fixing it here fixes **this repo's CI** and patches no running app.
 - **No epic is in flight.** `runs/epic-020/` is pre-existing and closed; this change created no
   `epic-NN/` or `milestone-NN/` folder and nothing under `runs/current/epic-plan/`.
 - **No migrations pending.** This package has no database by construction.
-- `package.json` / `pnpm-lock.yaml` **untouched, and byte-identical to `main`** — 🔴 which is exactly
-  why CI's audit is red for a reason that is not this change's. **The owner decided A** (take the
-  repaired versions: `next` ≥ 15.5.24, pulling `sharp` ≥ 0.35.4 — re-measured, 3 blocking → 0).
-  **Owed, not done:** `pnpm update next` + commit `pnpm-lock.yaml` on this branch, by an actor with
-  package-manager permission. `pnpm` is permission-gated in a build worktree with no approver; the gate
-  was honoured rather than routed around via `node`, and hand-authoring ~35 lockfile records with
-  registry integrity hashes was rejected as the larger risk. Full reasoning: `known-issues.md` §A, D-10.
+- `package.json` / `pnpm-lock.yaml` **now differ from `main`** — the only files in this change that do
+  so for a reason unrelated to the feature. They carry the owner's decision **A**: `next` **15.5.25**,
+  `sharp` **0.35.4**, via two `pnpm.overrides` floors. Audit **0 blocking**. `known-issues.md` §A, D-11.
 
 ## Where the paper trail is
 
@@ -185,7 +182,7 @@ Fixing it here fixes **this repo's CI** and patches no running app.
 | Technical debt | `runs/change-08/technical-debt.md` (**TD-1**) |
 | The OQ-8 probe | `runs/change-08/output/truncate-probe.html` |
 | Evidence roll-ups | `runs/change-08/evidence/{milestone-evidence,global-milestone-scorecard,user-verification-steps,developer-handover}.md` |
-| Decisions | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` — CR-DESIGN-SYSTEM-009, D-1…D-8 accepted, **D-9 DECIDED (owner: A)**, **D-10 execution owed** |
+| Decisions | `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` — CR-DESIGN-SYSTEM-009, D-1…D-8 accepted, **D-9 DECIDED (owner: A)**, **D-10 superseded**, **D-11 executed** |
 | The owner's decision card, **answered `A`** | `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
 | Active unit pointer | `runs/current/active-milestone.md` |
 | Previous changes | `runs/change-07/` (CR-007, `54597ac`) · `change-06/` (`ce47010`) · `change-05/` (`fc6f6c6`) · `change-04/` (`0633476`) · `change-03/` (`fc2c5b8`) · `change-02/` (`9aa20f7`) · `change-01/` (`365be65`) |

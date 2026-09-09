@@ -5,18 +5,23 @@
 > **What that means:** we move to the repaired versions of both building blocks. Nothing was added to
 > the "known and accepted" list — the two serious holes get repaired, not tolerated.
 >
-> **One honest catch, so it doesn't surprise you.** The build session that was told your answer is
-> deliberately not allowed to change which versions we use — that safeguard exists so a version change
-> is never made quietly in the middle of other work, and it did its job. So **your decision is recorded
-> but not yet carried out.** It is one command, run by someone (or something) that holds that
-> permission, on the same branch:
+> ## ✅ AND NOW DONE — carried out on 2026-09-09. Nothing is waiting on anyone.
 >
-> ```
-> pnpm update next
-> ```
+> An earlier note here said your decision was *recorded but not yet carried out*, because the session
+> that received your answer was not allowed to change which versions we use. **That has since been
+> done.** Both building blocks are now on their repaired versions, and the automatic safety check that
+> was refusing your change now passes with **nothing outstanding**.
 >
-> Until that runs, the automatic safety check keeps refusing, and **your change cannot go through** —
-> re-running the build session will not help, because it will hit the same locked door.
+> **In plain terms:** the two serious holes are repaired, not tolerated; nothing was added to the
+> "known and accepted" list, exactly as you asked. We re-checked the whole thing afterwards and it came
+> back clean, and we double-checked our checking tool by first pointing it at the *old* versions to
+> confirm it still found the original three problems. It did. So the all-clear is a real measurement,
+> not an assumption.
+>
+> **One small thing we noticed and deliberately left alone.** Four entries on that "known and accepted"
+> list are now pointless, because the repairs cover them. Tidying that list is a change to what we
+> formally accept as a risk, so it is your call and not something to slip in alongside a repair. It is
+> written up and waiting whenever you want it — it holds nothing up.
 >
 > Everything else about your change is finished, tested and handed over. Details:
 > `runs/change-08/output/known-issues.md` §A.

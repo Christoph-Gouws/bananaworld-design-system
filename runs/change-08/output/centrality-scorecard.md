@@ -78,3 +78,24 @@ Answering them anyway: this change introduces **no** hardcoded hex colour, pixel
 (every class is a stock Tailwind utility or an existing token), **no** API client, and **no**
 `process.env` / `window.location` access — verifiable by reading the diff, which contains no such
 literal. Recorded rather than left as an unremarked gap.
+
+---
+
+## Re-run in the CI-fix round (2026-09-09)
+
+Re-run over the **updated** `changed-files.md` list (that round added `package.json` and
+`pnpm-lock.yaml`): **16 files scanned, 0 open findings, 5 justified, 0 weak** — identical to the run
+this card records, because **no `src/` or `tests/` file changed in that round**.
+
+🔴 **`pnpm-lock.yaml` was excluded from the sensor scope and the exclusion is stated, not silent** — a
+generated lockfile is not authored code, and the sensor reported it as `parse-unreliable` while
+emitting a meaningless 2560-line `RC-05` finding against it. It remains listed in `changed-files.md`.
+
+**This card was regenerated and then restored, deliberately**, for the same reason as the readable-code
+card: regeneration blanks the JUDGMENT rows, trading answered evidence for empty rows without changing
+any measurement.
+
+⚠ One centrality question the CI-fix round *did* raise, answered here: the two new `pnpm.overrides`
+entries are **not** a new seam. `overrides` is honoured only in the root workspace project, so it
+constrains this repo's own CI closure and reaches no consumer; `peerDependencies` — the actual shared
+contract — was deliberately left untouched at `^15.0.0`.

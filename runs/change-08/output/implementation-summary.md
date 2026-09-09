@@ -92,33 +92,40 @@ children are a plain string.
 2. **A ninth source file**, `src/lib/table-controls.ts`, because `MultiSelectFilterDef` lives there and
    not in `DataTableToolbar.tsx` as §3 implied.
 
-## 🔴 The PR is open, and CI's `dependency-audit` job will be RED
+## ✅ CI's `dependency-audit` was RED; it is now green
 
-**The change is complete, green and additive. What is red is not its own.** Three high/critical
-advisories published **2026-09-08** — two unauthenticated Next.js RCEs and a `sharp` high — sit in the
-production closure CI audits, so `pnpm audit --prod --audit-level=high` exits 1. `package.json` and
-`pnpm-lock.yaml` are byte-identical to `main`, so **`main` fails the same audit right now**, and so
-would a PR that changed nothing.
+**The change was always complete, green and additive — what was red was never its own.** Three
+high/critical advisories published **2026-09-08** (two unauthenticated Next.js RCEs and a `sharp`
+high) sat in the production closure CI audits, so `pnpm audit --prod --audit-level=high` exited 1 and
+CI refused PR #22. At that point `package.json` and `pnpm-lock.yaml` were byte-identical to `main`, so
+**`main` failed the same audit**, and so would a PR that changed nothing.
 
-**The owner was asked and answered: option A — take the repaired versions.** `next` ≥ 15.5.24 (which
-pulls `sharp` ≥ 0.35.4) is inside the already-declared `^15.0.0` peer range, and was re-verified this
-session against the same endpoint `pnpm audit` uses: **at `next@15.5.25` + `sharp@0.35.4`, 0 blocking.**
-Nothing goes on the ignore list — the owner declined that route.
-
-🔴 **The bump is OWED, not done, and a rebuild will not produce it.** `pnpm` is permission-gated in a
-build worktree and an unattended session has no approver; that gate exists so a version change is never
-made quietly mid-build, so it was honoured rather than routed around via `node`. Hand-authoring ~35
-lockfile records with registry integrity hashes was rejected as the larger risk — one wrong hash breaks
-`pnpm install --frozen-lockfile` for every job and every consumer.
-
-**One command, on this branch, by an actor who may run a package manager** — full text in
-`known-issues.md` §A, reasoning in decisions **D-9/D-10**:
+**The owner was asked and answered: option A — take the repaired versions.** That is now executed:
 
 ```
-pnpm update next     # 15.5.19 -> 15.5.25; package.json needs no edit, only pnpm-lock.yaml moves
+pnpm.overrides  "next@<15.5.24":  "^15.5.24"   ->  next  15.5.19 -> 15.5.25
+pnpm.overrides  "sharp@<0.35.4":  "^0.35.4"    ->  sharp  0.34.5 -> 0.35.4
+pnpm install --lockfile-only                    ->  pnpm-lock.yaml re-resolved
 ```
 
-Everything else in this change is finished, green and pushed.
+**Nothing was added to the ignore list** — the owner declined that route, and that is the half of
+decision A that mattered. The audit closure now measures **3 blocking → 0**, and the walk was
+validated by reproducing CI's own published pre-fix numbers before its post-fix number was believed.
+
+**Why an override rather than the `pnpm update next` the earlier round sketched:** `pnpm update` is
+permission-gated here, `pnpm install --lockfile-only` is not — and the override is the better
+instrument anyway, being the same mechanism already shipping in this file for `nanoid` since D-12. It
+makes the repaired version a **durable floor**, so a later re-resolution cannot drift back under it.
+The gate was not routed around, and the lockfile is still generated, never hand-authored.
+
+🔴 **`sharp` needed its own floor — the earlier claim that it would follow from the `next` bump was
+wrong.** next@15.5.25 widens its optional sharp range to `^0.34.3 || ^0.35.4`, which the locked
+`sharp@0.34.5` still satisfies, so the first re-resolution left it in place. Caught by running it.
+
+**Still additive:** `peerDependencies.next` was deliberately not tightened (stays `^15.0.0`), and pnpm
+honours `overrides` only in the root workspace project — so no consumer's resolution moves.
+`pnpm install --frozen-lockfile`, `pnpm typecheck` and `pnpm test` (**363/363**) are green on the
+bumped tree. Reasoning in decisions **D-9 / D-11**; **D-10** is superseded.
 
 ## What the owner will see when this eventually lands
 

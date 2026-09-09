@@ -2,10 +2,12 @@
 
 > A grid filter cell holds several values, and the table family gains a compact density.
 > Branch `change/cr-design-system-009`, off `main` @ `6ed975d` (CR-DESIGN-SYSTEM-008, PR #20).
-> **Stage 05 reviews exactly this list**, so it is the complete set — 15 files, `git diff --cached`
+> **Stage 05 reviews exactly this list**, so it is the complete set — 17 files, `git diff`
 > against the merge base, nothing omitted and nothing rounded.
 
-**15 files changed, 1,588 insertions(+), 92 deletions(−).**
+**17 files changed, 1,915 insertions(+), 266 deletions(−)** (`git diff --stat 6ed975d`).
+That is the 15 source/test files below **plus `package.json` and `pnpm-lock.yaml`**, which moved in
+the third round to clear CI's `dependency-audit` — see the dedicated section further down.
 
 ## Source — 10 files (+763 / −90)
 
@@ -45,7 +47,7 @@ suite already does, for the reason its own comment gives).
 
 | | Why |
 |---|---|
-| `package.json`, `pnpm-lock.yaml` | No new dependency — Radix `DropdownMenu` was already a direct import in both files, so they stay **byte-identical to `main`**. ⚠ **See `known-issues.md` §A: an unrelated advisory event argues `pnpm-lock.yaml` SHOULD move, and the owner has now decided it should (option A). It is NOT moved here** — `pnpm` is permission-gated in a build worktree, and hand-authoring a lockfile was refused (**D-10**). Still 0 lines changed in both. |
+| ~~`package.json`, `pnpm-lock.yaml`~~ | ⚠ **NO LONGER TRUE — both moved in the third round.** Still **no new dependency for the feature**: Radix `DropdownMenu` was already a direct import in both files. They moved for the unrelated advisory event in `known-issues.md` §A, executing the owner's decision A. Listed properly below. |
 | `src/lib/tokens.css` | No new token. Every compact class is stock Tailwind spacing or a type token a shipped component already emits. |
 | `tests/components/__snapshots__/DataTableToolbar.test.tsx.snap` | **Shows as modified with a ZERO-LINE diff** — the known CRLF artifact (standing handover note 12). Not staged, and its content being unchanged is this change's strongest single piece of toolbar evidence. |
 | Any `runs/epic-NN/`, any `milestone-NN/`, anything under `runs/current/epic-plan/` | A Change Request creates none of these. |
@@ -80,3 +82,40 @@ trail, to record the owner's answer and what it did and did not achieve:
 | `runs/current/SESSION_HANDOVER.md` · `active-milestone.md` · `decisions-pending/CR-DESIGN-SYSTEM-009.md` | reconciled; the card marked **ANSWERED — A** |
 
 🔴 **`pnpm-lock.yaml` is still not among them, and that is the point of D-10** — not an oversight.
+
+## Third round — the CI-fix session (relaunched by the conductor on `dependency-audit` red)
+
+**Again no source or test file was touched.** `src/` and `tests/` are unchanged from the first round.
+CI refused PR #22 on the `Dependency Audit` job alone; this round executes the owner's decision A,
+which D-10 had recorded as owed.
+
+### Dependency files — 2 files (+215 / −174)
+
+| File | ± | What changed |
+|---|---|---|
+| `package.json` | +5 / −5 | Two `pnpm.overrides` entries — `"next@<15.5.24": "^15.5.24"` and `"sharp@<0.35.4": "^0.35.4"`; a new `//overrides-next-rce` comment stating the basis; an `audit:deps` script (`pnpm audit --prod --audit-level=high`, byte-identical to CI's job); and the two existing audit comments amended where the bump made them factually stale. |
+| `pnpm-lock.yaml` | +210 / −169 | Re-resolved by `pnpm install --lockfile-only`. `next` 15.5.19 → **15.5.25**, `sharp` 0.34.5 → **0.35.4**, plus their `@next/swc-*` / `@img/sharp-*` platform matrices and a `@types/node` peer. Generated, never hand-authored. |
+
+### Why this is still additive — the lane rule holds
+
+| Check | Result |
+|---|---|
+| `peerDependencies` | **untouched** — `next` stays `^15.0.0`. Not tightened, so no consumer's resolution moves. |
+| `dependencies` / `devDependencies` | **untouched** — no package added, removed or re-ranged. |
+| Export surface | **untouched** — `exports`, `main`, `types`, `files` all identical. |
+| Do `pnpm.overrides` reach a consumer? | **No.** pnpm honours `overrides` only in the root workspace project. This constrains *this repo's* CI closure and nothing a consumer installs — the same mechanism already shipping here for `nanoid` since D-12. |
+| Does any rendered output move? | **No.** `next` is a typecheck-only peer for this source-only library; 363/363 tests and `tsc --noEmit` both re-run green on the bumped tree. |
+
+### Paper trail updated in the same round
+
+| File | What changed |
+|---|---|
+| `source-documents/active/DECISION_LOG_CHANGE_CONTROL.md` | **D-10 superseded** — records that the owed execution landed, and by which mechanism |
+| `runs/change-08/output/known-issues.md` | §A closed with the post-fix measurement; §E's `audit:deps` row fixed; a new follow-up logged for four now-inert `ignoreGhsas` entries |
+| `runs/change-08/output/test-results.md` · `qa-report.md` · `implementation-summary.md` · `technical-debt.md` | the same correction, each in its own place |
+| `runs/change-08/evidence/*` | roll-ups reconciled; **Security moves BLOCKED → PASS**, on a measurement rather than an intention |
+| `runs/current/SESSION_HANDOVER.md` · `active-milestone.md` | reconciled |
+
+⚠ A throwaway `audit-probe.mjs` was written at the repo root to reproduce CI's audit (that subcommand
+being permission-gated here), **validated against CI's own published numbers on the pre-fix tree, then
+deleted before the commit.** Its results live in `test-results.md` §7b. It is not part of the change.

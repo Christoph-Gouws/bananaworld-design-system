@@ -3,7 +3,7 @@
 > This is a FILE, not a unit folder. It records what is currently in flight.
 > Updated 2026-09-09.
 
-## Current: CR-DESIGN-SYSTEM-009 — **BUILT, GREEN, CLOSED OUT, PR OPEN · CI audit red, remedy owed**
+## Current: CR-DESIGN-SYSTEM-009 — **BUILT, GREEN, CLOSED OUT, PR OPEN · CI audit cause fixed**
 
 | Field | Value |
 |---|---|
@@ -15,8 +15,8 @@
 | Ship mode | **on-green** |
 | Build status | **Complete.** `pnpm typecheck` clean · `pnpm test` **363 passed / 17 files** (baseline **re-measured before any edit: 314 / 17**) · **+49 specs, 0 existing edited, 0 reddened** · **0 open defects** · `src/` +763 / −90 across 10 files |
 | Additive proof | **1,972 caller shapes** rendered against `main@6ed975d` and diffed on whole `innerHTML` — **0 differences**; the seven shipped toolbar screens' DOM snapshot **zero-line diff**; **8 mutations run, 8 caught**; quality sensors **0 open findings** |
-| PR | **Open.** 🔴 CI's `dependency-audit` job will be **red** — see below |
-| Remaining | 🔴 **One `pnpm update next` commit on this branch**, by an actor who may run a package manager (D-10). Nothing else |
+| PR | **#22 open.** CI refused the first push on `dependency-audit`; that cause is fixed — see below |
+| Remaining | **Nothing owed.** The conductor polls CI and merges on green. One non-blocking housekeeping follow-up: 4 now-inert `ignoreGhsas` entries |
 
 ### What it did
 
@@ -37,21 +37,21 @@ Four **strictly opt-in** additions, every one defaulting to today's behaviour:
 **moved** out of `DataTableToolbar` into `components/MultiSelectMenu.tsx` and now serve both surfaces;
 `selectAll` defaults to the row every shipped toolbar renders today.
 
-### 🔴 Why CI will be red, and what clears it
+### ✅ Why CI went red, and what cleared it
 
 Three advisories published **2026-09-08** — two **critical unauthenticated Next.js RCEs**
-(`GHSA-2xp9-vwfh-vxw4`, `GHSA-p293-qw3h-jr36`) and one high on `sharp` (`GHSA-rgj7-g3m4-5g8c`) — fail
-CI's `dependency-audit` job. **Not caused by this change:** `package.json` and `pnpm-lock.yaml` are
-**byte-identical to `main`**, which fails the same audit today.
+(`GHSA-2xp9-vwfh-vxw4`, `GHSA-p293-qw3h-jr36`) and one high on `sharp` (`GHSA-rgj7-g3m4-5g8c`) — failed
+CI's `dependency-audit` job on PR #22. **Not caused by this change:** `package.json` and
+`pnpm-lock.yaml` were **byte-identical to `main`**, which failed the same audit.
 
-**The owner answered the card: option A** — take the repaired versions. `next` ≥ 15.5.24 is inside the
-`^15.0.0` range already declared and pulls `sharp` ≥ 0.35.4; re-measured this session, **3 blocking now,
-0 after**. Nothing goes on the ignore list.
+**The owner answered the card: option A** — take the repaired versions, nothing on the ignore list.
+✅ **Executed (D-11, superseding D-10):** two `pnpm.overrides` floors (`next@<15.5.24` → `^15.5.24`,
+`sharp@<0.35.4` → `^0.35.4`) re-resolved with `pnpm install --lockfile-only` → **next 15.5.25, sharp
+0.35.4**. Audit closure re-measured **3 blocking → 0**, validated first against CI's own published
+pre-fix numbers. `pnpm install --frozen-lockfile` / `typecheck` / `test` **363/363** green.
 
-🔴 **Owed, not done (D-10): `pnpm update next` + commit `pnpm-lock.yaml` on this branch.** `pnpm` is
-permission-gated in a build worktree with no approver; the gate was honoured, not routed around, and
-hand-authoring ~35 lockfile records with integrity hashes was rejected as the larger risk.
-**Relaunching the build session will not clear it** — it needs package-manager permission.
+🔴 `sharp` needed its own floor — next's widened `^0.34.3 || ^0.35.4` range left the locked 0.34.5 in
+place, so the `next` bump alone did not clear it. `peerDependencies` untouched, so no consumer moves.
 
 ### Also open, not blocking
 
@@ -78,7 +78,8 @@ folder, **no** `milestone-NN/` folder, and nothing under `runs/current/epic-plan
 
 ## Next units (not started; most are not in this repository)
 
-1. 🔴 **The owed `pnpm update next` commit (D-10).** The merge waits on it, and on nothing else.
+1. **Retire the 4 now-inert `ignoreGhsas` entries** — a small standalone housekeeping change, the
+   owner's call. **Non-blocking**; deliberately not folded into the CI fix (`known-issues.md` §A).
 2. 🔴 **DC's half of this change — a separate CR.** Bump the pin to the **MERGED `main` sha** (never a
    branch sha, KI-M001E19-002), then pass `density="compact"`, `wrap="truncate"`, a `width` per column
    and `multiple` on its filter cells, and move its query writer to `append` / `getAll`.

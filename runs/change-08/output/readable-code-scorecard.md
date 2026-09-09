@@ -92,3 +92,32 @@ bug** and it belongs to the estate, not to this change: `quality-sensors.mjs:285
 `(.*?)\s*$` with the `\r` stripped, or split on `/\r?\n/`. Carried in `known-issues.md` §D as an
 estate-tooling item, because the next Windows session will hit it on its first justification and will
 have no reason to suspect the tool.
+
+---
+
+## Re-run in the CI-fix round (2026-09-09) — same result, and why this file was not overwritten
+
+The sensors were re-run over the **updated** `changed-files.md` list, because that round added
+`package.json` and `pnpm-lock.yaml` to the change. Result:
+
+```
+Scanned 16 file(s) of 16 requested. 0 open finding(s), 5 justified, 0 weak justification(s).
+CLEAN — no open findings on the sensed dimensions.
+```
+
+**Identical to the run this card records** — which is expected: **no `src/` or `tests/` file changed in
+that round**, and `package.json` produced no finding on any sensed dimension.
+
+🔴 **`pnpm-lock.yaml` was EXCLUDED from the sensor scope, and that exclusion is recorded here rather
+than left silent.** Including it returned `BLOCKED` on a single `RC-05` finding — *"pnpm-lock.yaml:1,
+2560 lines"* — plus the sensor's own warning: `parse-unreliable — brace depth did not return to 0;
+structural findings suppressed for this file`. A **generated lockfile is not authored code**: a
+file-size finding on it measures nothing a human wrote and nothing a human could act on, and the sensor
+itself declared it could not parse the file. It stays listed in `changed-files.md` as a changed file; it
+is simply not a subject of a *readable-code* judgment.
+
+**This card was regenerated and then restored, deliberately.** Re-running the generator blanks the five
+**JUDGMENT** rows — the sensor fills only machine-decided rows — so a regeneration would have traded a
+card with its judgment rows answered for one with them empty: evidence lost, no measurement changed.
+The machine rows here are what the re-run produced; the judgment rows are the first round's answers,
+still valid because the code they judge is unchanged.
