@@ -5,9 +5,12 @@ import { describe, expect, it } from "vitest";
 import {
   gridColumnOrder,
   gridFilterIsEmpty,
+  gridFilterSelect,
+  gridFilterSelected,
   gridFilterSet,
   gridSortPosition,
   gridSortToggle,
+  type GridFilterValue,
   type GridSort,
 } from "../../src";
 
@@ -122,5 +125,123 @@ describe("gridFilterSet / gridFilterIsEmpty", () => {
     expect(gridFilterIsEmpty({ kind: "dateRange", from: "2026-08-01", to: null })).toBe(false);
     expect(gridFilterIsEmpty({ kind: "numberMin", value: "0" })).toBe(false);
     expect(gridFilterIsEmpty({ kind: "text", value: " " })).toBe(true);
+  });
+});
+
+// =============================================================================================
+// §2 — CR-DESIGN-SYSTEM-009: A `select` FILTER MAY HOLD SEVERAL IDS (§A.1 / §A.2 / §A.3).
+//
+// 🔴 THE ONE THING THESE SPECS EXIST TO PROTECT is that A ONE-VALUE STATE BEHAVES EXACTLY AS IT
+//    DID. The consuming app persists this shape to disk as a query string — rows already exist
+//    holding `f_room=cold-1` — so the single value has to keep its bytes, keep narrowing, and keep
+//    round-tripping. Everything else here is the new arity riding beside it.
+// =============================================================================================
+
+describe("gridFilterSelect — the ONLY constructor of a select value", () => {
+  it("🔴 ONE ID WRITES EXACTLY WHAT IT ALWAYS WROTE — no `values`, byte for byte the old shape", () => {
+    const one = gridFilterSelect(["cold-1"]);
+    expect(one).toEqual({ kind: "select", value: "cold-1" });
+    // Not merely equal-looking: the optional field is ABSENT, not present-and-empty. A consumer that
+    // serialises this object sees the same keys it has always seen.
+    expect(Object.keys(one ?? {})).toEqual(["kind", "value"]);
+  });
+
+  it("two or more write the whole list, in the order handed in, with values[0] === value", () => {
+    const many = gridFilterSelect(["cold-1", "cold-2", "ripening-3"]);
+    expect(many).toEqual({
+      kind: "select",
+      value: "cold-1",
+      values: ["cold-1", "cold-2", "ripening-3"],
+    });
+  });
+
+  it("🔴 NONE RETURNS null, which `gridFilterSet` DROPS — the empty state stays `{}`", () => {
+    expect(gridFilterSelect([])).toBeNull();
+    expect(gridFilterSelect(["", "   "])).toBeNull();
+    expect(gridFilterSet({ room: { kind: "select", value: "cold-1" } }, "room", gridFilterSelect([])))
+      .toEqual({});
+  });
+
+  it("drops blanks and repeats, so the two fields cannot disagree however it is called", () => {
+    expect(gridFilterSelect(["cold-1", "cold-1"])).toEqual({ kind: "select", value: "cold-1" });
+    expect(gridFilterSelect(["cold-1", "", "cold-2"])).toEqual({
+      kind: "select",
+      value: "cold-1",
+      values: ["cold-1", "cold-2"],
+    });
+  });
+});
+
+describe("gridFilterSelected — the ONLY reader", () => {
+  it("🔴 READS A VALUE WRITTEN BEFORE THIS CHANGE AS THE ONE ID IT IS", () => {
+    // Exactly the object a saved view restores today. It must not read as "nothing chosen".
+    expect(gridFilterSelected({ kind: "select", value: "cold-1" })).toEqual(["cold-1"]);
+  });
+
+  it("reads every id of a several-value state", () => {
+    expect(
+      gridFilterSelected({ kind: "select", value: "a", values: ["a", "b", "c"] }),
+    ).toEqual(["a", "b", "c"]);
+  });
+
+  it("answers [] for absent, empty, or another kind — never undefined and never a throw", () => {
+    expect(gridFilterSelected(undefined)).toEqual([]);
+    expect(gridFilterSelected({ kind: "select", value: "" })).toEqual([]);
+    expect(gridFilterSelected({ kind: "select", value: "  " })).toEqual([]);
+    expect(gridFilterSelected({ kind: "text", value: "MB-2" })).toEqual([]);
+    expect(gridFilterSelected({ kind: "dateRange", from: "2026-08-01", to: null })).toEqual([]);
+  });
+});
+
+describe("the arity round-trips, at every count", () => {
+  it("🔴 read → write → read IS IDENTITY for one, two and three ids", () => {
+    for (const ids of [["cold-1"], ["cold-1", "cold-2"], ["a", "b", "c"]]) {
+      const value = gridFilterSelect(ids);
+      expect(value).not.toBeNull();
+      expect(gridFilterSelected(value ?? undefined)).toEqual(ids);
+    }
+  });
+
+  it("🔴 SURVIVES THE WIRE ENCODING THE PACKAGE STATES — a repeated parameter, both arities", () => {
+    // The encoding `grid-view.ts`'s header declares, exercised end to end with the real URL API the
+    // consumer uses. A single value must read identically under BOTH readers, because views already
+    // saved to disk are parsed by `get` until the consumer moves to `getAll`.
+    const write = (ids: readonly string[]): string => {
+      const sp = new URLSearchParams();
+      for (const id of gridFilterSelected(gridFilterSelect(ids) ?? undefined)) sp.append("f_room", id);
+      return sp.toString();
+    };
+
+    expect(write(["cold-1"])).toBe("f_room=cold-1");
+    expect(write(["cold-1", "cold-2"])).toBe("f_room=cold-1&f_room=cold-2");
+    expect(write([])).toBe("");
+
+    // 🔴 THE OLD PARSER, UNCHANGED, STILL READS A ONE-VALUE VIEW CORRECTLY.
+    expect(new URLSearchParams(write(["cold-1"])).get("f_room")).toBe("cold-1");
+    // …and the new one reads the same bytes as the same single id.
+    expect(new URLSearchParams(write(["cold-1"])).getAll("f_room")).toEqual(["cold-1"]);
+    expect(new URLSearchParams(write(["cold-1", "cold-2"])).getAll("f_room")).toEqual([
+      "cold-1",
+      "cold-2",
+    ]);
+
+    // ⚠ AND NO SEPARATOR TO COLLIDE WITH: an id holding a comma stays ONE id, which is the whole
+    //   reason a repeated parameter was chosen over `f_room=a,b`.
+    const odd = new URLSearchParams(write(["cold,1", "cold-2"]));
+    expect(odd.getAll("f_room")).toEqual(["cold,1", "cold-2"]);
+  });
+});
+
+describe("gridFilterIsEmpty on a select, at both arities", () => {
+  it("🔴 ANSWERS BIT FOR BIT WHAT IT ANSWERED BEFORE for every value expressible then", () => {
+    expect(gridFilterIsEmpty({ kind: "select", value: "cold-1" })).toBe(false);
+    expect(gridFilterIsEmpty({ kind: "select", value: "" })).toBe(true);
+    expect(gridFilterIsEmpty({ kind: "select", value: "   " })).toBe(true);
+  });
+
+  it("a several-value select is not empty, and `gridFilterSet` keeps it", () => {
+    const many: GridFilterValue = { kind: "select", value: "a", values: ["a", "b"] };
+    expect(gridFilterIsEmpty(many)).toBe(false);
+    expect(gridFilterSet({}, "room", many)).toEqual({ room: many });
   });
 });

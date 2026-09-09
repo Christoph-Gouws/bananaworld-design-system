@@ -39,10 +39,22 @@ export {
   TableRow,
   TableHead,
   TableCell,
+  type TableProps,
   type TableRowProps,
   type TableHeadProps,
   type TableCellProps,
   type SortDirection,
+  // The three table-wide answers (CR-DESIGN-SYSTEM-009). ADDITIVE: no name here already existed, and
+  // `Table` gained a props interface that EXTENDS the attribute set it already accepted, so every
+  // existing call site typechecks and renders unchanged. The two hooks are exported because a
+  // consumer's report renders raw cells of its own beside these — an Actions header, group and
+  // subtotal rows — and a consumer that could not READ the density would hard-code a second copy of
+  // it, which drifts at the first token change.
+  useTableDensity,
+  useTableWrap,
+  type TableDensity,
+  type TableWrap,
+  type TableColumnWidth,
 } from "./Table";
 // The paging bar for a long list (CR-DESIGN-SYSTEM-004). It sits BESIDE the Table block above — the
 // table is not forked, not wrapped, and gains no prop. Additive: no name here begins `TablePage`

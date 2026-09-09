@@ -26,7 +26,7 @@ import { ArrowDown, ArrowUp, GripVertical, MoreHorizontal, Rows3 } from "lucide-
 
 import { cn } from "../lib";
 import type { GridSortDir } from "../lib/grid-view";
-import { TableHead } from "./Table";
+import { TableHead, useTableDensity, type TableColumnWidth, type TableDensity } from "./Table";
 import { GridHeaderMenu, GRID_COLUMN_MIME, gridDraggedColumn } from "./GridHeaderMenu";
 import type { GridHeaderMenuColumn } from "./GridHeaderMenu";
 
@@ -50,6 +50,16 @@ export interface GridHeadCellProps {
    *    (`left: 0`), covers the case the drawing shows, and cannot be subtly wrong.
    */
   readonly pinned?: boolean;
+  /**
+   * How much room this column may take before its values are cut. Passed straight through to the
+   * `TableHead` below, and only bites while the enclosing `<Table>` is truncating.
+   *
+   * ⚠ THE SAME STEP MUST REACH ALL THREE OF A COLUMN'S ROWS — this header, its `GridFilterRow` cell
+   *   and its body `TableCell`. The widest of the three wins, so wiring two of them narrows nothing.
+   *   (This header's label span has carried `truncate` since CR-DESIGN-SYSTEM-008 and has never
+   *   visibly fired, for exactly the reason §C.4 gives: a `<th>` with no ceiling simply widens.)
+   */
+  readonly width?: TableColumnWidth;
   /** Fired on click. `additive` is the shift key — see `gridSortToggle`. */
   readonly onSort?: (additive: boolean) => void;
   /** Fired when another column header is dropped ON this one: put that column before this one. */
@@ -88,6 +98,17 @@ function SortMark({
   );
 }
 
+// The header's own chrome, one complete string per axis per density (`Table.tsx`'s rule). The
+// "default" entries are byte for byte what shipped, so a table that asks for no density renders it.
+//
+// ⚠ THE HEADER MUST SHRINK WITH THE BODY OR THE COLUMN DOES NOT NARROW AT ALL: this cell overrides
+//   `TableHead`'s horizontal padding with its own (`px-2.5` over `px-3`), so leaving that alone would
+//   hold every column open from above while the rows underneath tightened.
+const HEAD_PAD: Record<TableDensity, string> = { default: "px-2.5", compact: "px-1.5" };
+const GRIP_SIZE: Record<TableDensity, string> = { default: "h-3.5 w-3.5", compact: "h-3 w-3" };
+const MENU_BUTTON_SIZE: Record<TableDensity, string> = { default: "h-5 w-5", compact: "h-4 w-4" };
+const MENU_ICON_SIZE: Record<TableDensity, string> = { default: "h-3.5 w-3.5", compact: "h-3 w-3" };
+
 export function GridHeadCell({
   columnKey,
   label,
@@ -96,10 +117,12 @@ export function GridHeadCell({
   sortPosition = null,
   grouped = false,
   pinned = false,
+  width,
   onSort,
   onColumnDropped,
   menu,
 }: GridHeadCellProps): ReactElement {
+  const density = useTableDensity();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropTarget, setDropTarget] = useState(false);
   // A grouped column's header is no longer in the grid's own order, so there is nothing to reorder it
@@ -132,19 +155,22 @@ export function GridHeadCell({
       aria-label={`${label} column menu`}
       onClick={(e) => e.stopPropagation()}
       className={cn(
-        "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-fg-subtle",
+        "inline-flex",
+        MENU_BUTTON_SIZE[density],
+        "shrink-0 items-center justify-center rounded-sm text-fg-subtle",
         "hover:bg-surface hover:text-fg focus-visible:outline-none focus-visible:shadow-focus",
         "data-[state=open]:bg-surface data-[state=open]:text-fg",
         align === "right" ? "ml-1.5" : "ml-auto",
       )}
     >
-      <MoreHorizontal className="h-3.5 w-3.5" />
+      <MoreHorizontal className={MENU_ICON_SIZE[density]} />
     </button>
   );
 
   return (
     <TableHead
       align={align}
+      width={width}
       scope="col"
       aria-sort={sortDir === "asc" ? "ascending" : sortDir === "desc" ? "descending" : "none"}
       draggable={canDrag}
@@ -163,7 +189,7 @@ export function GridHeadCell({
             }
       }
       className={cn(
-        "px-2.5",
+        HEAD_PAD[density],
         sortDir !== null && "bg-surface-sunken text-fg",
         grouped && "bg-surface-sunken text-fg-subtle",
         dropTarget && "shadow-[inset_2px_0_0_0_var(--color-info)]",
@@ -180,7 +206,7 @@ export function GridHeadCell({
       >
         {canDrag && (
           <GripVertical
-            className="h-3.5 w-3.5 shrink-0 cursor-grab text-border-strong"
+            className={cn(GRIP_SIZE[density], "shrink-0 cursor-grab text-border-strong")}
             aria-hidden="true"
           />
         )}

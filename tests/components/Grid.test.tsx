@@ -369,6 +369,194 @@ describe("GridFilterRow — one cell per column, under the headers", () => {
 });
 
 // ---------------------------------------------------------------------------
+// GridFilterRow — a select cell holding SEVERAL values (CR-DESIGN-SYSTEM-009 §A)
+//
+// 🔴 DRIVEN BY TICKING, NOT BY INSPECTING PROPS. The owner's complaint was "I can only select one
+//    item at a time" — so every spec here ticks, and asserts what the cell EMITS and what the reader
+//    can still see afterwards.
+// ---------------------------------------------------------------------------
+
+const ROOMS = [
+  { id: "cold-1", label: "Cold room 1" },
+  { id: "cold-2", label: "Cold room 2" },
+  { id: "ripening-3", label: "Ripening room 3" },
+];
+
+function MultiFilterHarness({
+  onChange,
+  options = ROOMS,
+}: {
+  readonly onChange: (v: GridFilterValues) => void;
+  readonly options?: readonly { readonly id: string; readonly label: string }[];
+}): ReactElement {
+  const [values, setValues] = useState<GridFilterValues>({});
+  return (
+    <Table>
+      <TableHeader>
+        <GridFilterRow
+          columns={[
+            { key: "room", kind: "select", multiple: true, label: "Room", placeholder: "All rooms", options },
+          ]}
+          values={values}
+          onChange={(next) => {
+            setValues(next);
+            onChange(next);
+          }}
+        />
+      </TableHeader>
+      <TableBody />
+    </Table>
+  );
+}
+
+describe("a multi-value select cell — the owner can tick several rooms at once", () => {
+  it("🔴 STAYS OPEN ACROSS SEVERAL TICKS — three rooms is three clicks, not three re-openings", async () => {
+    const onChange = vi.fn();
+    const user = setup();
+    render(<MultiFilterHarness onChange={onChange} />);
+
+    await user.click(screen.getByLabelText("Filter by Room"));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Cold room 1/ }));
+    // The menu is STILL OPEN — this is the one Radix gotcha the whole change turns on.
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Cold room 2/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Ripening room 3/ }));
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      room: { kind: "select", value: "cold-1", values: ["cold-1", "cold-2", "ripening-3"] },
+    });
+  });
+
+  it("🔴 ONE TICK EMITS THE ONE-VALUE SHAPE, byte for byte what a single-select cell emits", async () => {
+    const onChange = vi.fn();
+    const user = setup();
+    render(<MultiFilterHarness onChange={onChange} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Cold room 2/ }));
+    expect(onChange).toHaveBeenLastCalledWith({ room: { kind: "select", value: "cold-2" } });
+  });
+
+  it("keeps the ids in DISPLAYED order however they were ticked", async () => {
+    const onChange = vi.fn();
+    const user = setup();
+    render(<MultiFilterHarness onChange={onChange} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Ripening room 3/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Cold room 1/ }));
+    expect(onChange).toHaveBeenLastCalledWith({
+      room: { kind: "select", value: "cold-1", values: ["cold-1", "ripening-3"] },
+    });
+  });
+
+  it("un-ticking narrows back down, and the LAST un-tick drops the key entirely", async () => {
+    const onChange = vi.fn();
+    const user = setup();
+    render(<MultiFilterHarness onChange={onChange} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Cold room 1/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Cold room 2/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Cold room 1/ }));
+    expect(onChange).toHaveBeenLastCalledWith({ room: { kind: "select", value: "cold-2" } });
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Cold room 2/ }));
+    // 🔴 A CLEARED FILTER IS A DROPPED KEY — the same one empty state the row has always had.
+    expect(onChange).toHaveBeenLastCalledWith({});
+  });
+});
+
+describe("the 'Select all' master row — the owner's option C", () => {
+  it("🔴 SAYS 'N of M', AND IS MIXED WHILE ONLY SOME ARE CHOSEN", async () => {
+    const user = setup();
+    render(<MultiFilterHarness onChange={() => undefined} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+
+    const master = await screen.findByRole("menuitemcheckbox", { name: /Select all/ });
+    expect(master.getAttribute("aria-checked")).toBe("false");
+    expect(master.textContent).toContain("0 of 3");
+
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Cold room 1/ }));
+    // ⚠ "mixed" IS THE POINT, and it is why this is a Radix CheckboxItem rather than a drawn dash:
+    //   a screen reader says "partially checked" without anything being invented here.
+    expect(
+      screen.getByRole("menuitemcheckbox", { name: /Select all/ }).getAttribute("aria-checked"),
+    ).toBe("mixed");
+    expect(
+      screen.getByRole("menuitemcheckbox", { name: /Select all/ }).textContent,
+    ).toContain("1 of 3");
+  });
+
+  it("takes EVERYTHING in one tap, and reads fully checked afterwards", async () => {
+    const onChange = vi.fn();
+    const user = setup();
+    render(<MultiFilterHarness onChange={onChange} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Select all/ }));
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      room: { kind: "select", value: "cold-1", values: ["cold-1", "cold-2", "ripening-3"] },
+    });
+    const master = screen.getByRole("menuitemcheckbox", { name: /Select all/ });
+    expect(master.getAttribute("aria-checked")).toBe("true");
+    expect(master.textContent).toContain("3 of 3");
+  });
+
+  it("🔴 CLEARS EVERYTHING ON THE SECOND TAP — 'Select all' and 'Clear' are ONE row, not two", async () => {
+    const onChange = vi.fn();
+    const user = setup();
+    render(<MultiFilterHarness onChange={onChange} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Select all/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Select all/ }));
+    expect(onChange).toHaveBeenLastCalledWith({});
+  });
+
+  it("a MIXED master row takes everything rather than clearing — one tap, all of it", async () => {
+    const onChange = vi.fn();
+    const user = setup();
+    render(<MultiFilterHarness onChange={onChange} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Cold room 2/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Select all/ }));
+    expect(onChange).toHaveBeenLastCalledWith({
+      room: { kind: "select", value: "cold-1", values: ["cold-1", "cold-2", "ripening-3"] },
+    });
+  });
+});
+
+describe("the multi cell's trigger — the same arithmetic the toolbar's tick-list uses", () => {
+  it("rests on the column's own placeholder, names ONE chosen room, then counts the rest", async () => {
+    const user = setup();
+    render(<MultiFilterHarness onChange={() => undefined} />);
+    const trigger = screen.getByLabelText("Filter by Room");
+    expect(trigger.textContent).toContain("All rooms");
+
+    await user.click(trigger);
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Cold room 1/ }));
+    expect(trigger.textContent).toContain("Cold room 1");
+    expect(trigger.textContent).not.toContain("+");
+
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Ripening room 3/ }));
+    // "Cold room 1 +1" — the FIRST in displayed order, then how many more. Identical wording and
+    // identical arithmetic to `DataTableToolbar`'s trigger, because it is literally the same function.
+    expect(trigger.textContent).toContain("Cold room 1");
+    expect(trigger.textContent).toContain("+1");
+  });
+
+  it("the footer counts what is chosen, in the shipped menu's own wording", async () => {
+    const user = setup();
+    render(<MultiFilterHarness onChange={() => undefined} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+    expect(await screen.findByText("None chosen")).toBeTruthy();
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Cold room 1/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Cold room 2/ }));
+    expect(screen.getByText("2 chosen")).toBeTruthy();
+  });
+
+  it("a multi cell whose column offers no options is disabled, exactly as the one-value cell is", () => {
+    render(<MultiFilterHarness onChange={() => undefined} options={[]} />);
+    expect((screen.getByLabelText("Filter by Room") as HTMLButtonElement).disabled).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // GridGroupStrip
 // ---------------------------------------------------------------------------
 
