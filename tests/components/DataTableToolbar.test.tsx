@@ -423,3 +423,220 @@ describe("the closed trigger reads layout A: first chosen, then how many more (�
     expect(trigger().textContent).not.toContain("All");
   });
 });
+
+// ---------------------------------------------------------------------------------------------
+// CR-DESIGN-SYSTEM-009 — the tick-list's TOP ROW became a choice, and the default did not move.
+//
+// 🔴 THE EXTRACTION IS ALREADY PROVEN ABOVE, not here. `multiSelectTriggerLabel` and
+//    `MultiSelectItem` moved out of this file into `MultiSelectMenu.tsx` so the grid's filter cell
+//    could render the same parts; the seven-screen DOM snapshot at the top of this file is what
+//    says the move changed nothing — it compares whole markup, character for character, including
+//    class ORDER. These specs cover only the one thing the move ADDED: an opt-in top row.
+// ---------------------------------------------------------------------------------------------
+
+// Declared as its own literal rather than spread from `depotMulti`: that constant is typed as the
+// FilterDef union, and spreading it widens back to the union before `selectAll` can be attached.
+const depotMultiMaster: FilterDef<Row> = {
+  kind: "multiSelect",
+  key: "depot",
+  label: "Depots",
+  accessor: (row) => row.a,
+  selectAll: "master",
+};
+
+// `rows` is a prop so a spec can RETIRE a depot under a stored value — options are derived from the
+// rows (`deriveSelectOptions`), so a reload dropping one is the only way an unknown id occurs
+// (CR-DESIGN-SYSTEM-010 F1). Re-rendering keeps the same hook instance, so the filter value survives.
+function MasterHarness({ rows = DEPOTS }: { readonly rows?: readonly Row[] }): ReactElement {
+  const controls = useTableControls(rows, { filters: [depotMultiMaster] });
+  return (
+    <div>
+      <DataTableToolbar controls={controls} />
+      <ul aria-label="rows">
+        {controls.visible.map((row) => (
+          <li key={row.id}>{row.a ?? "—"}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// The same depots plus one that a later spec retires out from under a chosen value.
+const DEPOTS_WITH_POLOKWANE: readonly Row[] = [
+  ...DEPOTS,
+  { id: "5", a: "Polokwane", b: "", c: "", d: "", e: "", day: null },
+];
+
+describe('selectAll: "master" — the same menu, the owner\'s new top row', () => {
+  it('🔴 THE DEFAULT IS UNTOUCHED: a def that says nothing still renders "All depots"', async () => {
+    const user = userEvent.setup();
+    render(<MultiHarness />);
+    await user.click(trigger());
+    const items = await screen.findAllByRole("menuitemcheckbox");
+    expect(items[0]?.textContent).toBe("All depots");
+    expect(items[0]?.getAttribute("aria-checked")).toBe("true");
+  });
+
+  // 🔴 THE TWO SPECS BELOW WERE REWRITTEN BY CR-DESIGN-SYSTEM-010 (F2). What they asserted before
+  //    was the defect itself: that tapping the master row commits every option id, and that the "—"
+  //    row therefore DISAPPEARS. That is a narrowing performed on a gesture the reader made to see
+  //    everything, and it lit "Clear" on the way past. Owner's layout A, approved 2026-09-10.
+  it('"master" swaps that one row for the tri-state "Select all", and nothing else moves', async () => {
+    const user = userEvent.setup();
+    render(<MasterHarness />);
+    await user.click(trigger());
+    const items = await screen.findAllByRole("menuitemcheckbox");
+    // Same options, same order, same count — only the first row's wording and behaviour differ.
+    expect(items.map((i) => i.textContent)).toEqual([
+      "Select allAll 3",
+      "Cape Town",
+      "Durban",
+      "Johannesburg",
+    ]);
+    // Ticked, because nothing is being hidden — that is what the tick means under layout A.
+    expect(items[0]?.getAttribute("aria-checked")).toBe("true");
+  });
+
+  it("🔴 READS 'mixed' WHILE ONLY SOME ARE CHOSEN, and WIDENS to everything on the next tap", async () => {
+    const user = userEvent.setup();
+    render(<MasterHarness />);
+    await user.click(trigger());
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: "Durban" }));
+
+    const master = (): HTMLElement =>
+      screen.getByRole("menuitemcheckbox", { name: /Select all/ });
+    expect(master().getAttribute("aria-checked")).toBe("mixed");
+    expect(master().textContent).toBe("Select all1 of 3");
+    expect(visibleRows()).toEqual(["Durban"]);
+
+    await user.click(master());
+    expect(master().getAttribute("aria-checked")).toBe("true");
+    expect(master().textContent).toBe("Select allAll 3");
+    // 🔴 THE BLANK-VALUED ROW SURVIVES IT. This is the whole finding: the shipped version committed
+    //    ["Cape Town","Durban","Johannesburg"], and `matchesFilter` requires `actual !== null`, so
+    //    the "—" row vanished on the gesture that was supposed to show everything.
+    expect(visibleRows()).toEqual(["Cape Town", "Durban", "Johannesburg", "—"]);
+
+    // …and a second tap changes nothing: the row cannot narrow, so there is nothing to toggle back to.
+    await user.click(master());
+    expect(master().getAttribute("aria-checked")).toBe("true");
+    expect(visibleRows()).toEqual(["Cape Town", "Durban", "Johannesburg", "—"]);
+  });
+
+  it("🔴 LEAVES 'Clear' OFF — nothing is narrowed, so nothing offers to un-narrow it", async () => {
+    // ⚠ THE MENU IS CLOSED BEFORE EACH ASSERTION. An open Radix menu is modal and `aria-hidden`s the
+    //   rest of the page, so a role query finds no "Clear" button either way and the spec would pass
+    //   on the defect.
+    const user = userEvent.setup();
+    render(<MasterHarness />);
+    await user.click(trigger());
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: "Durban" }));
+    await user.keyboard("{Escape}");
+    // One depot chosen IS a narrowing, so Clear is right to be lit here.
+    expect(screen.queryByRole("button", { name: "Clear" })).not.toBeNull();
+
+    await user.click(trigger());
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Select all/ }));
+    await user.keyboard("{Escape}");
+    // The shipped version left it lit, because `hasActiveControls` saw three stored values.
+    expect(screen.queryByRole("button", { name: "Clear" })).toBeNull();
+  });
+
+  it("🔴 TICKING ALL THREE BY HAND IS A DIFFERENT STATE — ticked, '3 of 3', and the blank row IS excluded", async () => {
+    const user = userEvent.setup();
+    render(<MasterHarness />);
+    await user.click(trigger());
+    for (const name of ["Cape Town", "Durban", "Johannesburg"]) {
+      await user.click(await screen.findByRole("menuitemcheckbox", { name }));
+    }
+    const master = screen.getByRole("menuitemcheckbox", { name: /Select all/ });
+    expect(master.getAttribute("aria-checked")).toBe("true");
+    // "3 of 3" versus "All 3" is the ONLY thing that separates the two ticked states on screen, and
+    // they are genuinely different: three NAMED depots is a request that excludes the blank row.
+    expect(master.textContent).toBe("Select all3 of 3");
+    expect(visibleRows()).toEqual(["Cape Town", "Durban", "Johannesburg"]);
+    await user.keyboard("{Escape}"); // an open Radix menu aria-hidden's the toolbar behind it
+    expect(screen.queryByRole("button", { name: "Clear" })).not.toBeNull();
+  });
+
+  it("the trigger's wording is UNCHANGED by the new top row — the count rides the list, not the box", async () => {
+    // OQ-1: every mockup the owner approved shows the closed box reading "Cape Town +2". Changing it
+    // would move shipped CRM and DC toolbars, so the master row carries the denominator instead.
+    const user = userEvent.setup();
+    render(<MasterHarness />);
+    await user.click(trigger());
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: "Durban" }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: "Cape Town" }));
+    await user.keyboard("{Escape}");
+    expect(trigger().textContent).toBe("Cape Town+1");
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// CR-DESIGN-SYSTEM-010 F1 — a stored value the data no longer offers.
+//
+// The toolbar has COUNTED and SHOWN one since CR-DESIGN-SYSTEM-003 (`chosenLabelsInOptionOrder`,
+// now `multiSelectChosenLabels`), and the grid did not — that divergence is the finding, and its
+// mirror-image specs live in `Grid.test.tsx`. What is NEW here is the second half: the toolbar then
+// DELETED the value on the next tick, so the trigger it had just been reading was a lie about what
+// the next click would keep. Both surfaces now preserve it.
+// ---------------------------------------------------------------------------------------------
+describe("a value the data no longer offers — counted, shown, and KEPT through the next tick", () => {
+  /** Choose two depots, then retire one of them out from under the stored value. */
+  async function chooseThenRetirePolokwane(): Promise<ReturnType<typeof userEvent.setup>> {
+    const user = userEvent.setup();
+    const { rerender } = render(<MasterHarness rows={DEPOTS_WITH_POLOKWANE} />);
+    await user.click(trigger());
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: "Cape Town" }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: "Polokwane" }));
+    await user.keyboard("{Escape}");
+    rerender(<MasterHarness rows={DEPOTS} />);
+    return user;
+  }
+
+  it("keeps counting it on the trigger and in the footer once its option is gone", async () => {
+    const user = await chooseThenRetirePolokwane();
+    // The raw id stands in for the label it no longer has — one entry per stored value, always.
+    expect(trigger().textContent).toBe("Cape Town+1");
+
+    await user.click(trigger());
+    expect((await screen.findByText("2 chosen")).textContent).toBe("2 chosen");
+    expect(
+      screen.getByRole("menuitemcheckbox", { name: /Select all/ }).textContent,
+    ).toBe("Select all2 of 3");
+  });
+
+  it("🔴 DOES NOT DELETE IT WHEN A THIRD DEPOT IS TICKED — the filter keeps narrowing by both", async () => {
+    const user = await chooseThenRetirePolokwane();
+    await user.click(trigger());
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: "Durban" }));
+    await user.keyboard("{Escape}");
+
+    // Three stored values: two known, one retired. The shipped `toggle` re-derived from
+    // `options.filter(...)` and silently dropped "Polokwane", moving the result set with no signal.
+    expect(trigger().textContent).toBe("Cape Town+2");
+    await user.click(trigger());
+    expect((await screen.findByText("3 chosen")).textContent).toBe("3 chosen");
+    // And it is still narrowing: Polokwane's row is gone from the data, so only the two remain.
+    await user.keyboard("{Escape}");
+    expect(visibleRows()).toEqual(["Cape Town", "Durban"]);
+  });
+
+  it("un-ticking a KNOWN depot leaves the retired one in place rather than clearing both", async () => {
+    const user = await chooseThenRetirePolokwane();
+    await user.click(trigger());
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: "Cape Town" }));
+    await user.keyboard("{Escape}");
+    expect(trigger().textContent).toBe("Polokwane");
+    expect(visibleRows()).toEqual([]);
+  });
+
+  it("'Select all' still clears it — the one gesture that drops an unreachable value", async () => {
+    const user = await chooseThenRetirePolokwane();
+    await user.click(trigger());
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Select all/ }));
+    await user.keyboard("{Escape}");
+    expect(trigger().textContent).toBe("All depots");
+    expect(visibleRows()).toEqual(["Cape Town", "Durban", "Johannesburg", "—"]);
+  });
+});

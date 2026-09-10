@@ -1,0 +1,17 @@
+{
+  "files": 8,
+  "lines": 560,
+  "steps": 5,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "This package declares the filter value shape; DC reads it and stores it",
+    "Multi-value wire is a repeated f_key parameter; DC writes and parses it",
+    "DC's saved and shared views keep their bytes; one value round-trips as today",
+    "CRM, RMS, org-admin adopt nothing: density, cut and widths are all off by default",
+    "Package sets the three column-width steps; DC picks a step per column, in 3 places",
+    "DC shrinks its own header and summary rows; grid gets the new Select all row"
+  ],
+  "migrationExpected": false
+}

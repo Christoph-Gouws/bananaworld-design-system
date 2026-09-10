@@ -5,6 +5,194 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-010 — review follow-up on CR-DESIGN-SYSTEM-009 (3 reviewer findings)
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **BUILT, GREEN, CLOSED OUT, PR OPENED.** Plan-gate decision ACCEPTED; D-1…D-6 recorded below. 0 open defects, 0 open decisions |
+| Date | 2026-09-10 |
+| Branch point | `origin/main` @ `3143646` (CR-DESIGN-SYSTEM-009, merged as PR #22) |
+| Approved layout | **A** — the tick at the top means "everything is showing" |
+| Ship mode | **on-green** |
+| Archive | `runs/change-09/` |
+
+### What was asked
+
+An independent reviewer session was given CR-DESIGN-SYSTEM-009's owner-approved plan and its diff —
+and nothing the build session had written about its own work — and asked one question: *does this do
+what was approved?* It raised three defects. Each was judged real; none was severe enough to send
+CR-009 back to its builder, so **CR-009 merged with them in it and the code went live**. This change
+fixes them.
+
+| # | Severity | The reviewer's finding |
+|---|---|---|
+| **F1** | medium/high | `GridFilterRow.tsx:281` — the grid's multi-select counts and commits only ids present in `options`, silently under-reporting and then discarding a stored id the option list no longer offers — diverging from the toolbar, which **this same change deliberately taught to preserve unknown values** |
+| **F2** | medium/high | `DataTableToolbar.tsx:397` — tapping the new tri-state "Select all" commits every option id instead of clearing, so it **narrows** the table (dropping rows whose value is null/blank) and lights "Clear", where the row it replaces widened to everything |
+| **F3** | medium/medium | `Table.tsx:481` — `TableCellProps.width` shadows the inherited `TdHTMLAttributes.width` and is destructured out rather than forwarded, so the legacy HTML attribute is silently lost and any consumer passing it fails typecheck at its pin bump |
+
+### What was decided at the plan gate
+
+**APPROVED, layout A, ship mode on-green.** One recorded owner response: `[plan] plan APPROVED
+(layout A) — ship on-green`. No revision was asked for and no clarification was sought, so there are
+**no `[clarify]` lines for this change** — stated explicitly, because an absent record and an
+unrecorded one look identical from outside.
+
+| # | Decision | Rationale |
+|---|---|---|
+| **D-1** | 🔴 **All three findings were re-confirmed against the code AS IT STOOD before any fix was designed, and all three still held.** None was dropped. | A finding is one reviewer's reading of a diff at one moment, and a later change may already have corrected it — implementing a fix for a defect that is not there makes the system worse and passes every gate on the way. `main` had not moved (`HEAD` = `3143646`, the plan's own merge base) and **every line reference the plan cites was exact**: `GridFilterRow.tsx:284/289/293/343`, `DataTableToolbar.tsx:399`, `GridFilterRow.tsx:326`, `Table.tsx:483`/`:487`. **F3 was confirmed by COMPILING rather than by reading**, because the plan itself flagged that `node_modules` was absent when it was written: `@types/react/index.d.ts:3541-3551` declares `TdHTMLAttributes.width?: number \| string`, `:3553-3560` declares none on `ThHTMLAttributes`, `git show 6ed975d:src/components/Table.tsx` contains **no `width` at all**, and a probe reproduces `TS2322` against the pre-change tree. |
+| **D-2** | **Three findings, ONE fix — finish the extraction rather than patch three call sites.** The value arithmetic joins the presentation in `MultiSelectMenu.tsx` (`multiSelectChosenLabels` moved in from the toolbar, `multiSelectToggle` new), and both surfaces call it. | CR-009's stated remedy for *"two multi-selects that look or count differently is the defect"* moved the **presentation** and left the **value arithmetic** — which stored ids count as chosen, what labels they produce, what a tick commits — duplicated at each call site. Three of the four duplicates then disagreed (F1) and the fourth was wrong in both copies (F2). Patching each site would leave the same structure that produced the divergence in the first place. **The count is now `values.length` in both surfaces, by construction.** |
+| **D-3** | 🔴 **The master row LOSES THE ABILITY TO NARROW: `onToggle: (all: boolean) => void` becomes `onShowEverything: () => void`.** | Radix hands the next checked state, and **all three starting points now mean the same thing** (stop narrowing). A boolean the call site must interpret is exactly how F2 got in — both call sites read `all === true` as "commit every option id", which drops every row whose value is blank (`matchesFilter` requires `actual !== null`) and lights "Clear" on a gesture made to see MORE. With no boolean to branch on and no id list reaching the row, **the defect becomes unreachable rather than fixed** — the same argument `useCellLayout` makes about conditional hooks in `Table.tsx`. ⚠ **This is a RENAME on an internal, un-barrelled component** whose only two callers are in this package and both changed here; `components/index.ts` is byte-unchanged, so no export surface moved and the lane rule holds. |
+| **D-4** | **The owner picked layout A** — ticked + `All N` when nothing is chosen, a dash + `N of M` while some are, ticked + `N of M` when every option is named by hand. | The tick means *"nothing is being hidden"*, which is the honest reading of the not-narrowed state, and tapping the row always returns to the whole list — blanks included. ⚠ **Ticking every option by hand is still NOT "everything"**, and that is deliberate: it is a request for N named values, so a blank-valued row is correctly left out. `All 3` versus `3 of 3` is what tells the two ticked states apart on screen; both readings are asserted by spec. The pick changed **two lines** — `state` and `count` — and nothing else in the change depended on it. |
+| **D-5** | **`TableCellProps.width` is WIDENED to carry both meanings (`TableColumnWidth \| number \| (string & {})`), not renamed.** `TableHeadProps` is deliberately **not** widened. | Renaming the prop to `columnWidth` removes `width` from the export surface, which the additive-only lane rule **forbids outright**, and it would leave the head and the cell with two different names for one column answer — defeating CR-009 §C.4a's *"declare the step once and pass it to all three"*. The four step names are not valid HTML widths, so no value changes meaning in either direction. **The asymmetry with `TableHead` is React's, not this file's:** `ThHTMLAttributes` declares no `width`, so `<TableHead width={120}>` was already a type error before CR-009 and is not a regression — widening it would be a new feature wearing a repair's clothes. ⚠ Plan **OQ-2 is settled: `(string & {})` compiles cleanly under this repo's TS config**; the `\| string` fallback was not needed. |
+| **D-6** | **`src/lib/table-controls.ts` is NOT touched — the engine is right, and the defect is at the control that builds the list.** | The reviewer's F2 cites `matchesFilter`'s multiSelect arm. But `[]` meaning "not narrowed" and a non-empty list meaning "these values only" is correct. Teaching the engine that "every option" means "no filter" would change behaviour for **every existing multiSelect caller** the moment a reader ticked the last box by hand — a larger and much quieter change than the defect itself, and not additive. |
+
+### Clarify questions and answers
+
+**None.** The plan gate produced exactly one owner response — `[plan] plan APPROVED (layout A) — ship
+on-green` — with no revise note and no clarification requested. Recorded explicitly per spec §3a.4, so
+that "no questions were asked" is distinguishable from "questions were asked and not written down".
+
+### Also recorded
+
+- 🔴 **One half of F1 is a behaviour correction in already-shipped toolbar code, not a re-alignment.**
+  The *discard* on a tick was symmetric — the toolbar dropped unknown ids too, with a comment
+  defending it — so both copies were repaired. The plan said so at §0 and it is restated here because
+  the two halves of F1 have different characters and only one is drift.
+- **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` is still NOT created here — the ninth consecutive
+  change to raise it** (CR-001 D-12, CR-002 D-10, CR-003, CR-004, CR-005 D-12, CR-006 D-12,
+  CR-007 D-7, CR-009 D-8, here). Creating it is a governance decision for the owner, not something a
+  change may invent. The plan's six-seam map (§4) plus `runs/change-09/` is the record meanwhile.
+  ⚠ Separately, still true: **there is no decision-log entry for CR-DESIGN-SYSTEM-008** — this log
+  jumps 007 → 009.
+- **No Stage 07 amendment to a rule, contract or workflow was required.** No rule changed
+  (additive-only, one-class-per-axis, "consumers move their own pin against a merged sha" and "Radix
+  underpins the interactive primitives" were all *obeyed*); no contract changed (`GridFilterValue`
+  and `FilterValue` shapes are untouched — only *which ids survive a tick* changed, and `TableCell`
+  regained a meaning it had before CR-009); no workflow changed. **This is the recorded N/A, with its
+  reason — an unrecorded one would be a skip.**
+- **No consumer pin was bumped** (project rule; KI-M001E19-002). No consumer can currently be running
+  the defective code at all: `selectAll` and `multiple` did not exist before `3143646`, and
+  `bananaworld-dc` pins `6ed975d` (verified at its own `package.json:55`).
+
+---
+
+## CR-DESIGN-SYSTEM-009 — a filter cell holds several values, and the grid reads at a compact density
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **BUILT, GREEN, CLOSED OUT, PR OPEN.** Plan-gate decisions ACCEPTED (D-1…D-8). **D-9 DECIDED by the owner — option A, and D-11 records that it is now EXECUTED.** D-10 (execution owed) is **SUPERSEDED**. `dependency-audit` measures **0 blocking** |
+| Date | 2026-09-09 |
+| Branch point | `origin/main` @ `6ed975d` (CR-DESIGN-SYSTEM-008, merged as PR #20) |
+| Approved layout | **B** — three column width steps, per column |
+| Ship mode | **on-green** |
+| Archive | `runs/change-08/` |
+
+### What was asked
+
+The owner, about the reporting module this package's grid controls render:
+
+1. *"If I look at the columns and I want to filter by things in the column, I can only select one item
+   at a time. That's not very helpful because maybe I want to select multiple items. We have to make it
+   so that you can filter by multiple items: a Select All or where you can select individual items or
+   multiple items."*
+2. *"The report needs to be a little bit wider. I see on some screens that the entire report doesn't
+   fit on the screen. If we can make it a little bit wider, we can make the font smaller, a lot
+   smaller. I want the rows to be much more compact."*
+
+Ask 2's **width** half is the consuming app's (`bananaworld-dc` caps content at `max-w-[1440px]`) and
+was excluded by the CR itself. The **font and row-height** half is this package's, because every part
+of that table is a package export.
+
+### What was decided at the plan gate
+
+**APPROVED, layout B, ship mode on-green**, after three plan revisions driven by the owner's notes.
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-1 | **Widen the existing `select` value with ONE optional field (`values?: readonly string[]`). No fifth `kind`.** | A fifth `kind: "multiSelect"` would make **all 27** of DC's `kind: "select"` columns a migration on both sides of the wire, and would turn every stored `f_room=cold-1` into a value of a kind that no longer exists. **Widening `value` to `string \| readonly string[]` was rejected too, and it is the one that looks cheapest** — DC's `appendFilters` calls `value.value.trim()`, so a union breaks DC's typecheck **the moment it bumps its pin**: a consumer that adopted nothing would be broken by adopting nothing, which is exactly what the lane rule forbids. An optional extra property is assignable into DC's narrower type, so DC compiles unchanged |
+| D-2 | **The wire encoding is a REPEATED PARAMETER** — `f_room=A&f_room=B` — stated in `lib/grid-view.ts`'s header; **this package ships no URL codec** | No escaping and no separator to collide with, so an option id containing a comma cannot silently become two filters. And **one value reads identically under both readers**: `get` returns `"cold-1"`, `getAll` returns `["cold-1"]` — so views already saved to disk round-trip to the same rows through the old parser and the new one. A comma-joined parameter was rejected as a second escaping contract. The `f_` prefix and the saved-view definition are DC's vocabulary; a codec here would import an app's names into a pure UI package (**OQ-2**) |
+| D-3 | **The multi cell is OPT-IN (`multiple?: boolean`), and the one-value path is left literally untouched** | If the cell went multi by default, DC would pick up a menu that can emit two ids while its own writer still writes one — three ticks on screen, one room in the query, and a total the manager cannot tell is wrong. Opt-in makes that unreachable. It also means the shipped `SelectCell` is the *unedited* function, which is what makes byte-identity **provable** rather than argued |
+| D-4 | 🔴 **No second multi-select menu. The shared parts are MOVED, not copied**, into `components/MultiSelectMenu.tsx`; `MultiSelectFilterDef.selectAll` defaults to today's render | The CR named the alternative as the defect: *"two multi-select menus in one product that look or count differently."* One implementation, one arithmetic, one wording — with a documented two-value top row. The default is what keeps every shipped toolbar unmoved; convergence is a one-word opt-in per consumer, at each consumer's own gate, against a merged sha (**TD-1**) |
+| D-5 | **The owner picked tick-list option C — a tri-state "Select all" master row carrying `3 of 12`** | Chosen over option A (the shipped `All depots` item) at the mockup gate. Built as a Radix `CheckboxItem` with `checked="indeterminate"`, which emits `aria-checked="mixed"` for free — the single strongest reason not to hand-roll a dash |
+| D-6 | **The compact density is asked ONCE on `<Table>` and reaches the head, the filter row and the body. The package default does NOT move.** | *"I want reports to just open smaller"* (owner, plan note 3) settles **OQ-5**: the app chooses, there is no reader-facing switch, and DC writes `density="compact"` once. But the CRM, RMS, org-admin and Manga Verde render tables from these same parts and none asked to shrink — moving the default would be the lane rule broken in the one way that is invisible until four apps bump their pins. One switch reaching all three rows makes "a compact table with a tall filter row" unreachable by construction |
+| D-7 | **Long values are CUT with an ellipsis (owner's option 2), at a NAMED THREE-STEP WIDTH declared per column — layout B** | *"I wouldn't want all the columns to be equally narrow… some deserve to be wider, like a customer name"* (owner, plan note 3) settles **OQ-7**. Revision 2's single `columnMaxWidth` cut every over-long column at the same place, which is the awkwardness he described. Three steps (`narrow`/`medium`/`wide`) plus `full` express "roomy / ordinary / tight" and stop 27 magic numbers being invented column by column. A step is a **ceiling, not a fixed width**, so a date column still shrinks to its content. `<colgroup>` was rejected as positional (a hidden column shifts every width by one) and `table-layout: fixed` as giving every column an equal share — the owner's complaint restated as a layout mode |
+| D-8 | **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` is NOT created here** | It still does not exist. **Eighth consecutive change to raise it** (CR-001 D-12, CR-002 D-10, CR-003, CR-004, CR-005 D-12, CR-006 D-12, CR-007 D-7, here). Creating it is a governance decision for the owner, not something a change may invent. The plan's eight-seam map (§2) plus `runs/change-08/` is the record meanwhile |
+| **D-9** | ✅ **DECIDED 2026-09-09 — the owner answered `A`: take the repaired versions.** Refresh the `next` peer to **≥ 15.5.24** (which pulls `sharp` **≥ 0.35.4**), inside the `^15.0.0` range this package already declares. **Not** (b) add the GHSAs to the ignore list, and **not** (c) leave the gate red. | Three advisories published **2026-09-08**, the day before the build: `GHSA-2xp9-vwfh-vxw4` and `GHSA-p293-qw3h-jr36` (**critical**, unauthenticated Next.js RCEs) and `GHSA-rgj7-g3m4-5g8c` (high, `sharp` → libheif). `autoInstallPeers: true` puts `next@15.5.19` in the lockfile's production dependencies, so CI's `pnpm audit --prod --audit-level=high` exits 1 and branch protection refuses the merge. **Not caused by this change** — `package.json` and `pnpm-lock.yaml` are byte-identical to `main`, which fails the same audit today. **Re-measured independently this session** (the closure walked from `pnpm-lock.yaml`, the same npm bulk endpoint `pnpm audit` uses): 66 prod pairs deps-only / 106 with optional edges, **16 advisories, 3 blocking, verdict exit 1** — and at `next@15.5.25` + `sharp@0.35.4`, **0 blocking**. `next@15.5.25` is the head of `15.5.x` and is the version that widens its optional `sharp` range to `^0.34.3 \|\| ^0.35.4`, so the patched `sharp` follows from the one bump. Owner card: `runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md` |
+| **D-11** | ✅ **D-9 IS NOW EXECUTED — decision A landed in the CI-fix round of 2026-09-09, and D-10 is superseded.** `next` 15.5.19 → **15.5.25**, `sharp` 0.34.5 → **0.35.4**. **Nothing was added to `ignoreGhsas`**, which is the half of decision A the owner cared about. Mechanism: **two `pnpm.overrides` entries** (`"next@<15.5.24": "^15.5.24"`, `"sharp@<0.35.4": "^0.35.4"`) re-resolved with `pnpm install --lockfile-only`, rather than the bare `pnpm update next` D-10 sketched. | D-10 was right that `pnpm update` and `pnpm audit` are permission-gated here; it did not establish that **`pnpm install --lockfile-only` is not**, which is the opening this round used. An override is not a workaround but the better instrument, and it is the one the owner **already chose in this same file** for `nanoid` at D-12 (2026-08-14): it makes the repaired version a **durable floor**, so a later re-resolution cannot drift back underneath it silently. **The lockfile was still never hand-authored** — D-10's second refusal stands and was honoured; the file is generated. 🔴 **A correction to D-9's reasoning, found by running it rather than arguing it:** `sharp` did **not** follow from the `next` bump. next@15.5.25 widens its optional sharp range to `^0.34.3 \|\| ^0.35.4`, which the already-locked `sharp@0.34.5` still satisfies, so the first re-resolution left sharp untouched and `GHSA-rgj7-g3m4-5g8c` still red; the second override is what cleared it. **Additive check:** `peerDependencies.next` was deliberately NOT tightened (stays `^15.0.0`) and pnpm honours `overrides` only in the root workspace project, so no consumer's resolution moves. **Verified:** `pnpm install --frozen-lockfile` ✅, `pnpm typecheck` ✅, `pnpm test` **363/363** ✅, and the audit closure re-walked — **3 blocking → 0**, the walk first validated by reproducing CI's own published pre-fix numbers exactly (3 blocking / 6 ignored / 7 moderate). **Follow-up created, deliberately not taken here:** 4 of the 6 standing `ignoreGhsas` entries are now inert; retiring an owner-approved accepted-risk entry is a posture change in its own right, not a side effect of a CI fix. `known-issues.md` §A. |
+| **D-10** | ⚠️ **SUPERSEDED BY D-11 — kept, not deleted, because the refusal it records was correct at the time.** 🔴 **D-9's execution is OWED, not done. This build session could not perform it, and did not fake a way around it.** The bump is one command plus one commit on `change/cr-design-system-009`, by an actor with package-manager permission: `pnpm update next && pnpm install --lockfile-only`, then commit `package.json` (unchanged) + `pnpm-lock.yaml` with **CR-DESIGN-SYSTEM-009** in the subject. Until it lands, CI's `dependency-audit` job stays red and the PR cannot merge. | Every `pnpm` invocation is permission-gated in a build worktree and an unattended session has no approver — `pnpm --version`, `pnpm audit` and `pnpm update` were each refused. **That gate is deliberate and was honoured rather than evaded:** it exists so a version change is never made quietly in the middle of other work, which is exactly what this would have been. Invoking pnpm's JS entry point through `node` would have satisfied the letter and defeated the point, so it was not done. **Hand-authoring the lockfile was also rejected**, and this is the more tempting of the two: `next@15.5.19 → 15.5.25` plus `sharp@0.34.5 → 0.35.4` is ~35 new package records — `@next/env`, eight `@next/swc-*` platform builds and sharp's `@img/sharp-*` matrix — each needing a registry integrity hash and a correct snapshot dep graph. One wrong hash fails `pnpm install --frozen-lockfile` in **every** CI job and for every consumer; one missing transitive edge installs a broken tree silently. A lockfile is a generated artefact and generating it by hand into a package four apps pin by sha is not a defensible trade. **Escalated in the PR body, `known-issues.md` §A and the handover — a relaunch of the build session will NOT clear it.** |
+
+### Clarify questions and answers
+
+**Five** owner responses are recorded for this change — four at the plan gate, one at the decision
+gate. **All five are material and all five are reflected in what was built or in what is recorded as
+owed:**
+
+- **`[plan]` — plan REVISE:** *"What I really want to try and avoid is for column fields to wrap. What
+  would be the best way to achieve that, for it not to wrap and for it to still show all the columns?"*
+  → Answered in plan §C. Measured rather than assumed: **only `TableCell` wraps today** — `TableHead`
+  and the filter cells already carry `whitespace-nowrap`. And the honest constraint was put to him
+  plainly: *not wrapping does not create space*, it moves the overflow sideways. There are exactly
+  three levers — **cut**, **slide**, **show fewer** — and the question was which is the default.
+- **`[plan]` — plan REVISE:** *"Okay we'll go for C in both cases and then we'll go for 2 on the
+  wording cutoff"* → tick-list **C** (the tri-state master row, D-5), density **C** (the scale in plan
+  §B.3, D-6), long values **2** (cut with a "…", recoverable on hover, D-7).
+- **`[plan]` — plan REVISE:** *"I want reports to just open smaller. One thing is we've selected the
+  narrower option now for the columns but I don't want all columns necessarily to be equally narrow
+  because then that will also look awkward. Some columns deserve to be wider, like a customer name for
+  instance. Just bear that in mind. I don't know how to approach that but I wouldn't want all the
+  columns to be equally narrow. That would also not look practical."* → **Two decisions.** It settled
+  **OQ-5** (no reader-facing density switch — the app chooses; D-6) and it **replaced** revision 2's
+  single pixel cap with the per-column named scale (D-7). The assumption he was asked to check —
+  names and addresses `wide`, most columns `medium`, dates/references/numbers `narrow` — is recorded
+  in the plan's owner brief and is a one-word edit per column, not a rebuild.
+- **`[plan]` — plan APPROVED (layout B) — ship on-green.** → **Layout B** is the three-sizes-per-column
+  option from `comparison.html`, i.e. plan §C.4, and it is what was built.
+- **`[decision]` — `A`.** → The answer to the **D-9** card
+  (`runs/current/decisions-pending/CR-DESIGN-SYSTEM-009.md`), which offered: **A** take the repaired
+  versions *(recommended)*, **B** add the three advisories to the accepted list, **C** leave the gate
+  refusing. The owner chose **A**, so `next` goes to ≥ 15.5.24 and `sharp` to ≥ 0.35.4 and **nothing is
+  added to `pnpm.auditConfig.ignoreGhsas`** — the two unauthenticated RCEs are repaired, not accepted.
+  ✅ **EXECUTED in the CI-fix round — see D-11.** `next` is at **15.5.25** and `sharp` at **0.35.4**,
+  `ignoreGhsas` is untouched, and the audit measures **0 blocking**. *(The build round that first
+  recorded this could not run a package manager and said so rather than faking it; the conductor
+  relaunched on CI red and the bump landed. **B was never quietly substituted for A** at any point —
+  the owner's card said the ignore list is not where an unauthenticated RCE belongs.)*
+  ⚠ **The estate half the card flagged is unchanged and is the owner's, not this change's:** repairing
+  this package's peer fixes **this repo's CI**. It patches no running app. DC, the CRM, RMS, org-admin
+  and Manga Verde each pin their own `next` and are presumably on the same vulnerable range — five
+  separate lanes and a `COMPLIANCE_REGISTER.md` question, raised here rather than left to look handled.
+
+### What was built, and how the additive claim was proven
+
+Four opt-in additions across 10 source files and 5 test files (+1,588 / −92): the multi-value filter
+cell, the compact density, the wrap treatment, and the per-column width scale. **363/363 specs green**
+(baseline **re-measured before any edit: 314**), `pnpm typecheck` clean, **+49 specs, 0 existing specs
+edited or reddened**.
+
+🔴 **The additive claim was measured, not asserted:** every shape an existing caller can pass was
+rendered against `git show 6ed975d:` and against this build and compared on whole `innerHTML` —
+**1,972 shapes, 0 differences** — and the seven shipped `DataTableToolbar` screens' DOM snapshot has a
+**zero-line diff**. An **8-mutation battery caught 8 of 8**, so the specs are known to redden against
+a real defect rather than merely to pass.
+
+**Two departures from the plan's letter, both disclosed, neither behavioural:** one
+`TableLayoutContext` where §B.1 sketched two private contexts (identical exported surface), and a
+ninth source file because `MultiSelectFilterDef` lives in `lib/table-controls.ts`, not where §3
+implied.
+
+**One verification could not be run and is stated as such:** **OQ-8**, whether `max-width` caps a
+`<td>` under `table-layout: auto`. No browser binary is executable from a build worktree. A ready-to-
+run probe ships at `runs/change-08/output/truncate-probe.html`; the named fallback is recorded and
+untaken.
+
+⚠ **Housekeeping note for the owner:** there is **no decision-log entry for CR-DESIGN-SYSTEM-008**,
+which merged as PR #20 — this log jumps from 007 to 009. Not this change's to write, and flagged
+rather than filled in.
+
+---
+
 ## CR-DESIGN-SYSTEM-007 — when a row instruction and a single box disagree, the box wins
 
 | Field | Value |

@@ -51,6 +51,8 @@ export {
   gridColumnOrder,
   gridFilterSet,
   gridFilterIsEmpty,
+  gridFilterSelected,
+  gridFilterSelect,
   type GridSortDir,
   type GridSort,
   type GridGroupLevel,

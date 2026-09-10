@@ -14,7 +14,9 @@ import {
   TableRow,
   type SortDirection,
   type TableCellProps,
+  type TableColumnWidth,
   type TableHeadProps,
+  type TableProps,
   type TableRowProps,
 } from "../../src";
 
@@ -614,5 +616,233 @@ describe("TableRow valign is a default for its cells, not an override of them", 
       expect(tdClass(container), shape.name).toBe(shape.expected);
       cleanup();
     }
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// §9 — CR-DESIGN-SYSTEM-009: A COMPACT DENSITY, A WRAP TREATMENT, AND A PER-COLUMN WIDTH
+//      (T-23 … T-38).
+//
+// 🔴 THREE OPTIONS, ONE PROMISE. Each is asked once on `<Table>` and read by everything under it,
+//    and each defaults to what shipped. The specs below come in two halves and the FIRST half is the
+//    load-bearing one: a table that declares none of them emits the exact class strings §1–§3 pinned
+//    before this change existed. The second half proves the options do what they say.
+//
+// ⚠ happy-dom DOES NO LAYOUT. These specs assert that a cell carries `truncate` and a `max-w-`
+//   ceiling; they CANNOT assert that an ellipsis appeared on screen. That is verified separately and
+//   recorded in this change's `qa-report.md` — a spec claiming otherwise would be asserting its own
+//   harness rather than the browser.
+// ---------------------------------------------------------------------------------------------
+
+/** The exact `class` attribute of the nth `<th>`. */
+function thClass(container: HTMLElement, index = 0): string {
+  const heads = container.querySelectorAll("th");
+  const head = heads[index];
+  if (head === undefined) throw new Error(`no <th> at index ${index}`);
+  return head.getAttribute("class") ?? "";
+}
+
+/** Render one head and one body cell under a `<Table>` carrying `tableProps`. */
+function renderDensity(
+  tableProps: Partial<TableProps>,
+  headProps: Partial<TableHeadProps> = {},
+  cellProps: Partial<TableCellProps> = {},
+  children: ReactElement | string = "x",
+): HTMLElement {
+  const { container } = render(
+    <TableContainer>
+      <Table {...tableProps}>
+        <TableHeader>
+          <TableRow>
+            <TableHead {...headProps}>Code</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell {...cellProps}>{children}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>,
+  );
+  return container;
+}
+
+/** Every whitespace/overflow utility present in a class string, in order. */
+function wrapClasses(classAttr: string): string[] {
+  return classAttr.match(/\b(?:truncate|whitespace-nowrap|whitespace-normal|text-ellipsis)\b/g) ?? [];
+}
+
+/** Every max-width utility present in a class string, in order. */
+function widthClasses(classAttr: string): string[] {
+  return classAttr.match(/\bmax-w-\[[^\]]+\]/g) ?? [];
+}
+
+describe("T-23 … T-26: a table that declares NOTHING renders byte-identically", () => {
+  it("T-23: the `<table>` itself keeps its exact class string", () => {
+    const container = renderDensity({});
+    expect(container.querySelector("table")?.getAttribute("class")).toBe(
+      "w-full border-collapse text-sm text-fg",
+    );
+  });
+
+  it("T-24: the head keeps the exact string §7 pinned — including `whitespace-nowrap`", () => {
+    // 🔴 THE SPEC THE `HEAD_WRAP` RECORD EXISTS FOR. A record shared with the body cell would map
+    //    "wrap" to "" and silently DROP `whitespace-nowrap` from every header in the estate.
+    expect(thClass(renderDensity({}))).toBe(
+      "px-3 py-2.5 text-2xs font-semibold uppercase tracking-wide text-fg-muted border-b border-border whitespace-nowrap select-none text-left",
+    );
+  });
+
+  it("T-25: the body cell keeps the exact string §1 pinned, and gains NO wrap or width class", () => {
+    const cls = tdClass(renderDensity({}));
+    expect(cls).toBe("px-3 py-2 align-middle text-left");
+    expect(wrapClasses(cls)).toEqual([]);
+    expect(widthClasses(cls)).toEqual([]);
+  });
+
+  it("T-26: a plain-string cell gets NO `title` — the tooltip belongs to truncation, not to cells", () => {
+    expect(renderDensity({}).querySelector("td")?.hasAttribute("title")).toBe(false);
+  });
+});
+
+describe("T-27 … T-29: the compact density", () => {
+  it('T-27: density="compact" tightens the type on the table and the padding on both cells', () => {
+    const container = renderDensity({ density: "compact" });
+    expect(container.querySelector("table")?.getAttribute("class")).toBe(
+      "w-full border-collapse text-xs text-fg",
+    );
+    expect(thClass(container)).toContain("px-1.5 py-1");
+    expect(tdClass(container)).toContain("px-1.5 py-1");
+  });
+
+  it("T-28: 🔴 EXACTLY ONE PADDING CLASS PER AXIS, at BOTH densities", () => {
+    // twMerge keeps the LAST of two conflicting classes, so a second one anywhere is a silent,
+    // invisible override. Density is a COMPLETE string picked from a record, never an append.
+    for (const density of ["default", "compact"] as const) {
+      const container = renderDensity({ density });
+      for (const cls of [thClass(container), tdClass(container)]) {
+        expect(cls.match(/\bpx-[\w.]+/g) ?? [], density).toHaveLength(1);
+        expect(cls.match(/\bpy-[\w.]+/g) ?? [], density).toHaveLength(1);
+      }
+      cleanup();
+    }
+  });
+
+  it("T-29: ⚠ THE HEAD KEEPS `text-2xs` AND THE ROW KEEPS ITS OWN STRING — both deliberate", () => {
+    const container = renderDensity({ density: "compact" });
+    // A one-pixel type reduction on the heading is not what the owner judged, and `text-2xs` is not
+    // defined in this package's own tokens — compact does not reach for a third type step.
+    expect(thClass(container)).toContain("text-2xs");
+    // A row's HEIGHT is its cells' padding. A row-level height class would fight the cell's own.
+    expect(trClass(container, 1)).toBe("border-b border-border last:border-0");
+  });
+});
+
+describe("T-30 … T-33: the wrap axis", () => {
+  it("T-30: 🔴 EXACTLY ONE WHITESPACE/OVERFLOW CLASS ON EVERY PATH, head and cell alike", () => {
+    for (const wrap of ["wrap", "nowrap", "truncate"] as const) {
+      const container = renderDensity({ wrap });
+      // The head has never wrapped and still never does — always exactly one class.
+      expect(wrapClasses(thClass(container)), `head ${wrap}`).toHaveLength(1);
+      // The body cell emits nothing at all under "wrap", and exactly one otherwise.
+      expect(wrapClasses(tdClass(container)), `cell ${wrap}`).toHaveLength(wrap === "wrap" ? 0 : 1);
+      cleanup();
+    }
+  });
+
+  it("T-31: 🔴 A HEAD NEVER WRAPS, WHATEVER THE TABLE ASKS — only whether it also truncates", () => {
+    expect(wrapClasses(thClass(renderDensity({ wrap: "wrap" })))).toEqual(["whitespace-nowrap"]);
+    cleanup();
+    expect(wrapClasses(thClass(renderDensity({ wrap: "nowrap" })))).toEqual(["whitespace-nowrap"]);
+    cleanup();
+    expect(wrapClasses(thClass(renderDensity({ wrap: "truncate" })))).toEqual(["truncate"]);
+  });
+
+  it("T-32: a body cell takes the table's answer, and its own `wrap` prop beats it", () => {
+    expect(wrapClasses(tdClass(renderDensity({ wrap: "truncate" })))).toEqual(["truncate"]);
+    cleanup();
+    // ⚠ THE CHIP COLUMN'S ESCAPE HATCH: one line, nothing clipped, inside a truncating table — and
+    //   no ceiling either, since a cap without clipping just spills the value out of the cell.
+    const container = renderDensity({ wrap: "truncate" }, {}, { wrap: "nowrap" });
+    expect(wrapClasses(tdClass(container))).toEqual(["whitespace-nowrap"]);
+    expect(widthClasses(tdClass(container))).toEqual([]);
+  });
+
+  it("T-33: a truncating cell whose children are a STRING gets a `title`; an element's does not", () => {
+    const withText = renderDensity({ wrap: "truncate" }, {}, {}, "Freshmark Distribution Centre");
+    expect(withText.querySelector("td")?.getAttribute("title")).toBe(
+      "Freshmark Distribution Centre",
+    );
+    cleanup();
+    // 🔴 NO TOOLTIP IS INVENTED FOR ELEMENT CHILDREN. "[object Object]" is worse than nothing.
+    const withChip = renderDensity({ wrap: "truncate" }, {}, {}, <span>chip</span>);
+    expect(withChip.querySelector("td")?.hasAttribute("title")).toBe(false);
+  });
+});
+
+describe("T-34 … T-38: the per-column width scale", () => {
+  it("T-34: 🔴 A WIDTH IS EMITTED ONLY WHERE THE ELEMENT IS TRUNCATING", () => {
+    // Capping a column that is not clipping its overflow makes the value spill visibly out of its
+    // cell — and emitting nothing under the other two is what keeps every existing render identical.
+    for (const wrap of ["wrap", "nowrap"] as const) {
+      const container = renderDensity(
+        { wrap, columnWidth: "narrow" },
+        { width: "wide" },
+        { width: "wide" },
+      );
+      expect(widthClasses(thClass(container)), `head ${wrap}`).toEqual([]);
+      expect(widthClasses(tdClass(container)), `cell ${wrap}`).toEqual([]);
+      cleanup();
+    }
+  });
+
+  it("T-35: 🔴 A TABLE THAT ASKS TO CUT, CUTS — `truncate` defaults its columns to `medium`", () => {
+    // `text-overflow: ellipsis` fires only against a definite width. A truncating table with no cap
+    // anywhere would silently cut nothing, which is a setting named "cut it" that does not.
+    const container = renderDensity({ wrap: "truncate" });
+    expect(widthClasses(thClass(container))).toEqual(["max-w-[11rem]"]);
+    expect(widthClasses(tdClass(container))).toEqual(["max-w-[11rem]"]);
+  });
+
+  it("T-36: all four steps, and `full` means NEVER CUT THIS COLUMN", () => {
+    const expected: Record<string, readonly string[]> = {
+      narrow: ["max-w-[6rem]"],
+      medium: ["max-w-[11rem]"],
+      wide: ["max-w-[20rem]"],
+      full: [],
+    };
+    for (const [step, classes] of Object.entries(expected)) {
+      const container = renderDensity(
+        { wrap: "truncate" },
+        { width: step as TableColumnWidth },
+        { width: step as TableColumnWidth },
+      );
+      expect(widthClasses(thClass(container)), step).toEqual(classes);
+      expect(widthClasses(tdClass(container)), step).toEqual(classes);
+      cleanup();
+    }
+  });
+
+  it("T-37: 🔴 THE SAME STEP PRODUCES THE SAME CLASS ON THE HEAD AND THE CELL (the desync guard)", () => {
+    // A column is three elements in three rows and the WIDEST wins. If the head and the cell could
+    // resolve one step differently, the column would refuse to narrow and it would read as a bug in
+    // this package. (`GridHeadCell` and the grid's filter cell are covered in `Grid.test.tsx`.)
+    for (const step of ["narrow", "medium", "wide", "full"] as const) {
+      const container = renderDensity({ wrap: "truncate" }, { width: step }, { width: step });
+      expect(widthClasses(thClass(container)), step).toEqual(widthClasses(tdClass(container)));
+      cleanup();
+    }
+  });
+
+  it("T-38: at most ONE max-width class, and a caller's own `className` still beats the step", () => {
+    const container = renderDensity(
+      { wrap: "truncate", columnWidth: "narrow" },
+      { className: "max-w-[22rem]" },
+      { className: "max-w-[22rem]" },
+    );
+    // Emitted BEFORE `className`, so twMerge keeps the caller's — one class, and it is theirs.
+    expect(widthClasses(thClass(container))).toEqual(["max-w-[22rem]"]);
+    expect(widthClasses(tdClass(container))).toEqual(["max-w-[22rem]"]);
   });
 });

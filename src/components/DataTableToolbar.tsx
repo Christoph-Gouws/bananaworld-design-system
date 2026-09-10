@@ -14,10 +14,37 @@
 // and renders exactly what it rendered before. Radix Select is single-choice by construction, so the
 // multi-select is a Radix DropdownMenu of CheckboxItems: the same primitive, portal and z-layer the
 // row-actions menu already uses, so no new dependency and no second dropdown idiom.
+//
+// The tick-list's own parts — the item, the trigger arithmetic and the "Select all" master row —
+// live in `MultiSelectMenu.tsx` and are SHARED with the grid's filter cell (CR-DESIGN-SYSTEM-009).
+// They were moved there, not copied: two multi-selects that look or count differently is the defect
+// the extraction exists to make impossible. A def may ask for the master top row with
+// `selectAll: "master"`; omitting it renders the "All depots" row every shipped screen renders today.
+// CR-DESIGN-SYSTEM-010 finished that extraction: which stored ids count as chosen, what labels they
+// produce and what a tick commits are `multiSelectChosenLabels` / `multiSelectToggle` there, not two
+// local copies here and in the grid that had already drifted apart.
+//
+// What is in this file, in the order it appears:
+//   useTableControls        the state one table's search / filters / sort live in, and the rows they
+//                           leave visible — the only entry point; a screen never builds the bag itself
+//   DataTableToolbar        the bar: search, one control per filter def, and Clear once anything is on
+//   SelectFilterControl     kind "select"      — a Radix Select, single choice, "All x" sentinel
+//   MultiSelectFilterControl kind "multiSelect" — the tick-list, shared parts from MultiSelectMenu
+//   DateRangeFilterControl  kind "dateRange"   — two inline date inputs, each bounding the other
+//
+// The pure search / filter / sort arithmetic is NOT here — it is `src/lib/table-controls.ts`, which
+// has no React in it and is unit-tested on its own. This file is the presentation skin over it.
+//
+// QUALITY-JUSTIFY RC-05 — One toolbar and the three controls only it renders, each bound to one filter
+// kind the shared engine declares, and none of them reachable or useful without the toolbar that
+// composes them. This file was already over the threshold before CR-DESIGN-SYSTEM-009, which made it
+// SHORTER rather than longer: the tick-list parts moved out precisely because a SECOND surface uses
+// them. What remains has one caller each, so splitting further would separate a control from the only
+// thing that renders it while leaving both halves pinned to the same seven-screen DOM snapshot.
 
 import { useCallback, useMemo, useState, type ReactElement, type ReactNode } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { Check, ChevronDown, Search, X } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 
 import { cn } from "../lib";
 import {
@@ -37,6 +64,16 @@ import {
 } from "../lib/table-controls";
 
 import { Input } from "./Input";
+// The tick-list's own parts, shared with the grid's filter cell (CR-DESIGN-SYSTEM-009 §A.5). They
+// were MOVED out of this file, not copied into a second one — two multi-selects that look or count
+// differently is the defect the extraction exists to make impossible.
+import {
+  MultiSelectAllRow,
+  MultiSelectItem,
+  multiSelectChosenLabels,
+  multiSelectToggle,
+  multiSelectTriggerLabel,
+} from "./MultiSelectMenu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./Select";
 
 const ALL_SENTINEL = "__all__";
@@ -68,6 +105,15 @@ export interface TableControls<Row> {
 
 // Owns the search / filter / sort state for one table and returns the visible rows + the bindings the
 // toolbar and sortable headers consume.
+//
+// Its length is the four `useState`s plus the callbacks and memos that each depend on more than one
+// of them: `visible` reads query, filters, sort AND both accessor maps; `optionsByKey` reads the rows
+// and the filter defs. Every candidate split takes state OUT of the hook that owns it and passes it
+// back in — a helper called once, taking five arguments, which is the shape `GUIDE-RC-04` names as
+// the wrong answer. It is also untouched by CR-DESIGN-SYSTEM-009, which removed 18 lines from this
+// FILE and not one line from this function; it is flagged because the scorecard scans changed files.
+//
+// QUALITY-JUSTIFY RC-04 — One state owner whose parts cannot be separated from the state they read.
 export function useTableControls<Row>(
   rows: readonly Row[],
   config: UseTableControlsConfig<Row>,
@@ -271,22 +317,6 @@ function allOptionLabel(label: string): string {
   return `All ${label.toLowerCase()}`;
 }
 
-// The closed trigger, layout A (owner-approved 2026-08-14): the first chosen value by name, then how
-// many more. "Cape Town +2" — it names something real, stays on one line, and truncates predictably in
-// a narrow toolbar. Nothing chosen reads exactly what a single-select reads: "All depots".
-function multiSelectTriggerLabel(
-  label: string,
-  options: readonly SelectOption[],
-  values: readonly string[],
-): { readonly text: string; readonly more: number } {
-  if (values.length === 0) return { text: allOptionLabel(label), more: 0 };
-  // "First" is first in the DISPLAYED option order, not in tick order, so the trigger reads the same
-  // whichever way round the rep ticked them.
-  const chosen = options.filter((opt) => values.includes(opt.value));
-  const first = chosen[0]?.label ?? values[0] ?? "";
-  return { text: first, more: values.length - 1 };
-}
-
 function MultiSelectFilterControl<Row>({
   def,
   options,
@@ -298,15 +328,20 @@ function MultiSelectFilterControl<Row>({
   readonly values: readonly string[];
   readonly onChange: (values: readonly string[]) => void;
 }): ReactElement {
-  const { text, more } = multiSelectTriggerLabel(def.label, options, values);
+  const { text, more } = multiSelectTriggerLabel(
+    allOptionLabel(def.label),
+    multiSelectChosenLabels(options, values),
+  );
   const chosenNone = values.length === 0;
 
   // Keep the stored order in the DISPLAYED option order so a value list reads the same as the menu and
-  // "first chosen" is stable. An unknown value (one the data no longer offers) is dropped by the same
-  // pass, which is what a rep sees anyway.
+  // "first chosen" is stable.
+  //
+  // ⚠ AN UNKNOWN VALUE — one the data no longer offers — IS NOW KEPT, where this used to drop it
+  //   (CR-DESIGN-SYSTEM-010 F1). The trigger has always shown it, so silently deleting it on the next
+  //   tick moved the result set with no indication; and a saved view holding it lost it for good.
   const toggle = (value: string, checked: boolean): void => {
-    const next = checked ? [...values, value] : values.filter((v) => v !== value);
-    onChange(options.filter((opt) => next.includes(opt.value)).map((opt) => opt.value));
+    onChange(multiSelectToggle(options, values, value, checked));
   };
 
   return (
@@ -353,11 +388,26 @@ function MultiSelectFilterControl<Row>({
               "rounded-md border border-border bg-surface p-1 shadow-lg animate-fade-in",
             )}
           >
-            <MultiSelectItem
-              checked={chosenNone}
-              onToggle={() => onChange([])}
-              label={allOptionLabel(def.label)}
-            />
+            {def.selectAll === "master" ? (
+              // 🔴 IT CLEARS, IT NEVER COMMITS EVERY ID (CR-DESIGN-SYSTEM-010 F2). Committing the
+              //    option list narrowed the table — `matchesFilter`'s multiSelect arm drops every row
+              //    whose value is null — and lit "Clear", on a gesture the reader made to see
+              //    everything. `[]` is what the "allOption" row below has always sent, and it is the
+              //    only thing that means "not narrowed".
+              <MultiSelectAllRow
+                chosen={values.length}
+                total={options.length}
+                onShowEverything={() => {
+                  onChange([]);
+                }}
+              />
+            ) : (
+              <MultiSelectItem
+                checked={chosenNone}
+                onToggle={() => onChange([])}
+                label={allOptionLabel(def.label)}
+              />
+            )}
             <DropdownMenu.Separator className="my-1 h-px bg-border" />
             {options.map((opt) => (
               <MultiSelectItem
@@ -376,38 +426,6 @@ function MultiSelectFilterControl<Row>({
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
     </div>
-  );
-}
-
-function MultiSelectItem({
-  checked,
-  onToggle,
-  label,
-}: {
-  readonly checked: boolean;
-  readonly onToggle: (checked: boolean) => void;
-  readonly label: string;
-}): ReactElement {
-  return (
-    <DropdownMenu.CheckboxItem
-      checked={checked}
-      onCheckedChange={onToggle}
-      // 🔴 THE ONE RADIX GOTCHA. A DropdownMenu closes on select by default; preventing it is what keeps
-      // the menu open across several ticks. Without this line the rep re-opens the menu for every value,
-      // which defeats the entire change.
-      onSelect={(e) => e.preventDefault()}
-      className={cn(
-        "relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-7 pr-2 text-sm outline-none",
-        "[[data-surface=tablet]_&]:py-3 [[data-surface=tablet]_&]:pl-9 [[data-surface=tablet]_&]:text-base",
-        "data-[highlighted]:bg-surface-muted",
-        "data-[state=checked]:font-medium",
-      )}
-    >
-      <DropdownMenu.ItemIndicator className="absolute left-2">
-        <Check className="h-4 w-4 text-accent" />
-      </DropdownMenu.ItemIndicator>
-      {label}
-    </DropdownMenu.CheckboxItem>
   );
 }
 

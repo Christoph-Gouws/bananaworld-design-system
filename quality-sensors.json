@@ -1,0 +1,30 @@
+{
+  "_readme": [
+    "Config for organization/scripts/quality-sensors.mjs (estate). Four of the ten sensed dimensions are",
+    "PATH-dependent: without this file they scan NOTHING and the run says so. This package was running",
+    "with no config at all, so CE-01, CE-05, CE-08 and RC-09 were silently unscanned while the scorecard",
+    "still read as a pass on the rest.",
+    "",
+    "wiringGlobs IS DELIBERATELY EMPTY, and that is not the same as absent. The sensor treats a missing",
+    "key as 'not configured' and skips the dimension; an empty list means 'nothing here is wiring', so",
+    "EVERY file is held to the rule. That is the correct posture for a shared package: a design system",
+    "reads no environment and constructs no database client, ever. If one of those findings appears, the",
+    "answer is to move the code out of this package, not to add a glob here.",
+    "",
+    "CE-01 is the dimension this package exists for. A shared component carrying a hardcoded colour",
+    "defeats the point of having a design system, so componentGlobs must cover everything under",
+    "src/components."
+  ],
+  "componentGlobs": ["src/components/**"],
+  "wiringGlobs": [],
+  "ignoreDirs": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    ".git",
+    ".turbo",
+    "runs",
+    "source-documents"
+  ]
+}
