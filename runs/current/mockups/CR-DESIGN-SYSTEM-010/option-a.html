@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option A — the tick means "everything is showing"</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-info:#0369a1; --color-info-subtle:#f0f9ff; --color-info-fg:#075985;
+    --color-accent:#0f766e;
+    --color-warning:#b45309; --color-warning-subtle:#fef3c7;
+    --radius-sm:4px; --radius-md:8px; --radius-lg:10px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter","Inter Fallback",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1000px;margin:0 auto;padding:36px 28px 80px}
+  h1{font-size:24px;line-height:1.25;letter-spacing:-.015em;margin:0 0 6px}
+  h2{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-muted);margin:34px 0 12px}
+  .sub{color:var(--color-fg-muted);margin:0 0 20px;font-size:15px;max-width:80ch}
+  .sub b{color:var(--color-fg)}
+  .row{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+  .state{min-width:250px}
+  .state .cap{font-size:12px;color:var(--color-fg-subtle);margin:0 0 8px}
+  .state .cap b{color:var(--color-fg)}
+  .trigger{display:inline-flex;align-items:center;gap:6px;height:28px;width:230px;
+    border:1px solid var(--color-border);background:var(--color-surface-muted);
+    border-radius:var(--radius-sm);padding:0 8px;font-size:12px;color:var(--color-fg-subtle)}
+  .trigger.set{border-color:var(--color-info);background:var(--color-info-subtle);
+    color:var(--color-info-fg);font-weight:600}
+  .trigger .chev{margin-left:auto;color:inherit;opacity:.7}
+  .menu{width:230px;margin-top:4px;border:1px solid var(--color-border-strong);
+    border-radius:var(--radius-md);background:var(--color-surface);padding:4px;
+    box-shadow:0 10px 26px rgba(24,24,27,.12)}
+  .mi{position:relative;display:flex;align-items:center;padding:5px 8px 5px 26px;
+    border-radius:var(--radius-sm);font-size:12px}
+  .mi .ind{position:absolute;left:8px;width:12px;text-align:center;color:var(--color-accent);
+    font-size:12px;line-height:1}
+  .mi.master{font-weight:500}
+  .mi.on{font-weight:500}
+  .mi .count{margin-left:auto;padding-left:10px;color:var(--color-fg-subtle);
+    font-weight:400;font-variant-numeric:tabular-nums;font-size:11px}
+  .sep{height:1px;background:var(--color-border);margin:4px 0}
+  .foot{display:flex;justify-content:space-between;padding:3px 8px;font-size:10px;color:var(--color-fg-subtle)}
+  .kbd{border:1px solid var(--color-border);border-radius:3px;padding:0 4px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .frame{width:100%;border:1px solid var(--color-border);border-radius:var(--radius-md);
+    background:var(--color-surface);overflow:hidden;max-width:560px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  thead.hd{background:var(--color-surface-muted)}
+  th.col{font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-muted);
+    border-bottom:1px solid var(--color-border);white-space:nowrap;text-align:left;
+    padding:4px 8px;font-size:10px}
+  th.col.r,td.r{text-align:right}
+  td{border-bottom:1px solid var(--color-border);white-space:nowrap;padding:4px 8px;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:0}
+  td.num{font-variant-numeric:tabular-nums}
+  tr.blank td{background:#fffbeb}
+  .good{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:var(--radius-md);
+    padding:12px 14px;margin-top:20px;font-size:13px;color:#065f46;max-width:80ch}
+  .good b{color:#022c22}
+  .warn{background:var(--color-warning-subtle);border:1px solid #fcd34d;border-radius:var(--radius-md);
+    padding:12px 14px;margin-top:14px;font-size:13px;color:#78350f;max-width:80ch}
+  .warn b{color:#451a03}
+  .hint{font-size:12px;color:var(--color-fg-subtle);margin:10px 2px 0;max-width:80ch}
+  .pill{display:inline-block;background:#e0f2fe;color:#075985;border-radius:999px;
+    padding:1px 9px;font-size:11px;font-weight:600;letter-spacing:.02em}
+</style>
+</head>
+<body>
+<div class="page">
+  <span class="pill">Recommended</span>
+  <h1>Option A — the tick at the top means “everything is showing”</h1>
+  <p class="sub">The wording you picked stays: one row called <b>Select all</b> with a running count on
+  the right. What changes is what the tick <i>means</i>. It is on whenever nothing is being hidden, a
+  dash while only some rooms are picked, and tapping it always puts you back to seeing the whole list —
+  blanks included.</p>
+
+  <h2>The three states</h2>
+  <div class="row">
+    <div class="state">
+      <p class="cap"><b>Nothing picked.</b> Everything is showing, so the top row is ticked and reads
+      “All 3”.</p>
+      <div class="trigger">All rooms <span class="chev">▾</span></div>
+      <div class="menu">
+        <div class="mi master"><span class="ind">✓</span>Select all<span class="count">All 3</span></div>
+        <div class="sep"></div>
+        <div class="mi"><span class="ind"></span>Cold room 1</div>
+        <div class="mi"><span class="ind"></span>Cold room 2</div>
+        <div class="mi"><span class="ind"></span>Ripening room 3</div>
+        <div class="sep"></div>
+        <div class="foot"><span>None chosen</span><span class="kbd">Esc</span></div>
+      </div>
+    </div>
+
+    <div class="state">
+      <p class="cap"><b>Two rooms picked.</b> A dash, and the count tells you where you are.</p>
+      <div class="trigger set">Cold room 1 <span style="font-weight:600">+1</span> <span class="chev">▾</span></div>
+      <div class="menu">
+        <div class="mi master"><span class="ind">–</span>Select all<span class="count">2 of 3</span></div>
+        <div class="sep"></div>
+        <div class="mi on"><span class="ind">✓</span>Cold room 1</div>
+        <div class="mi"><span class="ind"></span>Cold room 2</div>
+        <div class="mi on"><span class="ind">✓</span>Ripening room 3</div>
+        <div class="sep"></div>
+        <div class="foot"><span>2 chosen</span><span class="kbd">Esc</span></div>
+      </div>
+    </div>
+
+    <div class="state">
+      <p class="cap"><b>All three picked by hand.</b> Ticked, and the count says 3 of 3 — so this state
+      still reads differently from “nothing picked”.</p>
+      <div class="trigger set">Cold room 1 <span style="font-weight:600">+2</span> <span class="chev">▾</span></div>
+      <div class="menu">
+        <div class="mi master"><span class="ind">✓</span>Select all<span class="count">3 of 3</span></div>
+        <div class="sep"></div>
+        <div class="mi on"><span class="ind">✓</span>Cold room 1</div>
+        <div class="mi on"><span class="ind">✓</span>Cold room 2</div>
+        <div class="mi on"><span class="ind">✓</span>Ripening room 3</div>
+        <div class="sep"></div>
+        <div class="foot"><span>3 chosen</span><span class="kbd">Esc</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>What tapping “Select all” now does to the list</h2>
+  <div class="frame">
+    <table>
+      <thead class="hd"><tr><th class="col">Reference</th><th class="col">Room</th><th class="col r">Cases</th></tr></thead>
+      <tbody>
+        <tr><td>SO-2026-04417</td><td>Cold room 1</td><td class="r num">48</td></tr>
+        <tr><td>SO-2026-04419</td><td>Cold room 2</td><td class="r num">40</td></tr>
+        <tr><td>SO-2026-04420</td><td>Ripening room 3</td><td class="r num">60</td></tr>
+        <tr class="blank"><td>SO-2026-04425</td><td>—</td><td class="r num">12</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">The highlighted row has no room recorded yet. Today, tapping “Select all” makes it
+  disappear and switches the “Clear” button on. After this change it stays, and “Clear” stays off —
+  because nothing is being narrowed.</p>
+
+  <div class="good"><b>Why this is the recommendation.</b> It keeps the wording and the running count
+  you approved, and it makes the tick tell the truth: on means you are seeing everything. Tapping the
+  row always does something you can see, from any starting point.</div>
+
+  <div class="warn"><b>The one wrinkle, stated plainly.</b> Ticking all three rooms by hand is not the
+  same as showing everything — rows with no room recorded are still left out, because you asked for
+  three named rooms. The count on the right (“3 of 3” versus “All 3”) is what tells those two apart.</div>
+</div>
+</body>
+</html>

@@ -360,3 +360,73 @@ describe("the grid's three rows move together, or not at all (§B, §C.4a)", () 
     }
   });
 });
+
+// ============================================================================
+// 🔴 CR-DESIGN-SYSTEM-010 F3 — `TableCell.width` CARRIES BOTH MEANINGS
+// ============================================================================
+// React's `TdHTMLAttributes` declares `width?: number | string`, so `<TableCell width={120}>` was
+// legal before CR-DESIGN-SYSTEM-009 and rendered `<td width="120">`. Declaring the design-system step
+// under the SAME NAME narrowed the inherited prop and destructured it away — so a consumer that had
+// used the legacy attribute would fail `tsc` on a file it never touched at its next pin bump, or
+// (cast, or untyped) lose the column's sizing with no error at all. That is the exact opposite of
+// "a consumer that moves its pin and declares nothing new renders byte-identically".
+//
+// ⚠ `ThHTMLAttributes` DECLARES NO `width`, so `TableHead` never had the attribute to lose and is
+//   deliberately NOT widened. The asymmetry is React's; asserting it here is what stops a later edit
+//   "tidying" the two interfaces into agreement and quietly adding a second meaning to a `<th>`.
+describe("`TableCell.width` — the design-system step AND the legacy HTML attribute", () => {
+  function bodyCell(width: number | string): HTMLElement | null {
+    const { container } = render(
+      <Table>
+        <TableBody>
+          <TableRow>
+            <TableCell width={width}>Qty</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>,
+    );
+    return container.querySelector("td");
+  }
+
+  it("🔴 A NUMERIC `width` STILL REACHES THE DOM — `<td width=\"120\">`, as it always did", () => {
+    const td = bodyCell(120);
+    expect(td?.getAttribute("width")).toBe("120");
+    // …and it takes no design-system class, because it is not one of the four steps.
+    expect(td?.getAttribute("class") ?? "").not.toContain("max-w-");
+  });
+
+  it("a STRING width that is not a step is forwarded untouched too", () => {
+    expect(bodyCell("120")?.getAttribute("width")).toBe("120");
+    expect(bodyCell("50%")?.getAttribute("width")).toBe("50%");
+  });
+
+  it("🔴 THE FOUR STEP NAMES ARE CONSUMED, NEVER FORWARDED — no `width` attribute on the `<td>`", () => {
+    const { container } = render(
+      <Table wrap="truncate">
+        <TableBody>
+          <TableRow>
+            <TableCell width="wide">Qty</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>,
+    );
+    const td = container.querySelector("td");
+    expect(td?.getAttribute("class") ?? "").toContain("max-w-[20rem]");
+    expect(td?.hasAttribute("width")).toBe(false);
+  });
+
+  it("a cell that passes NO width emits neither the attribute nor a cap", () => {
+    const { container } = render(
+      <Table>
+        <TableBody>
+          <TableRow>
+            <TableCell>Qty</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>,
+    );
+    const td = container.querySelector("td");
+    expect(td?.hasAttribute("width")).toBe(false);
+    expect(td?.getAttribute("class") ?? "").not.toContain("max-w-");
+  });
+});

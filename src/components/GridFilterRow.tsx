@@ -41,7 +41,7 @@
 // was made: the tick-list's shared parts moved to `MultiSelectMenu.tsx`, because those genuinely are
 // used by a second surface (`DataTableToolbar`) and drift between the two was the stated defect.
 
-import { useEffect, useRef, useState, type ReactElement } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown, X } from "lucide-react";
 
@@ -54,7 +54,14 @@ import {
   type GridFilterValue,
   type GridFilterValues,
 } from "../lib/grid-view";
-import { MultiSelectAllRow, MultiSelectItem, multiSelectTriggerLabel } from "./MultiSelectMenu";
+import {
+  MultiSelectAllRow,
+  MultiSelectItem,
+  multiSelectChosenLabels,
+  multiSelectToggle,
+  multiSelectTriggerLabel,
+  type MultiSelectOption,
+} from "./MultiSelectMenu";
 import { useColumnWidthClass, useTableDensity, type TableColumnWidth, type TableDensity } from "./Table";
 
 export interface GridFilterOption {
@@ -267,6 +274,11 @@ function SelectCell({
  *    provable rather than argued. The two share the parts that must not drift (`MultiSelectItem`, the
  *    trigger arithmetic, the master row) through `MultiSelectMenu`, which is the whole point of the
  *    extraction; they do not share a branch inside one function.
+ *
+ * ⚠ AND THE VALUE ARITHMETIC IS SHARED TOO (CR-DESIGN-SYSTEM-010 F1). Every count and every commit
+ *   below goes through `MultiSelectMenu`'s functions rather than a local `options.filter(...)`, which
+ *   is what had this cell reading "1 chosen" on a filter narrowing by two rooms — and then deleting
+ *   the second one on the next tick — while the toolbar in the identical state read "2 chosen".
  */
 function MultiSelectCell({
   def,
@@ -278,19 +290,26 @@ function MultiSelectCell({
   readonly onCommit: (next: readonly string[]) => void;
 }): ReactElement {
   const density = useTableDensity();
-  const options = def.options ?? [];
-  // Displayed-option order, always — so the trigger reads the same whichever way round they were
-  // ticked, and so the ids handed back are in the order the wire encoding states.
-  const chosen = options.filter((o) => selected.includes(o.id));
+  // `{id,label}` → the `{value,label}` shape the shared arithmetic reads. Memoised on the option list
+  // itself, so a re-render caused by a tick does not rebuild it.
+  const options = useMemo<readonly MultiSelectOption[]>(
+    () => (def.options ?? []).map((o) => ({ value: o.id, label: o.label })),
+    [def.options],
+  );
+  // Displayed-option order for the ids the list still offers, then the stored ids it no longer does —
+  // so the trigger reads the same whichever way round they were ticked, and a retired room is still
+  // counted rather than silently dropped out of the "+N".
   const { text, more } = multiSelectTriggerLabel(
     def.placeholder,
-    chosen.map((o) => o.label),
+    multiSelectChosenLabels(options, selected),
   );
-  const set = chosen.length > 0;
+  // 🔴 THE STORED ARITY, NEVER THE MATCHED-OPTION COUNT. A cell holding only ids the options no longer
+  //    offer is still narrowing the query, and reading `chosen.length` here rendered it as completely
+  //    unset — grey chrome, resting placeholder — with no signal that the column was filtered at all.
+  const set = selected.length > 0;
 
   const toggle = (id: string, checked: boolean): void => {
-    const next = checked ? [...selected, id] : selected.filter((v) => v !== id);
-    onCommit(options.filter((o) => next.includes(o.id)).map((o) => o.id));
+    onCommit(multiSelectToggle(options, selected, id, checked));
   };
 
   return (
@@ -317,21 +336,26 @@ function MultiSelectCell({
           sideOffset={2}
           className="z-[var(--z-dropdown)] max-h-[15rem] w-[13rem] overflow-y-auto rounded-md border border-border-strong bg-surface p-1 shadow-lg animate-fade-in"
         >
-          {/* The top row is the owner's C: one tri-state tick carrying "3 of 12". Ticking it takes
-              everything, unticking clears — so "Select all" and "Clear" are one row, not two. */}
+          {/* The top row is the owner's A: one tri-state tick that means "nothing is being hidden",
+              carrying "All 12" unset and "3 of 12" once some are named. Tapping it stops the
+              narrowing — and `onCommit([])` → `gridFilterSelect([])` → `null` → `gridFilterSet` DROPS
+              THE KEY, which is the one empty state this row has always had. So it writes no wire
+              parameter at all rather than the twelve repeats the shipped version wrote. */}
           <MultiSelectAllRow
             size="compact"
-            chosen={chosen.length}
+            chosen={selected.length}
             total={options.length}
-            onToggle={(all) => onCommit(all ? options.map((o) => o.id) : [])}
+            onShowEverything={() => {
+              onCommit([]);
+            }}
           />
           <DropdownMenu.Separator className="my-1 h-px bg-border" />
           {options.map((option) => (
             <MultiSelectItem
-              key={option.id}
+              key={option.value}
               size="compact"
-              checked={selected.includes(option.id)}
-              onToggle={(checked) => toggle(option.id, checked)}
+              checked={selected.includes(option.value)}
+              onToggle={(checked) => toggle(option.value, checked)}
               label={option.label}
             />
           ))}
@@ -340,7 +364,7 @@ function MultiSelectCell({
               carries the denominator, so repeating "of 12" here would be a second vocabulary for one
               count — one arithmetic, one wording. */}
           <DropdownMenu.Label className="flex items-center justify-between px-2 py-1 text-2xs text-fg-subtle">
-            <span>{set ? `${String(chosen.length)} chosen` : "None chosen"}</span>
+            <span>{set ? `${String(selected.length)} chosen` : "None chosen"}</span>
             <span className="rounded border border-border px-1 font-mono">Esc</span>
           </DropdownMenu.Label>
         </DropdownMenu.Content>
