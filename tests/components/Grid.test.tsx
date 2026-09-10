@@ -385,11 +385,15 @@ const ROOMS = [
 function MultiFilterHarness({
   onChange,
   options = ROOMS,
+  initial = {},
 }: {
   readonly onChange: (v: GridFilterValues) => void;
   readonly options?: readonly { readonly id: string; readonly label: string }[];
+  /** The state a saved view or a URL restores INTO the row — which is the only way an id the options
+   *  no longer offer can get here (CR-DESIGN-SYSTEM-010 F1). */
+  readonly initial?: GridFilterValues;
 }): ReactElement {
-  const [values, setValues] = useState<GridFilterValues>({});
+  const [values, setValues] = useState<GridFilterValues>(initial);
   return (
     <Table>
       <TableHeader>
@@ -462,15 +466,23 @@ describe("a multi-value select cell — the owner can tick several rooms at once
   });
 });
 
-describe("the 'Select all' master row — the owner's option C", () => {
-  it("🔴 SAYS 'N of M', AND IS MIXED WHILE ONLY SOME ARE CHOSEN", async () => {
+// ---------------------------------------------------------------------------
+// 🔴 THIS BLOCK WAS REWRITTEN BY CR-DESIGN-SYSTEM-010 (F2), AND THAT IS THE POINT OF THE CHANGE.
+//    The three specs it replaces asserted that the master row COMMITS EVERY OPTION ID — which is the
+//    defect: `matchesFilter`'s multiSelect arm requires `actual !== null`, so committing the option
+//    list drops every row whose value is blank and lights "Clear", on a gesture the reader made to
+//    see MORE. They were not edited to make a build pass; the assertions themselves were wrong.
+//    Owner's layout A, approved 2026-09-10: the tick means "nothing is being hidden".
+// ---------------------------------------------------------------------------
+describe("the 'Select all' master row — the owner's option A", () => {
+  it("🔴 IS TICKED AND READS 'All 3' WHEN NOTHING IS CHOSEN — the tick means 'nothing is hidden'", async () => {
     const user = setup();
     render(<MultiFilterHarness onChange={() => undefined} />);
     await user.click(screen.getByLabelText("Filter by Room"));
 
     const master = await screen.findByRole("menuitemcheckbox", { name: /Select all/ });
-    expect(master.getAttribute("aria-checked")).toBe("false");
-    expect(master.textContent).toContain("0 of 3");
+    expect(master.getAttribute("aria-checked")).toBe("true");
+    expect(master.textContent).toContain("All 3");
 
     await user.click(screen.getByRole("menuitemcheckbox", { name: /Cold room 1/ }));
     // ⚠ "mixed" IS THE POINT, and it is why this is a Radix CheckboxItem rather than a drawn dash:
@@ -483,13 +495,51 @@ describe("the 'Select all' master row — the owner's option C", () => {
     ).toContain("1 of 3");
   });
 
-  it("takes EVERYTHING in one tap, and reads fully checked afterwards", async () => {
+  it("🔴 CLEARS THE FILTER RATHER THAN COMMITTING EVERY ID — 'Select all' drops the key", async () => {
     const onChange = vi.fn();
     const user = setup();
     render(<MultiFilterHarness onChange={onChange} />);
     await user.click(screen.getByLabelText("Filter by Room"));
-    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Select all/ }));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Cold room 2/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Select all/ }));
 
+    // 🔴 `{}` — NOT three repeated ids. An absent key is the one "not narrowed" state this row has
+    //    always had, so the consumer writes no `f_room` parameter into the URL or the saved view.
+    expect(onChange).toHaveBeenLastCalledWith({});
+    const master = screen.getByRole("menuitemcheckbox", { name: /Select all/ });
+    expect(master.getAttribute("aria-checked")).toBe("true");
+    expect(master.textContent).toContain("All 3");
+  });
+
+  it("a SECOND tap is a no-op — there is no state it can toggle back to", async () => {
+    const onChange = vi.fn();
+    const user = setup();
+    render(<MultiFilterHarness onChange={onChange} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Cold room 2/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Select all/ }));
+    expect(onChange).toHaveBeenLastCalledWith({});
+
+    onChange.mockClear();
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Select all/ }));
+    // It emits the same empty state rather than re-narrowing to everything — the row cannot narrow.
+    for (const call of onChange.mock.calls) expect(call[0]).toEqual({});
+    expect(
+      screen.getByRole("menuitemcheckbox", { name: /Select all/ }).textContent,
+    ).toContain("All 3");
+  });
+
+  it("🔴 TICKING ALL THREE BY HAND IS A DIFFERENT STATE — ticked, but '3 of 3', not 'All 3'", async () => {
+    const onChange = vi.fn();
+    const user = setup();
+    render(<MultiFilterHarness onChange={onChange} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Cold room 1/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Cold room 2/ }));
+    await user.click(screen.getByRole("menuitemcheckbox", { name: /Ripening room 3/ }));
+
+    // Three NAMED rooms is a real narrowing — a row with no room recorded is correctly left out —
+    // so the value is committed and the count is what separates it from "All 3" on screen.
     expect(onChange).toHaveBeenLastCalledWith({
       room: { kind: "select", value: "cold-1", values: ["cold-1", "cold-2", "ripening-3"] },
     });
@@ -497,27 +547,71 @@ describe("the 'Select all' master row — the owner's option C", () => {
     expect(master.getAttribute("aria-checked")).toBe("true");
     expect(master.textContent).toContain("3 of 3");
   });
+});
 
-  it("🔴 CLEARS EVERYTHING ON THE SECOND TAP — 'Select all' and 'Clear' are ONE row, not two", async () => {
-    const onChange = vi.fn();
+// ---------------------------------------------------------------------------
+// CR-DESIGN-SYSTEM-010 F1 — a stored id the column no longer offers.
+//
+// 🔴 THE GRID MUST COUNT AND KEEP IT, EXACTLY AS THE TOOLBAR ALREADY DOES. A saved view restores
+//    `f_room=cold-1&f_room=cold-9` after `cold-9` is retired; the shipped cell derived everything
+//    from `options.filter(...)`, so it read "Cold room 1" / "1 chosen" on a query narrowed by two,
+//    and threw `cold-9` away on the next tick. The toolbar in the identical state read
+//    "Cold room 1 +1" / "2 chosen". The mirror-image specs live in `DataTableToolbar.test.tsx`.
+// ---------------------------------------------------------------------------
+describe("a value the column no longer offers — counted, shown, and kept", () => {
+  const RESTORED: GridFilterValues = {
+    room: { kind: "select", value: "cold-1", values: ["cold-1", "cold-9"] },
+  };
+
+  it("🔴 COUNTS IT ON THE TRIGGER AND IN THE FOOTER — 'Cold room 1 +1', '2 chosen'", async () => {
     const user = setup();
-    render(<MultiFilterHarness onChange={onChange} />);
-    await user.click(screen.getByLabelText("Filter by Room"));
-    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Select all/ }));
-    await user.click(screen.getByRole("menuitemcheckbox", { name: /Select all/ }));
-    expect(onChange).toHaveBeenLastCalledWith({});
+    render(<MultiFilterHarness onChange={() => undefined} initial={RESTORED} />);
+    const trigger = screen.getByLabelText("Filter by Room");
+    expect(trigger.textContent).toContain("Cold room 1");
+    expect(trigger.textContent).toContain("+1");
+
+    await user.click(trigger);
+    expect((await screen.findByText("2 chosen")).textContent).toBe("2 chosen");
+    expect(
+      screen.getByRole("menuitemcheckbox", { name: /Select all/ }).textContent,
+    ).toContain("2 of 3");
   });
 
-  it("a MIXED master row takes everything rather than clearing — one tap, all of it", async () => {
+  it("🔴 READS AS SET even when EVERY stored id has been retired", async () => {
+    render(
+      <MultiFilterHarness
+        onChange={() => undefined}
+        initial={{ room: { kind: "select", value: "cold-9" } }}
+      />,
+    );
+    const trigger = screen.getByLabelText("Filter by Room");
+    // The shipped cell rendered this completely unset — grey chrome reading "All rooms" — while the
+    // query was still narrowed to `cold-9`. `CELL_SET`'s `border-info` is the signal that it is not.
+    expect(trigger.className).toContain("border-info");
+    expect(trigger.textContent).toContain("cold-9");
+    expect(trigger.textContent).not.toContain("All rooms");
+  });
+
+  it("🔴 KEEPS IT THROUGH THE NEXT TICK — ticking a third room does not delete the retired one", async () => {
     const onChange = vi.fn();
     const user = setup();
-    render(<MultiFilterHarness onChange={onChange} />);
+    render(<MultiFilterHarness onChange={onChange} initial={RESTORED} />);
     await user.click(screen.getByLabelText("Filter by Room"));
     await user.click(await screen.findByRole("menuitemcheckbox", { name: /Cold room 2/ }));
-    await user.click(screen.getByRole("menuitemcheckbox", { name: /Select all/ }));
+
+    // Known ids in DISPLAYED order first, then the stored id the options no longer offer.
     expect(onChange).toHaveBeenLastCalledWith({
-      room: { kind: "select", value: "cold-1", values: ["cold-1", "cold-2", "ripening-3"] },
+      room: { kind: "select", value: "cold-1", values: ["cold-1", "cold-2", "cold-9"] },
     });
+  });
+
+  it("un-ticking a KNOWN id still leaves the retired one narrowing the query", async () => {
+    const onChange = vi.fn();
+    const user = setup();
+    render(<MultiFilterHarness onChange={onChange} initial={RESTORED} />);
+    await user.click(screen.getByLabelText("Filter by Room"));
+    await user.click(await screen.findByRole("menuitemcheckbox", { name: /Cold room 1/ }));
+    expect(onChange).toHaveBeenLastCalledWith({ room: { kind: "select", value: "cold-9" } });
   });
 });
 

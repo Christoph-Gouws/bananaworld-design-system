@@ -1,0 +1,17 @@
+{
+  "files": 4,
+  "lines": 180,
+  "steps": 4,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Filter value shape: package writes, DC/CRM read - shape unchanged, only which ids survive a tick",
+    "'Select all' now writes no filter key instead of N repeats; an absent key is today's cleared state",
+    "A remembered value the list no longer offers is kept, not dropped - DC/CRM read it back unchanged",
+    "No consumer is on a sha with these controls (DC pins 6ed975d, pre-CR-009) - no live screen moves",
+    "TableCell's legacy HTML width is forwarded again; each consumer greps before its own pin bump",
+    "governance/CROSS_SYSTEM_CHANGE_REGISTER.md still absent - ninth change to raise it"
+  ],
+  "migrationExpected": false
+}
