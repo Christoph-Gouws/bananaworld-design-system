@@ -32,6 +32,10 @@ import { cn } from "../lib";
  * table's answer is the default; the cell's is the exception. `GridHeadCell` and `GridFilterRow` take
  * the same `width`, because a column is three elements in three rows and the widest one wins.
  *
+ * ⚠ `TableCell`'s `width` ALSO STILL CARRIES THE LEGACY HTML ATTRIBUTE React declares on a `<td>` —
+ *   one of the four step names is the ceiling, anything else is forwarded to the DOM untouched. See
+ *   `TableCellProps.width`; CR-DESIGN-SYSTEM-010 F3 is what that repairs.
+ *
  * QUALITY-JUSTIFY RC-05 — This file is ONE table element family (container, table, header, body, row,
  * head, cell) plus the three table-wide answers those seven parts read; 43% of its lines are the
  * comments carrying rules the family cannot be maintained without, and its executable code is 262
@@ -154,6 +158,20 @@ const COLUMN_WIDTH: Record<TableColumnWidth, string> = {
 //    default. A chip column therefore needs nothing beyond the `wrap="nowrap"` it already wanted.
 function columnWidthClass(wrap: TableWrap, width: TableColumnWidth): string {
   return wrap === "truncate" ? COLUMN_WIDTH[width] : "";
+}
+
+/**
+ * Is this `width` one of the four design-system steps, or the legacy HTML attribute?
+ *
+ * 🔴 `TableCellProps.width` HAS TO CARRY BOTH MEANINGS (CR-DESIGN-SYSTEM-010 F3). React's
+ *    `TdHTMLAttributes` declares `width?: number | string`, so `<TableCell width={120}>` was legal
+ *    before CR-DESIGN-SYSTEM-009 and rendered `<td width="120">`. Declaring the step under the SAME
+ *    NAME narrowed the inherited prop and destructured it away, so that consumer's `tsc` fails on a
+ *    file it did not touch the moment it moves its pin — and a cast or an untyped file loses the
+ *    column's sizing silently instead. This predicate is how one name serves both.
+ */
+function isColumnWidth(width: unknown): width is TableColumnWidth {
+  return width === "narrow" || width === "medium" || width === "wide" || width === "full";
 }
 
 // The three table-wide answers, carried as one record so `<Table>` provides them in one place and a
@@ -478,16 +496,34 @@ export interface TableCellProps extends TdHTMLAttributes<HTMLTableCellElement> {
    *   truncating cell would be, and this is how it opts out.
    */
   wrap?: TableWrap;
-  /** How much room this column may take before it is cut. See `TableHeadProps.width` — the header,
-   * the filter cell and this must all be given the SAME step or the widest one defeats the cap. */
-  width?: TableColumnWidth;
+  /**
+   * How much room this column may take before it is cut. See `TableHeadProps.width` — the header,
+   * the filter cell and this must all be given the SAME step or the widest one defeats the cap.
+   *
+   * ⚠ PLUS THE LEGACY HTML `width` ATTRIBUTE, which React's `TdHTMLAttributes` also declares on this
+   *   element (`width?: number | string`). A value that is one of the four steps is the design-system
+   *   ceiling; **anything else is forwarded to the `<td>` untouched**, exactly as it was before
+   *   CR-DESIGN-SYSTEM-009 destructured it out. That is why the union is widened rather than the prop
+   *   renamed: renaming it to `columnWidth` would REMOVE `width` from the export surface, which the
+   *   additive-only lane rule forbids outright.
+   *
+   * 🔴 `ThHTMLAttributes` DECLARES NO `width`, so `TableHeadProps` has no collision and is
+   *    deliberately NOT widened to match. The asymmetry is React's, not this file's: `<TableHead
+   *    width={120}>` was already a type error before CR-DESIGN-SYSTEM-009 and still is.
+   */
+  width?: TableColumnWidth | number | (string & {});
 }
 
 export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(function TableCell(
   { className, align, numeric, muted, valign, wrap, width, title, children, ...props },
   ref,
 ) {
-  const { density, wrap: effectiveWrap, widthClass } = useCellLayout(wrap, width);
+  // One prop, two meanings, split here and nowhere else: the four literals are the design-system
+  // ceiling, everything else is the DOM attribute this element has always forwarded. The four steps
+  // are not valid HTML widths, so no value changes meaning in either direction.
+  const step = isColumnWidth(width) ? width : undefined;
+  const htmlWidth = isColumnWidth(width) ? undefined : width;
+  const { density, wrap: effectiveWrap, widthClass } = useCellLayout(wrap, step);
   // The whole value is not lost when it is cut: hovering shows it in full. Only for a PLAIN STRING —
   // where the children are elements no `title` is invented, because a fabricated tooltip reading
   // "[object Object]", or an empty one, is worse than no tooltip. A caller's own `title` still wins.
@@ -515,6 +551,9 @@ export const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(functi
     <td
       ref={ref}
       title={title ?? cutTitle}
+      // `undefined` on every path a caller reaches today, so React sets no attribute and an existing
+      // `<td>` is byte-identical — it is emitted only when a consumer passed a legacy HTML width.
+      width={htmlWidth}
       className={cn(
         CELL_PAD[density],
         // THE CELL DID NOT ASK: the default — or its row's answer, which is a default for exactly

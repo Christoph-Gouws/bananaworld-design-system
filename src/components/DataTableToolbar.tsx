@@ -20,6 +20,9 @@
 // They were moved there, not copied: two multi-selects that look or count differently is the defect
 // the extraction exists to make impossible. A def may ask for the master top row with
 // `selectAll: "master"`; omitting it renders the "All depots" row every shipped screen renders today.
+// CR-DESIGN-SYSTEM-010 finished that extraction: which stored ids count as chosen, what labels they
+// produce and what a tick commits are `multiSelectChosenLabels` / `multiSelectToggle` there, not two
+// local copies here and in the grid that had already drifted apart.
 //
 // What is in this file, in the order it appears:
 //   useTableControls        the state one table's search / filters / sort live in, and the rows they
@@ -64,7 +67,13 @@ import { Input } from "./Input";
 // The tick-list's own parts, shared with the grid's filter cell (CR-DESIGN-SYSTEM-009 §A.5). They
 // were MOVED out of this file, not copied into a second one — two multi-selects that look or count
 // differently is the defect the extraction exists to make impossible.
-import { MultiSelectAllRow, MultiSelectItem, multiSelectTriggerLabel } from "./MultiSelectMenu";
+import {
+  MultiSelectAllRow,
+  MultiSelectItem,
+  multiSelectChosenLabels,
+  multiSelectToggle,
+  multiSelectTriggerLabel,
+} from "./MultiSelectMenu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./Select";
 
 const ALL_SENTINEL = "__all__";
@@ -308,21 +317,6 @@ function allOptionLabel(label: string): string {
   return `All ${label.toLowerCase()}`;
 }
 
-// The chosen values as LABELS, in displayed-option order — what `multiSelectTriggerLabel` reads.
-//
-// ⚠ A VALUE THE DATA NO LONGER OFFERS KEEPS ITS RAW ID rather than vanishing. Options are derived
-//   from the rows (`deriveSelectOptions`), so a reload can drop one out from under a stored value;
-//   dropping it here too would silently reduce the "+N" the rep is reading against ticks they can
-//   still see in the menu. One entry per stored value, always.
-function chosenLabelsInOptionOrder(
-  options: readonly SelectOption[],
-  values: readonly string[],
-): readonly string[] {
-  const known = options.filter((opt) => values.includes(opt.value));
-  const unknown = values.filter((v) => options.some((opt) => opt.value === v) === false);
-  return [...known.map((opt) => opt.label), ...unknown];
-}
-
 function MultiSelectFilterControl<Row>({
   def,
   options,
@@ -336,16 +330,18 @@ function MultiSelectFilterControl<Row>({
 }): ReactElement {
   const { text, more } = multiSelectTriggerLabel(
     allOptionLabel(def.label),
-    chosenLabelsInOptionOrder(options, values),
+    multiSelectChosenLabels(options, values),
   );
   const chosenNone = values.length === 0;
 
   // Keep the stored order in the DISPLAYED option order so a value list reads the same as the menu and
-  // "first chosen" is stable. An unknown value (one the data no longer offers) is dropped by the same
-  // pass, which is what a rep sees anyway.
+  // "first chosen" is stable.
+  //
+  // ⚠ AN UNKNOWN VALUE — one the data no longer offers — IS NOW KEPT, where this used to drop it
+  //   (CR-DESIGN-SYSTEM-010 F1). The trigger has always shown it, so silently deleting it on the next
+  //   tick moved the result set with no indication; and a saved view holding it lost it for good.
   const toggle = (value: string, checked: boolean): void => {
-    const next = checked ? [...values, value] : values.filter((v) => v !== value);
-    onChange(options.filter((opt) => next.includes(opt.value)).map((opt) => opt.value));
+    onChange(multiSelectToggle(options, values, value, checked));
   };
 
   return (
@@ -393,10 +389,17 @@ function MultiSelectFilterControl<Row>({
             )}
           >
             {def.selectAll === "master" ? (
+              // 🔴 IT CLEARS, IT NEVER COMMITS EVERY ID (CR-DESIGN-SYSTEM-010 F2). Committing the
+              //    option list narrowed the table — `matchesFilter`'s multiSelect arm drops every row
+              //    whose value is null — and lit "Clear", on a gesture the reader made to see
+              //    everything. `[]` is what the "allOption" row below has always sent, and it is the
+              //    only thing that means "not narrowed".
               <MultiSelectAllRow
                 chosen={values.length}
                 total={options.length}
-                onToggle={(all) => onChange(all ? options.map((opt) => opt.value) : [])}
+                onShowEverything={() => {
+                  onChange([]);
+                }}
               />
             ) : (
               <MultiSelectItem
