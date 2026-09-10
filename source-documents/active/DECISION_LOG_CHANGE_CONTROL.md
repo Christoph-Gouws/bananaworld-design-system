@@ -5,6 +5,78 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-010 — review follow-up on CR-DESIGN-SYSTEM-009 (3 reviewer findings)
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **BUILT, GREEN, CLOSED OUT, PR OPENED.** Plan-gate decision ACCEPTED; D-1…D-6 recorded below. 0 open defects, 0 open decisions |
+| Date | 2026-09-10 |
+| Branch point | `origin/main` @ `3143646` (CR-DESIGN-SYSTEM-009, merged as PR #22) |
+| Approved layout | **A** — the tick at the top means "everything is showing" |
+| Ship mode | **on-green** |
+| Archive | `runs/change-09/` |
+
+### What was asked
+
+An independent reviewer session was given CR-DESIGN-SYSTEM-009's owner-approved plan and its diff —
+and nothing the build session had written about its own work — and asked one question: *does this do
+what was approved?* It raised three defects. Each was judged real; none was severe enough to send
+CR-009 back to its builder, so **CR-009 merged with them in it and the code went live**. This change
+fixes them.
+
+| # | Severity | The reviewer's finding |
+|---|---|---|
+| **F1** | medium/high | `GridFilterRow.tsx:281` — the grid's multi-select counts and commits only ids present in `options`, silently under-reporting and then discarding a stored id the option list no longer offers — diverging from the toolbar, which **this same change deliberately taught to preserve unknown values** |
+| **F2** | medium/high | `DataTableToolbar.tsx:397` — tapping the new tri-state "Select all" commits every option id instead of clearing, so it **narrows** the table (dropping rows whose value is null/blank) and lights "Clear", where the row it replaces widened to everything |
+| **F3** | medium/medium | `Table.tsx:481` — `TableCellProps.width` shadows the inherited `TdHTMLAttributes.width` and is destructured out rather than forwarded, so the legacy HTML attribute is silently lost and any consumer passing it fails typecheck at its pin bump |
+
+### What was decided at the plan gate
+
+**APPROVED, layout A, ship mode on-green.** One recorded owner response: `[plan] plan APPROVED
+(layout A) — ship on-green`. No revision was asked for and no clarification was sought, so there are
+**no `[clarify]` lines for this change** — stated explicitly, because an absent record and an
+unrecorded one look identical from outside.
+
+| # | Decision | Rationale |
+|---|---|---|
+| **D-1** | 🔴 **All three findings were re-confirmed against the code AS IT STOOD before any fix was designed, and all three still held.** None was dropped. | A finding is one reviewer's reading of a diff at one moment, and a later change may already have corrected it — implementing a fix for a defect that is not there makes the system worse and passes every gate on the way. `main` had not moved (`HEAD` = `3143646`, the plan's own merge base) and **every line reference the plan cites was exact**: `GridFilterRow.tsx:284/289/293/343`, `DataTableToolbar.tsx:399`, `GridFilterRow.tsx:326`, `Table.tsx:483`/`:487`. **F3 was confirmed by COMPILING rather than by reading**, because the plan itself flagged that `node_modules` was absent when it was written: `@types/react/index.d.ts:3541-3551` declares `TdHTMLAttributes.width?: number \| string`, `:3553-3560` declares none on `ThHTMLAttributes`, `git show 6ed975d:src/components/Table.tsx` contains **no `width` at all**, and a probe reproduces `TS2322` against the pre-change tree. |
+| **D-2** | **Three findings, ONE fix — finish the extraction rather than patch three call sites.** The value arithmetic joins the presentation in `MultiSelectMenu.tsx` (`multiSelectChosenLabels` moved in from the toolbar, `multiSelectToggle` new), and both surfaces call it. | CR-009's stated remedy for *"two multi-selects that look or count differently is the defect"* moved the **presentation** and left the **value arithmetic** — which stored ids count as chosen, what labels they produce, what a tick commits — duplicated at each call site. Three of the four duplicates then disagreed (F1) and the fourth was wrong in both copies (F2). Patching each site would leave the same structure that produced the divergence in the first place. **The count is now `values.length` in both surfaces, by construction.** |
+| **D-3** | 🔴 **The master row LOSES THE ABILITY TO NARROW: `onToggle: (all: boolean) => void` becomes `onShowEverything: () => void`.** | Radix hands the next checked state, and **all three starting points now mean the same thing** (stop narrowing). A boolean the call site must interpret is exactly how F2 got in — both call sites read `all === true` as "commit every option id", which drops every row whose value is blank (`matchesFilter` requires `actual !== null`) and lights "Clear" on a gesture made to see MORE. With no boolean to branch on and no id list reaching the row, **the defect becomes unreachable rather than fixed** — the same argument `useCellLayout` makes about conditional hooks in `Table.tsx`. ⚠ **This is a RENAME on an internal, un-barrelled component** whose only two callers are in this package and both changed here; `components/index.ts` is byte-unchanged, so no export surface moved and the lane rule holds. |
+| **D-4** | **The owner picked layout A** — ticked + `All N` when nothing is chosen, a dash + `N of M` while some are, ticked + `N of M` when every option is named by hand. | The tick means *"nothing is being hidden"*, which is the honest reading of the not-narrowed state, and tapping the row always returns to the whole list — blanks included. ⚠ **Ticking every option by hand is still NOT "everything"**, and that is deliberate: it is a request for N named values, so a blank-valued row is correctly left out. `All 3` versus `3 of 3` is what tells the two ticked states apart on screen; both readings are asserted by spec. The pick changed **two lines** — `state` and `count` — and nothing else in the change depended on it. |
+| **D-5** | **`TableCellProps.width` is WIDENED to carry both meanings (`TableColumnWidth \| number \| (string & {})`), not renamed.** `TableHeadProps` is deliberately **not** widened. | Renaming the prop to `columnWidth` removes `width` from the export surface, which the additive-only lane rule **forbids outright**, and it would leave the head and the cell with two different names for one column answer — defeating CR-009 §C.4a's *"declare the step once and pass it to all three"*. The four step names are not valid HTML widths, so no value changes meaning in either direction. **The asymmetry with `TableHead` is React's, not this file's:** `ThHTMLAttributes` declares no `width`, so `<TableHead width={120}>` was already a type error before CR-009 and is not a regression — widening it would be a new feature wearing a repair's clothes. ⚠ Plan **OQ-2 is settled: `(string & {})` compiles cleanly under this repo's TS config**; the `\| string` fallback was not needed. |
+| **D-6** | **`src/lib/table-controls.ts` is NOT touched — the engine is right, and the defect is at the control that builds the list.** | The reviewer's F2 cites `matchesFilter`'s multiSelect arm. But `[]` meaning "not narrowed" and a non-empty list meaning "these values only" is correct. Teaching the engine that "every option" means "no filter" would change behaviour for **every existing multiSelect caller** the moment a reader ticked the last box by hand — a larger and much quieter change than the defect itself, and not additive. |
+
+### Clarify questions and answers
+
+**None.** The plan gate produced exactly one owner response — `[plan] plan APPROVED (layout A) — ship
+on-green` — with no revise note and no clarification requested. Recorded explicitly per spec §3a.4, so
+that "no questions were asked" is distinguishable from "questions were asked and not written down".
+
+### Also recorded
+
+- 🔴 **One half of F1 is a behaviour correction in already-shipped toolbar code, not a re-alignment.**
+  The *discard* on a tick was symmetric — the toolbar dropped unknown ids too, with a comment
+  defending it — so both copies were repaired. The plan said so at §0 and it is restated here because
+  the two halves of F1 have different characters and only one is drift.
+- **`governance/CROSS_SYSTEM_CHANGE_REGISTER.md` is still NOT created here — the ninth consecutive
+  change to raise it** (CR-001 D-12, CR-002 D-10, CR-003, CR-004, CR-005 D-12, CR-006 D-12,
+  CR-007 D-7, CR-009 D-8, here). Creating it is a governance decision for the owner, not something a
+  change may invent. The plan's six-seam map (§4) plus `runs/change-09/` is the record meanwhile.
+  ⚠ Separately, still true: **there is no decision-log entry for CR-DESIGN-SYSTEM-008** — this log
+  jumps 007 → 009.
+- **No Stage 07 amendment to a rule, contract or workflow was required.** No rule changed
+  (additive-only, one-class-per-axis, "consumers move their own pin against a merged sha" and "Radix
+  underpins the interactive primitives" were all *obeyed*); no contract changed (`GridFilterValue`
+  and `FilterValue` shapes are untouched — only *which ids survive a tick* changed, and `TableCell`
+  regained a meaning it had before CR-009); no workflow changed. **This is the recorded N/A, with its
+  reason — an unrecorded one would be a skip.**
+- **No consumer pin was bumped** (project rule; KI-M001E19-002). No consumer can currently be running
+  the defective code at all: `selectAll` and `multiple` did not exist before `3143646`, and
+  `bananaworld-dc` pins `6ed975d` (verified at its own `package.json:55`).
+
+---
+
 ## CR-DESIGN-SYSTEM-009 — a filter cell holds several values, and the grid reads at a compact density
 
 | Field | Value |
