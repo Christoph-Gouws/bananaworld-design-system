@@ -1,9 +1,19 @@
 # Active unit — `bananaworld-design-system`
 
 > This is a FILE, not a unit folder. It records what is currently in flight.
-> Updated 2026-09-10.
+> Updated 2026-09-25.
 
-## Current: CR-DESIGN-SYSTEM-010 — **BUILT, GREEN, CLOSED OUT, PR OPEN**
+## Current: CR-DESIGN-SYSTEM-011 — drag and drop — **BUILT, REHEARSED GREEN, PR OPEN**
+
+| Field | Value |
+|---|---|
+| Unit type | **Change Request** — archived to `runs/change-10/`, raised by Bananaworld-DC EPIC-030-M-06 |
+| Branch | `change/cr-design-system-011`, off `origin/main` @ `8387f66b` |
+| Build status | +2 spec files, **+23 specs**; the rehearsal's only failures are identical on untouched `main`; mutation battery **11/11**; no dependency added |
+| PR | Open; merged on green by the raising session (decision log D-6), then DC pins the merge SHA |
+| Remaining | Nothing owed here |
+
+## Previous: CR-DESIGN-SYSTEM-010 — **BUILT, GREEN, CLOSED OUT, MERGED**
 
 | Field | Value |
 |---|---|
