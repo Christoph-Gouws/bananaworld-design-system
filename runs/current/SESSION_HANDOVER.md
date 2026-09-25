@@ -1,8 +1,26 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-09-10, at the close of **CR-DESIGN-SYSTEM-010**.
+> Last updated: 2026-09-25, at the close of **CR-DESIGN-SYSTEM-011**.
 
-## Most recent unit of work: CR-DESIGN-SYSTEM-010
+## Most recent unit of work: CR-DESIGN-SYSTEM-011 — drag and drop
+
+| Field | Value |
+|---|---|
+| Unit | **Change Request CR-DESIGN-SYSTEM-011**, raised by Bananaworld-DC **EPIC-030-M-06** |
+| Branch | `change/cr-design-system-011`, off `origin/main` @ `8387f66b` |
+| Status | **Built, rehearsed green, PR open; merged on green by the raising session** (decision log D-6) |
+| Archive | `runs/change-10/` |
+
+Six additive exports (`DragBoard`, `DragGrip`, `useDropTarget`, `useDragBoard`, `DragKeyboardHint`,
+`DRAG_BOARD_MIME`): one drag control, a mouse path and a keyboard path into ONE drop that re-asks `accepts`;
+touch deliberately not a drag path. ⛔ **Its 8 rules: `runs/change-10/evidence/developer-handover.md` §1 —
+before adding any drag here.** DC's `StopList.tsx` moving onto it is DC's follow-on (`TD-030-M06-01`).
+
+⚠ **Rehearsing this repo's suites from the consuming app runs vitest 2** — no `projects`, and the seven
+`DataTableToolbar` screen snapshots fail there on untouched `main` too. Compare against `main` run the same way;
+CI is the authority (`runs/change-10/output/test-results.md` §1).
+
+## Previous unit of work: CR-DESIGN-SYSTEM-010
 
 | Field | Value |
 |---|---|

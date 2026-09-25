@@ -212,6 +212,22 @@ export {
   type GridGroupChipView,
   type GridSigmaOption,
 } from "./GridGroupStrip";
+// 🔴 DRAG AND DROP, WITH A MOUSE OR THE KEYBOARD (CR-DESIGN-SYSTEM-011, raised by Bananaworld-DC
+//    EPIC-030-M-06). A MECHANISM, NOT A BOARD: it holds one item, asks each place whether it
+//    `accepts` it, and hands the consumer the drop — every word and every outline is the consumer's.
+//    ADDITIVE: no name here begins `Drag` or `useDrop` today, and the grid's own column drag
+//    (`GridHeadCell`, `GRID_COLUMN_MIME`) is untouched — asserted in
+//    `tests/components/DragBoard.additive.test.tsx`.
+export {
+  DragBoard,
+  useDragBoard,
+  DRAG_BOARD_MIME,
+  type DragBoardProps,
+  type DragItem,
+  type DragMode,
+} from "./DragBoard";
+export { DragGrip, DragKeyboardHint, type DragGripProps } from "./DragGrip";
+export { useDropTarget, type DropTarget, type DropTargetProps } from "./DropTarget";
 // The header date range as PERMANENT CHROME (OD-RP-7) — presentation only. Every string it prints is
 // handed to it, because resolving "last 30 days" needs a clock read in the DEPOT's zone and applying
 // "both boxes empty" needs the screen's own default, and neither belongs to a UI package.

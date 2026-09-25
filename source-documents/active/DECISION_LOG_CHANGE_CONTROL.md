@@ -5,6 +5,54 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-011 — drag and drop, with a mouse or the keyboard
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **BUILT, GREEN (rehearsed), PR OPENED.** D-1…D-6 recorded below. 0 open defects, 0 open decisions |
+| Date | 2026-09-25 |
+| Raised by | Bananaworld-DC **EPIC-030-M-06** (`DEP-030-03`, guardrail G8) |
+| Branch point | `origin/main` @ `8387f66b` |
+| Approved layout | **A** — drawn and picked in the consuming app (`runs/current/mockups/EPIC-030-M-06/option-a.html` in DC); no mockup gate here, as `-008` |
+| Ship mode | **on-green, merged by the raising session** (D-6) |
+| Archive | `runs/change-10/` |
+
+### What was asked
+A general drag control, so the consuming app's day plan can have routes and drivers dragged onto trucks —
+with the keyboard as well as the mouse, and with every drag's outcome equal to the same move by dropdown.
+G8 of that app's epic says the control goes into this package FIRST, and a consumer-local drag primitive is a
+defect.
+
+### What was decided
+- **D-1** the pointer pick-up is deferred one tick (a layout change inside `dragstart` can abandon a drag).
+- **D-2** one `putDown` for both input paths, and it re-asks `accepts` — a refusing place never receives a drop.
+- **D-3** ↑/↓ do not wrap.
+- **D-4** after a keyboard drop, focus goes to the item's grip in its new place — only if focus was lost.
+- **D-5** outside a `DragBoard` every piece is inert.
+- **D-6 — the merge.** The consuming app's owner was asked (EPIC-030-M-06 logic plan, owner question 1)
+  whether the session may merge this change once its checks pass, or whether they keep the button; the plan
+  recommended the session, on the ground of §4 of this change's plan (additive only; the CRM untouched until
+  it moves its own pin). The owner **approved the plan**, recommendations included, on 2026-09-25. The
+  raising session therefore merges on green CI. Recorded in the consuming app as DECISION-524 (a).
+
+### Clarify questions and answers
+None raised here — the consuming app's gates answered the drawing (option A) and the scope (touch drag out;
+the keyboard in; the dropdowns stay every drag's twin).
+
+### The contract this creates for consumers
+**Additive only.** 123 runtime exports at `8387f66b` still exist; six are added (`DragBoard`, `DragGrip`,
+`DragKeyboardHint`, `useDragBoard`, `useDropTarget`, `DRAG_BOARD_MIME`); the grid's column drag is unchanged —
+all asserted in `tests/components/DragBoard.additive.test.tsx`. A consumer that moves its pin and adopts
+nothing sees nothing.
+
+### Verification
+Rehearsed locally on the branch tree and on untouched `main` (`runs/change-10/output/test-results.md`):
++23 specs, the only failures identical on `main` (the rehearsal runner's toolbar snapshots); typecheck clean
+on `src/**` and `tests/**`; the mutation battery **11/11**; and the control driven in the consumer's real browser (mouse and keyboard) before this merged.
+
+---
+
 ## CR-DESIGN-SYSTEM-010 — review follow-up on CR-DESIGN-SYSTEM-009 (3 reviewer findings)
 
 | Field | Value |
