@@ -16,6 +16,16 @@
 //   • Persistent select — parent stores `value`; the field shows the chosen option's label (item pickers).
 //   • Pick-and-clear   — parent keeps `value={null}` and consumes onChange to add to a list; the field
 //                        returns to empty after each pick (the conversion source picker).
+//
+// CR-DESIGN-SYSTEM-012 (raised by Bananaworld-DC CR-DC-210) — OPTIONAL SECTIONS. An option may carry a
+// `group`; wherever two neighbouring options in the FILTERED list differ in group, a non-selectable
+// heading is drawn above the second. Headings are not options: they are skipped by the arrow keys and
+// by Enter, they cannot be clicked into a value, and they are not counted by `activeIndex` — which is
+// why the keep-in-view effect finds the active option through a per-option ref rather than through
+// `list.children[activeIndex]` (a heading would offset that index by one per section). The consumer
+// orders its options so each group is contiguous; this component never sorts. 🔴 WITHOUT `group` THE
+// MARKUP IS BYTE-IDENTICAL to what it was before, which the package's own test asserts against a
+// literal captured from the previous version.
 
 import {
   useCallback,
@@ -41,6 +51,9 @@ export interface ComboboxOption {
   readonly sublabel?: string;
   // Extra text the filter matches but does not display (e.g. a batch code).
   readonly keywords?: string;
+  // Optional section heading (CR-DESIGN-SYSTEM-012). Consecutive options sharing a group sit under one
+  // heading; the heading is drawn, never chosen. The filter does not match on it.
+  readonly group?: string;
 }
 
 export interface ComboboxProps {
@@ -92,6 +105,16 @@ function matches(option: ComboboxOption, query: string): boolean {
     .every((part) => haystack.includes(part));
 }
 
+// The heading to draw above `option`, or null. A heading opens a section: the first grouped option, and
+// every option whose group differs from its filtered neighbour's.
+function headingBefore(
+  option: ComboboxOption,
+  previous: ComboboxOption | undefined,
+): string | null {
+  if (option.group === undefined) return null;
+  return previous?.group === option.group ? null : option.group;
+}
+
 export function Combobox({
   options,
   value,
@@ -112,6 +135,8 @@ export function Combobox({
   const boxRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  // One entry per OPTION (never per heading), so `activeIndex` addresses it directly.
+  const optionRefs = useRef<Array<HTMLLIElement | null>>([]);
   const reactId = useId();
   const listId = `${id ?? reactId}-listbox`;
 
@@ -200,12 +225,12 @@ export function Combobox({
     return () => document.removeEventListener("mousedown", onDocPointer);
   }, []);
 
-  // Keep the keyboard-highlighted option in view.
+  // Keep the keyboard-highlighted option in view. Through the option's own ref, never the list's
+  // children: a section heading is a child too, and would offset the index.
   useEffect(() => {
     if (open === false) return;
-    const list = listRef.current;
     // eslint-disable-next-line security/detect-object-injection -- activeIndex is a bounded array index
-    const active = list?.children[activeIndex] as HTMLElement | undefined;
+    const active = optionRefs.current[activeIndex] ?? undefined;
     active?.scrollIntoView({ block: "nearest" });
   }, [activeIndex, open]);
 
@@ -293,8 +318,17 @@ export function Combobox({
                 {filtered.map((option, index) => {
                   const isSelected = option.value === value;
                   const isActive = index === activeIndex;
-                  return (
-                    <li key={option.value} role="option" aria-selected={isSelected}>
+                  const heading = headingBefore(option, filtered[index - 1]);
+                  const item = (
+                    <li
+                      key={option.value}
+                      ref={(el) => {
+                        // eslint-disable-next-line security/detect-object-injection -- index is the map's own bounded index
+                        optionRefs.current[index] = el;
+                      }}
+                      role="option"
+                      aria-selected={isSelected}
+                    >
                       <button
                         type="button"
                         // Pointer-down (not click) so the choice lands before the input's blur closes us.
@@ -326,6 +360,19 @@ export function Combobox({
                       </button>
                     </li>
                   );
+                  if (heading === null) return item;
+                  return [
+                    <li
+                      key={`group:${heading}:${option.value}`}
+                      role="presentation"
+                      // A heading is a label for what follows — never a choice, so it takes no pointer
+                      // handler and no option role, and the arrow keys never land on it.
+                      className="border-b border-border bg-surface-muted px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-fg-subtle [[data-surface=tablet]_&]:text-sm"
+                    >
+                      {heading}
+                    </li>,
+                    item,
+                  ];
                 })}
               </ul>
             )}
