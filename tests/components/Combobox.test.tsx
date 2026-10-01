@@ -121,3 +121,109 @@ describe("<Combobox> placement + scroll height (CR-DC-008)", () => {
     expect(onChange).toHaveBeenCalledWith("19");
   });
 });
+
+// CR-DESIGN-SYSTEM-012 (raised by Bananaworld-DC CR-DC-210) — optional sections. The DC tablet's batch
+// picker lists "In this room" and then "Elsewhere in the DC"; a heading is drawn where the group
+// changes, and it is never an option.
+
+/**
+ * The listbox exactly as the PREVIOUS version drew it, captured by rendering that version (pin
+ * 76fec2a0) with the props below. Two things are normalised on both sides so the literal pins this
+ * component and not its neighbours: the icon's `<svg>` (lucide's own markup, a dependency) and the
+ * `&amp;` escaping of the tablet selector (a DOM serialiser detail).
+ */
+const PREVIOUS_MARKUP =
+  '<ul id="cap-listbox" role="listbox" class="overflow-y-auto overscroll-contain py-1" style="max-height: 288px;">' +
+  '<li role="option" aria-selected="false"><button type="button" class="flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-surface-muted [[data-surface=tablet]_&]:py-3 bg-surface-muted">' +
+  '<svg/><span class="flex min-w-0 flex-col gap-0.5"><span class="truncate font-medium text-fg">Alpha</span><span class="truncate text-xs text-fg-muted [[data-surface=tablet]_&]:text-sm">first</span></span></button></li>' +
+  '<li role="option" aria-selected="true"><button type="button" class="flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-surface-muted [[data-surface=tablet]_&]:py-3">' +
+  '<svg/><span class="flex min-w-0 flex-col gap-0.5"><span class="truncate font-medium text-fg">Bravo</span></span></button></li>' +
+  '<li role="option" aria-selected="false"><button type="button" class="flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-surface-muted [[data-surface=tablet]_&]:py-3">' +
+  '<svg/><span class="flex min-w-0 flex-col gap-0.5"><span class="truncate font-medium text-fg">Charlie</span></span></button></li></ul>';
+
+function normalised(html: string): string {
+  return html.replace(/<svg[\s\S]*?<\/svg>/g, "<svg/>").replace(/&amp;/g, "&");
+}
+
+const GROUPED: ComboboxOption[] = [
+  { value: "r1", label: "A3662 · Rooiport", sublabel: "Cavendish 18 kg · Crate", group: "In this room" },
+  { value: "r2", label: "B1190 · Blyde", sublabel: "Cavendish 13 kg · Carton", group: "In this room" },
+  { value: "e1", label: "F3305 · Blyde", sublabel: "Cavendish 18 kg · Crate", group: "Elsewhere in the DC" },
+  { value: "e2", label: "G1102 · Komati", sublabel: "Cavendish 13 kg · Carton", group: "Elsewhere in the DC" },
+];
+
+function headings(list: HTMLElement): string[] {
+  return [...list.querySelectorAll('li[role="presentation"]')].map((h) => h.textContent ?? "");
+}
+
+describe("<Combobox> optional sections (CR-DESIGN-SYSTEM-012)", () => {
+  it("🔴 without `group` the markup is BYTE-IDENTICAL to the previous version", async () => {
+    setViewportHeight(900);
+    placeFieldAt({ top: 100, bottom: 130 });
+    render(
+      <Combobox
+        id="cap"
+        aria-label="Item"
+        value="b"
+        onChange={() => {}}
+        options={[
+          { value: "a", label: "Alpha", sublabel: "first" },
+          { value: "b", label: "Bravo" },
+          { value: "c", label: "Charlie", keywords: "x" },
+        ]}
+      />,
+    );
+    const list = await openList();
+    expect(normalised(list.outerHTML)).toBe(PREVIOUS_MARKUP);
+  });
+
+  it("draws one heading where the group changes, and only there", async () => {
+    setViewportHeight(900);
+    placeFieldAt({ top: 100, bottom: 130 });
+    render(<Combobox aria-label="Item" value={null} onChange={() => {}} options={GROUPED} />);
+    const list = await openList();
+    expect(headings(list)).toEqual(["In this room", "Elsewhere in the DC"]);
+    // Four options and two headings: a heading is never an option.
+    expect(screen.getAllByRole("option").length).toBe(4);
+    expect(list.children.length).toBe(6);
+    // The heading sits directly above the first option of its section.
+    const second = list.children[3] as HTMLElement;
+    expect(second.getAttribute("role")).toBe("presentation");
+    expect((list.children[4] as HTMLElement).textContent).toContain("F3305");
+  });
+
+  it("the arrow keys skip a heading — Enter on the next option crosses the boundary", async () => {
+    setViewportHeight(900);
+    placeFieldAt({ top: 100, bottom: 130 });
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    render(<Combobox aria-label="Item" value={null} onChange={onChange} options={GROUPED} />);
+    await user.click(screen.getByLabelText("Item"));
+    // Active starts on r1; two presses land on e1, the first option under the second heading.
+    await user.keyboard("{ArrowDown}{ArrowDown}{Enter}");
+    expect(onChange).toHaveBeenCalledWith("e1");
+  });
+
+  it("a section the query empties loses its heading too", async () => {
+    setViewportHeight(900);
+    placeFieldAt({ top: 100, bottom: 130 });
+    const user = userEvent.setup();
+    render(<Combobox aria-label="Item" value={null} onChange={() => {}} options={GROUPED} />);
+    await user.click(screen.getByLabelText("Item"));
+    await user.keyboard("komati");
+    const list = screen.getByRole("listbox");
+    expect(headings(list)).toEqual(["Elsewhere in the DC"]);
+    expect(screen.getAllByRole("option").length).toBe(1);
+  });
+
+  it("pressing a heading chooses nothing", async () => {
+    setViewportHeight(900);
+    placeFieldAt({ top: 100, bottom: 130 });
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    render(<Combobox aria-label="Item" value={null} onChange={onChange} options={GROUPED} />);
+    await user.click(screen.getByLabelText("Item"));
+    await user.click(screen.getByText("Elsewhere in the DC"));
+    expect(onChange).not.toHaveBeenCalled();
+  });
+});

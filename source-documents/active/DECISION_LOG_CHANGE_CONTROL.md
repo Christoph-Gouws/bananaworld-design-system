@@ -5,6 +5,47 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-012 — a picker list can be split into sections
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **BUILT, GREEN (rehearsed), PR OPENED.** D-1…D-4 recorded below. 0 open defects, 0 open decisions |
+| Date | 2026-10-01 |
+| Raised by | Bananaworld-DC **CR-DC-210** (the tablet count follows the counter, stack by stack) |
+| Branch point | `origin/main` @ `76fec2a0` |
+| Approved layout | **A** — drawn and picked in the consuming app (`runs/current/mockups/CR-DC-210/option-a.html` frame A1 in DC); no mockup gate here, as `-008` and `-011` |
+| Ship mode | **on-green, merged by the raising session** (D-4) |
+| Archive | `runs/change-11/` |
+
+### What was asked
+The consuming app's owner asked for a searchable batch picker on the counting tablet with two parts — the batches
+in this room, then, in a separate section, every batch in the DC — and that a new shared control goes into this
+package. `Combobox` already is the searchable picker; it lacked sections.
+
+### What was decided
+- **D-1** sections are an optional field on the OPTION (`group?: string`), not a new component and not a new prop:
+  one picker, one filter, one keyboard path. A heading is drawn where the group changes in the FILTERED list.
+- **D-2** a heading is never an option — no role `option`, no pointer handler, not counted by `activeIndex`. The
+  keep-in-view effect reads a per-option ref, because `list.children[i]` would be offset by every heading above.
+- **D-3** the component never sorts; a consumer keeps each group contiguous. The filter does not match on the
+  group's words (typing "room" must not list every option in the "In this room" section).
+- **D-4 — the merge.** The consuming app's approved plan (§5.1) builds this here and then moves DC's pin onto
+  `main`; its owner approved the plan with its recommendations on 2026-10-01. The raising session therefore
+  merges on green CI, exactly as D-6 of `-011`.
+
+### Clarify questions and answers
+None raised here — the consuming app's plan gate answered the drawing (layout A) and the scope.
+
+### The contract this creates for consumers
+**Additive only.** No export added or removed; `ComboboxOption` gains one optional field. Without it the listbox
+markup is byte-identical to `76fec2a0` (asserted). A consumer that moves its pin and adopts nothing sees nothing.
+
+### Verification
+`tests/components/Combobox.test.tsx` 6 → 11, all green on the branch tree (`runs/change-11/output/test-results.md`).
+
+---
+
 ## CR-DESIGN-SYSTEM-011 — drag and drop, with a mouse or the keyboard
 
 | Field | Value |
