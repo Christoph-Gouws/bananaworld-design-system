@@ -59,6 +59,14 @@ const ADDED_BY_011 = [
   "useDropTarget",
 ] as const;
 
+// Names added by LATER changes, each listed under its own id so this inventory stays exact: the spec
+// below still fails on any export nobody declared. CR-DESIGN-SYSTEM-013 — "everything except" (§4.5).
+const ADDED_SINCE_011 = [
+  "gridFilterExclude",
+  "gridFilterExcluded",
+  "storedExclusionFromFilterValue",
+] as const;
+
 // 🔴 A COMPILE-TIME CHECK, not a runtime one: if a later edit narrowed or renamed a grid prop this
 //    change sits beside, `tsc` fails here before a consumer's does.
 const gridHeadCellStillTakes = {
@@ -83,8 +91,10 @@ describe("a consumer that adopts NOTHING sees nothing", () => {
     const added = Object.keys(pkg)
       .filter((name) => !before.has(name))
       .sort();
-    expect(added).toEqual([...ADDED_BY_011].sort());
-    expect(Object.keys(pkg)).toHaveLength(EXPORTS_AT_8387F66B.length + ADDED_BY_011.length);
+    expect(added).toEqual([...ADDED_BY_011, ...ADDED_SINCE_011].sort());
+    expect(Object.keys(pkg)).toHaveLength(
+      EXPORTS_AT_8387F66B.length + ADDED_BY_011.length + ADDED_SINCE_011.length,
+    );
   });
 
   it("the new names use their OWN mime token, never the grid's", () => {

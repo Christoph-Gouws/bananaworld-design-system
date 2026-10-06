@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Select all ticks everything — compare A, B and C</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-border-strong:#d6d3d1;
+    --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-info:#0369a1; --color-info-subtle:#f0f9ff; --color-info-fg:#075985;
+    --color-accent:#0f766e; --radius-sm:4px; --radius-md:8px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+  h1{font-size:22px;line-height:1.25;margin:0 0 6px}
+  .sub{color:var(--color-fg-muted);margin:0 0 8px;font-size:14px;max-width:85ch}
+  .same{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:var(--radius-md);padding:10px 14px;margin:14px 0 6px;font-size:13px;color:#065f46;max-width:85ch}
+  .opt{background:var(--color-surface);border:1px solid var(--color-border);border-radius:10px;padding:16px 18px 20px;margin-top:22px}
+  .opt h2{font-size:17px;margin:0 0 2px}
+  .opt .lead{font-size:13px;color:var(--color-fg-muted);margin:0 0 12px;max-width:85ch}
+  .pill{display:inline-block;background:#e0f2fe;color:#075985;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}
+  .row{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+  .state{width:240px}
+  .cap{font-size:11px;color:var(--color-fg-subtle);margin:0 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .trigger{display:flex;align-items:center;gap:6px;height:28px;width:230px;
+    border:1px solid var(--color-border);background:var(--color-surface-muted);
+    border-radius:var(--radius-sm);padding:0 8px;font-size:12px;color:var(--color-fg-subtle);
+    white-space:nowrap;overflow:hidden}
+  .trigger.set{border-color:var(--color-info);background:var(--color-info-subtle);color:var(--color-info-fg);font-weight:600}
+  .trigger .chev{margin-left:auto;opacity:.7}
+  .menu{width:230px;margin-top:4px;border:1px solid var(--color-border-strong);border-radius:var(--radius-md);
+    background:var(--color-surface);padding:4px;box-shadow:0 10px 26px rgba(24,24,27,.12)}
+  .mi{position:relative;display:flex;align-items:center;padding:3px 8px 3px 26px;border-radius:var(--radius-sm);font-size:12px}
+  .mi .ind{position:absolute;left:8px;width:12px;text-align:center;color:var(--color-accent);font-size:12px}
+  .mi.master{font-weight:500}
+  .mi.on{font-weight:500}
+  .mi.off{color:var(--color-fg-subtle)}
+  .mi.hidden{color:var(--color-fg-subtle);text-decoration:line-through}
+  .mi .count{margin-left:auto;padding-left:10px;color:var(--color-fg-subtle);font-weight:400;font-variant-numeric:tabular-nums;font-size:11px}
+  .sep{height:1px;background:var(--color-border);margin:4px 0}
+  .foot{display:flex;justify-content:space-between;gap:8px;padding:3px 8px;font-size:10px;color:var(--color-fg-subtle)}
+  .kbd{border:1px solid var(--color-border);border-radius:3px;padding:0 4px;font-family:ui-monospace,Menlo,monospace;align-self:flex-start}
+  .tradeoff{font-size:12px;color:#78350f;background:#fef3c7;border:1px solid #fcd34d;border-radius:var(--radius-md);padding:8px 12px;margin-top:14px;max-width:85ch}
+  .why{font-size:12px;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:var(--radius-md);padding:8px 12px;margin-top:14px;max-width:85ch}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>“Select all” ticks every batch, so you can untick the ones you don’t want</h1>
+  <p class="sub">Each option shows the open list in the three states you asked for: <b>nothing narrowed</b>,
+  <b>one batch unticked</b>, and <b>“Select all” unticked</b>. The behaviour is identical in all three.
+  Only the wording in the box at the top and at the bottom of the list differs.</p>
+  <div class="same"><b>Same in A, B and C:</b> unticking hides only that batch. “Select all” puts everything
+  back. A batch received tomorrow appears on its own. Rows with no batch filled in keep showing. If you
+  close the list with nothing ticked, everything shows again.</div>
+
+  <!-- ===================== A ===================== -->
+  <div class="opt">
+    <h2>Option A — the box names what is hidden <span class="pill">Recommended</span></h2>
+    <p class="lead">“All except SBF-2610-003”. Two hidden reads “All except SBF-2610-003 +1”.</p>
+    <div class="row">
+      <div class="state">
+        <p class="cap">1 · Nothing narrowed</p>
+        <div class="trigger">All batches <span class="chev">▾</span></div>
+        <div class="menu">
+          <div class="mi master"><span class="ind">✓</span>Select all<span class="count">All 6</span></div>
+          <div class="sep"></div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-001</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-002</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-003</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-004</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-005</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-006</div>
+          <div class="sep"></div>
+          <div class="foot"><span>All 6 shown</span><span class="kbd">Esc</span></div>
+        </div>
+      </div>
+      <div class="state">
+        <p class="cap">2 · One unticked</p>
+        <div class="trigger set">All except SBF-2610-003 <span class="chev">▾</span></div>
+        <div class="menu">
+          <div class="mi master"><span class="ind">–</span>Select all<span class="count">5 of 6</span></div>
+          <div class="sep"></div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-001</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-002</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-003</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-004</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-005</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-006</div>
+          <div class="sep"></div>
+          <div class="foot"><span>5 of 6 shown</span><span class="kbd">Esc</span></div>
+        </div>
+      </div>
+      <div class="state">
+        <p class="cap">3 · “Select all” unticked</p>
+        <div class="trigger">All batches <span class="chev">▾</span></div>
+        <div class="menu">
+          <div class="mi master"><span class="ind"></span>Select all<span class="count">0 of 6</span></div>
+          <div class="sep"></div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-001</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-002</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-003</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-004</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-005</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-006</div>
+          <div class="sep"></div>
+          <div class="foot"><span>Nothing ticked — showing everything until you tick one</span><span class="kbd">Esc</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="why"><b>Why recommended:</b> a glance up the column tells you exactly which batch is missing
+    from the report. The same words can go on a printed or shared copy.</div>
+  </div>
+
+  <!-- ===================== B ===================== -->
+  <div class="opt">
+    <h2>Option B — the box counts, the list names what is hidden</h2>
+    <p class="lead">“5 of 6 batches”. Open the list to see which one is hidden.</p>
+    <div class="row">
+      <div class="state">
+        <p class="cap">1 · Nothing narrowed</p>
+        <div class="trigger">All batches <span class="chev">▾</span></div>
+        <div class="menu">
+          <div class="mi master"><span class="ind">✓</span>Select all<span class="count">All 6</span></div>
+          <div class="sep"></div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-001</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-002</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-003</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-004</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-005</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-006</div>
+          <div class="sep"></div>
+          <div class="foot"><span>Nothing hidden</span><span class="kbd">Esc</span></div>
+        </div>
+      </div>
+      <div class="state">
+        <p class="cap">2 · One unticked</p>
+        <div class="trigger set">5 of 6 batches <span class="chev">▾</span></div>
+        <div class="menu">
+          <div class="mi master"><span class="ind">–</span>Select all<span class="count">5 of 6</span></div>
+          <div class="sep"></div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-001</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-002</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-003</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-004</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-005</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-006</div>
+          <div class="sep"></div>
+          <div class="foot"><span>Hidden: SBF-2610-003</span><span class="kbd">Esc</span></div>
+        </div>
+      </div>
+      <div class="state">
+        <p class="cap">3 · “Select all” unticked</p>
+        <div class="trigger">All batches <span class="chev">▾</span></div>
+        <div class="menu">
+          <div class="mi master"><span class="ind"></span>Select all<span class="count">0 of 6</span></div>
+          <div class="sep"></div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-001</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-002</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-003</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-004</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-005</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-006</div>
+          <div class="sep"></div>
+          <div class="foot"><span>Nothing ticked — showing everything until you tick one</span><span class="kbd">Esc</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tradeoff"><b>Trade-off:</b> it stays short in a narrow column, but you must open the list to
+    learn <i>which</i> batch is missing.</div>
+  </div>
+
+  <!-- ===================== C ===================== -->
+  <div class="opt">
+    <h2>Option C — “Not …” in the box, hidden batches struck through</h2>
+    <p class="lead">“Not SBF-2610-003”. In the list, an unticked batch is greyed and struck through.</p>
+    <div class="row">
+      <div class="state">
+        <p class="cap">1 · Nothing narrowed</p>
+        <div class="trigger">All batches <span class="chev">▾</span></div>
+        <div class="menu">
+          <div class="mi master"><span class="ind">✓</span>Select all<span class="count">All 6</span></div>
+          <div class="sep"></div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-001</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-002</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-003</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-004</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-005</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-006</div>
+          <div class="sep"></div>
+          <div class="foot"><span>Nothing hidden</span><span class="kbd">Esc</span></div>
+        </div>
+      </div>
+      <div class="state">
+        <p class="cap">2 · One unticked</p>
+        <div class="trigger set">Not SBF-2610-003 <span class="chev">▾</span></div>
+        <div class="menu">
+          <div class="mi master"><span class="ind">–</span>Select all<span class="count">5 of 6</span></div>
+          <div class="sep"></div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-001</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-002</div>
+          <div class="mi hidden"><span class="ind"></span>SBF-2610-003</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-004</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-005</div>
+          <div class="mi on"><span class="ind">✓</span>SBF-2610-006</div>
+          <div class="sep"></div>
+          <div class="foot"><span>1 hidden</span><span class="kbd">Esc</span></div>
+        </div>
+      </div>
+      <div class="state">
+        <p class="cap">3 · “Select all” unticked</p>
+        <div class="trigger">All batches <span class="chev">▾</span></div>
+        <div class="menu">
+          <div class="mi master"><span class="ind"></span>Select all<span class="count">0 of 6</span></div>
+          <div class="sep"></div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-001</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-002</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-003</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-004</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-005</div>
+          <div class="mi off"><span class="ind"></span>SBF-2610-006</div>
+          <div class="sep"></div>
+          <div class="foot"><span>Nothing ticked — showing everything until you tick one</span><span class="kbd">Esc</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tradeoff"><b>Trade-off:</b> the loudest signal, but an unticked batch looks different in
+    state 2 (struck through) and state 3 (plain), and “Not …” reads less naturally.</div>
+  </div>
+</div>
+</body>
+</html>

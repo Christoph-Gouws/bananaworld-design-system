@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 // has not shipped, whatever the file on disk says.
 import {
   gridColumnOrder,
+  gridFilterExclude,
+  gridFilterExcluded,
   gridFilterIsEmpty,
   gridFilterSelect,
   gridFilterSelected,
@@ -243,5 +245,41 @@ describe("gridFilterIsEmpty on a select, at both arities", () => {
     const many: GridFilterValue = { kind: "select", value: "a", values: ["a", "b"] };
     expect(gridFilterIsEmpty(many)).toBe(false);
     expect(gridFilterSet({}, "room", many)).toEqual({ room: many });
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// CR-DESIGN-SYSTEM-013 — "everything except these", stored as the ids HIDDEN.
+// ---------------------------------------------------------------------------------------------
+describe("gridFilterExclude / gridFilterExcluded — the one constructor and the one reader", () => {
+  it("🔴 BUILDS THE EXCLUSION SHAPE: `value: \"\"`, no `values`, the hidden ids in the order given", () => {
+    expect(gridFilterExclude(["b3", "b1"])).toEqual({ kind: "select", value: "", excluded: ["b3", "b1"] });
+  });
+
+  it("drops blanks and repeats, and hiding nothing is `null` — the same one empty state", () => {
+    expect(gridFilterExclude(["b1", " ", "b1"])).toEqual({ kind: "select", value: "", excluded: ["b1"] });
+    expect(gridFilterExclude([])).toBeNull();
+    expect(gridFilterExclude(["  "])).toBeNull();
+  });
+
+  it("reads the hidden ids back, and `[]` for an include list, absence or another kind", () => {
+    expect(gridFilterExcluded(gridFilterExclude(["b2"]) ?? undefined)).toEqual(["b2"]);
+    expect(gridFilterExcluded(gridFilterSelect(["b1", "b2"]) ?? undefined)).toEqual([]);
+    expect(gridFilterExcluded(undefined)).toEqual([]);
+    expect(gridFilterExcluded({ kind: "text", value: "b2" })).toEqual([]);
+  });
+
+  it("🔴 AN EXCLUSION IS NOT EMPTY — `gridFilterSet` keeps it rather than dropping the key", () => {
+    const except = gridFilterExclude(["b2"]);
+    expect(except).not.toBeNull();
+    if (except === null) return;
+    expect(gridFilterIsEmpty(except)).toBe(false);
+    expect(gridFilterSet({}, "batch", except)).toEqual({ batch: except });
+  });
+
+  it("🔴 A READER THAT KNOWS ONLY `gridFilterSelected` SEES NOTHING CHOSEN — it widens, never inverts", () => {
+    // This is the failure direction plan §3.4 chose the shape for: an app still on the include-only
+    // reader shows EVERYTHING, including the hidden batch — never ONLY the hidden batch.
+    expect(gridFilterSelected(gridFilterExclude(["b2"]) ?? undefined)).toEqual([]);
   });
 });

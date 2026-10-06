@@ -22,6 +22,7 @@
 //   emptyFilterValue            the "nothing narrowed" value for a kind; one empty state, never two
 //   filterValueFromStored       reading a SAVED value back, and saying when it could not be
 //   storedFromFilterValue       the narrowest storable shape — a bare string for one, an array for many
+//   storedExclusionFromFilterValue  its sibling for "everything except" — the ids hidden, or null
 //   deriveSelectOptions         the options a categorical filter offers when a screen fixes none
 //   hasActiveControls           has the operator narrowed anything at all — drives "Clear"
 //   applyTableControls          search, then filter, then sort — the visible rows
@@ -36,7 +37,9 @@
 // pure functions that consume them. Splitting the types from the functions that read them is the one
 // arrangement guaranteed to let the two drift, and a stale mirror of a control's state is exactly the
 // defect class (CR-DC-049) this file was centralised to remove. CR-DESIGN-SYSTEM-009 added 14 lines
-// here, every one of them the doc comment on a single optional field.
+// here, every one of them the doc comment on a single optional field. CR-DESIGN-SYSTEM-013 added one
+// optional field, one stored-shape sibling and one arm in each of two functions — the exclusion has
+// to be read by the same engine that reads the inclusion, or the two drift.
 
 export type SortDir = "asc" | "desc";
 
@@ -81,8 +84,16 @@ export interface MultiSelectFilterDef<Row> {
    *    passes this field, so no shipped toolbar changes. A screen that wants to match the grid flips
    *    one word in its own change, at its own gate, against a merged sha. That is convergence as a
    *    switch rather than as a promise — see this change's `technical-debt.md` for the two flips owed.
+   *
+   * - "allTicked" — Excel's list (CR-DESIGN-SYSTEM-013): every option shows ticked while nothing is
+   *   narrowed, unticking one hides just that one (stored as `excluded`), and unticking "Select all"
+   *   clears every tick so the reader can tick the few they want.
+   *
+   * ⚠ "allTicked" CAN EMIT `excluded`. A screen that turns it on and persists its filters must store
+   *   `storedExclusionFromFilterValue` beside `storedFromFilterValue` IN THE SAME CHANGE, or a saved
+   *   "everything except" re-opens as "everything".
    */
-  readonly selectAll?: "allOption" | "master";
+  readonly selectAll?: "allOption" | "master" | "allTicked";
 }
 
 export interface DateRangeFilterDef<Row> {
@@ -108,6 +119,13 @@ export interface SelectFilterValue {
 export interface MultiSelectFilterValue {
   readonly kind: "multiSelect";
   readonly values: readonly string[];
+  /**
+   * "Everything EXCEPT these" — only ever written by a `selectAll: "allTicked"` control
+   * (CR-DESIGN-SYSTEM-013). Present only when non-empty, and then `values` is `[]`: an include list and
+   * an exclusion never describe one filter together. A row with NO value is kept — it is not one of
+   * the values the reader hid.
+   */
+  readonly excluded?: readonly string[];
 }
 export interface DateRangeFilterValue {
   readonly kind: "dateRange";
@@ -175,23 +193,33 @@ export interface StoredFilterReading {
 // Turn an untrusted stored value (string | string[] | anything at all) into this definition's
 // FilterValue. Never throws, never guesses, and always errs wider rather than narrower — a filter that
 // silently shows too few rows is the worse failure, because nothing on screen says so.
+//
+// `storedExcluded` is what `storedExclusionFromFilterValue` wrote (CR-DESIGN-SYSTEM-013). OMITTED, THIS
+// BEHAVES EXACTLY AS IT ALWAYS HAS — the parameter is optional so no existing call site moves.
 export function filterValueFromStored<Row>(
   def: FilterDef<Row>,
   stored: unknown,
+  storedExcluded?: unknown,
 ): StoredFilterReading {
-  if (def.kind === "multiSelect") {
-    // A bare string is the pre-change shape and the single-value shape at once: it just works.
-    if (typeof stored === "string") {
+  const excluded = storedStrings(storedExcluded);
+  if (excluded.length > 0) {
+    // Only an "allTicked" multiSelect can SHOW an exclusion; any other def would hide rows behind a
+    // control reading "All", so it opens wider and says so. If an include list was ALSO stored, the two
+    // cannot describe one filter; the exclusion is the wider reading, and the flag says so too.
+    if (def.kind === "multiSelect" && def.selectAll === "allTicked") {
       return {
-        value: { kind: "multiSelect", values: stored === "" ? [] : [stored] },
-        widened: false,
+        value: { kind: "multiSelect", values: [], excluded },
+        widened: storedStrings(stored).length > 0,
       };
     }
-    if (Array.isArray(stored)) {
-      const values = stored.filter((v): v is string => typeof v === "string" && v !== "");
-      return { value: { kind: "multiSelect", values }, widened: false };
-    }
-    return { value: { kind: "multiSelect", values: [] }, widened: false };
+    return { value: emptyFilterValue(def), widened: true };
+  }
+
+  if (def.kind === "multiSelect") {
+    // A bare string is the pre-change shape and the single-value shape at once: it just works. An
+    // array keeps its non-empty strings; anything else is "All". (`storedStrings`, one reader for the
+    // inclusion and the exclusion alike — CR-DESIGN-SYSTEM-013 Stage 05.)
+    return { value: { kind: "multiSelect", values: storedStrings(stored) }, widened: false };
   }
 
   if (def.kind === "select") {
@@ -210,8 +238,19 @@ export function filterValueFromStored<Row>(
   return { value: emptyFilterValue(def), widened: somethingWasStored };
 }
 
+// A stored `string | string[]` as its non-empty strings; anything else is none.
+function storedStrings(stored: unknown): readonly string[] {
+  if (typeof stored === "string") return stored === "" ? [] : [stored];
+  if (Array.isArray(stored)) return stored.filter((v): v is string => typeof v === "string" && v !== "");
+  return [];
+}
+
 // The narrowest storable shape for a live value: a bare string for one chosen value, an array only for
 // two or more, and `null` for "All" — which a consumer simply does not store.
+//
+// ⚠ AN EXCLUSION ("everything except", CR-DESIGN-SYSTEM-013) CARRIES NO INCLUSION, so this returns
+//   `null` for it — the body is unchanged and so is the signature, because the signature is a stored
+//   contract. Store `storedExclusionFromFilterValue` beside it, under the consumer's own sibling key.
 export function storedFromFilterValue(value: FilterValue): string | readonly string[] | null {
   if (value.kind === "select") return value.value;
   if (value.kind === "multiSelect") {
@@ -223,6 +262,15 @@ export function storedFromFilterValue(value: FilterValue): string | readonly str
   return null; // date ranges are not carried by this contract — see the note above.
 }
 
+// The ids an "everything except" value HIDES, for the consumer to store beside the value above; `null`
+// when it hides nothing — which, like "All", a consumer simply does not store. Read it back through
+// `filterValueFromStored`'s third parameter.
+export function storedExclusionFromFilterValue(value: FilterValue): readonly string[] | null {
+  if (value.kind !== "multiSelect") return null;
+  const excluded = value.excluded ?? [];
+  return excluded.length === 0 ? null : [...excluded];
+}
+
 // True when the operator has narrowed the table at all (any search text or any active filter). Drives the
 // "Clear" affordance.
 // 🔴 The multiSelect arm is NOT optional. Without it a multiSelect value falls into the dateRange
@@ -232,7 +280,8 @@ export function hasActiveControls(query: string, filterValues: FilterValues): bo
   if (query.trim() !== "") return true;
   return Object.values(filterValues).some((v) => {
     if (v.kind === "select") return v.value !== null;
-    if (v.kind === "multiSelect") return v.values.length > 0;
+    // An exclusion is narrowing too (CR-DESIGN-SYSTEM-013), so "Clear" must light for it.
+    if (v.kind === "multiSelect") return v.values.length > 0 || (v.excluded ?? []).length > 0;
     return v.from !== null || v.to !== null;
   });
 }
@@ -291,6 +340,14 @@ function matchesFilter<Row>(row: Row, def: FilterDef<Row>, value: FilterValue): 
     return value.value === null || def.accessor(row) === value.value;
   }
   if (def.kind === "multiSelect" && value.kind === "multiSelect") {
+    // "Everything except" (CR-DESIGN-SYSTEM-013): hide exactly what was unticked. A row with no value
+    // is KEPT — it is not one of the values the reader hid. Unreachable for every value written before
+    // this change, because none carries `excluded`.
+    const excluded = value.excluded ?? [];
+    if (excluded.length > 0) {
+      const actual = def.accessor(row);
+      return actual === null || !excluded.includes(actual);
+    }
     // Union, never intersection: a row holds one value per filter, so "and" would always be empty.
     if (value.values.length === 0) return true;
     const actual = def.accessor(row);

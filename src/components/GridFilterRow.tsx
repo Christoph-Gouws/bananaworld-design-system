@@ -32,8 +32,12 @@
 // The row also reads its enclosing `<Table>`'s density, so a compact table's filter boxes tighten
 // with its rows rather than sitting tall above short ones.
 //
-// QUALITY-JUSTIFY RC-05 — This file is one row and the five cells it can put in that row, and the
-// five cells are not independently useful: none is exported, none is reachable except through the
+// A multi cell may also ask for `selectAll: "allTicked"` (CR-DESIGN-SYSTEM-013): Excel's list, where
+// every option starts ticked and unticking one hides just that one. A sixth cell, opt-in, beside the
+// others; its arithmetic and its whole open list are `MultiSelectMenu`'s, shared with the toolbar.
+//
+// QUALITY-JUSTIFY RC-05 — This file is one row and the six cells it can put in that row, and the
+// six cells are not independently useful: none is exported, none is reachable except through the
 // row, and every one of them shares `CELL_BASE`, `CELL_SET` and the same density read. Moving them to
 // a sibling module would export three shared constants across a file boundary purely to satisfy a
 // line count, split one control's behaviour across two files a reader must hold open together, and
@@ -47,6 +51,8 @@ import { ChevronDown, X } from "lucide-react";
 
 import { cn } from "../lib";
 import {
+  gridFilterExclude,
+  gridFilterExcluded,
   gridFilterSelect,
   gridFilterSelected,
   gridFilterSet,
@@ -54,6 +60,12 @@ import {
   type GridFilterValue,
   type GridFilterValues,
 } from "../lib/grid-view";
+import { MultiSelectAllTickedList, useMultiSelectAllTicked } from "./MultiSelectAllTicked";
+import {
+  multiSelectAllTickedLabel,
+  multiSelectReadingOf,
+  type MultiSelectCommitted,
+} from "./multi-select-reading";
 import {
   MultiSelectAllRow,
   MultiSelectItem,
@@ -91,6 +103,19 @@ export interface GridFilterCellDef {
    *    change that teaches its parser to read the repeated parameter (see `grid-view.ts`'s header).
    */
   readonly multiple?: boolean;
+  /**
+   * `multiple` only. What the tick-list's "Select all" means (CR-DESIGN-SYSTEM-013).
+   *
+   * - "master" — **the default**, and what every multi cell renders today: nothing chosen shows no
+   *   option ticked, and ticking one narrows to only that one.
+   * - "allTicked" — Excel's list: every option ticked while nothing is narrowed, unticking one hides
+   *   just that one, and the value can carry `excluded` (see `grid-view.ts`).
+   *
+   * 🔴 OPT-IN FOR THE SAME REASON AS `multiple`. A consumer turns it on in the change that teaches its
+   *    query writer and its saved views `f_<key>_not`; before that, an exclusion would reach a parser
+   *    that reads it as "nothing chosen" and show everything.
+   */
+  readonly selectAll?: "master" | "allTicked";
   /**
    * How much room this column may take before its values are cut. Applied to this cell's own `<th>`,
    * and only while the enclosing `<Table>` is truncating — the box INSIDE already truncates, so the
@@ -373,6 +398,72 @@ function MultiSelectCell({
   );
 }
 
+// The open menu's chrome for the `allTicked` cell — the same string the two select cells above write
+// inline. They are left as they are, so their bytes are not argued about.
+const ALL_TICKED_MENU =
+  "z-[var(--z-dropdown)] max-h-[15rem] w-[13rem] overflow-y-auto rounded-md border border-border-strong bg-surface p-1 shadow-lg animate-fade-in";
+
+/**
+ * The same cell in the opt-in `selectAll: "allTicked"` mode (CR-DESIGN-SYSTEM-013, owner's layout B).
+ *
+ * 🔴 A THIRD COMPONENT, SO `MultiSelectCell` IS LITERALLY UNTOUCHED — the CR-009 precedent that made
+ *    byte-identity provable rather than argued. Everything this mode means — which boxes are ticked,
+ *    what a tick does, what the trigger and the footer say — is `MultiSelectMenu`'s, shared with the
+ *    toolbar. This cell supplies the column's chrome and nothing else.
+ *
+ * ⚠ THE CHROME FOLLOWS THE COMMITTED VALUE, NOT THE DRAFT. With every box unticked the table is still
+ *   showing everything, so the cell rests unset on its placeholder, exactly as the mockup's state 3.
+ */
+function AllTickedCell({
+  def,
+  committed,
+  onCommit,
+}: {
+  readonly def: GridFilterCellDef;
+  readonly committed: MultiSelectCommitted;
+  readonly onCommit: (next: MultiSelectCommitted) => void;
+}): ReactElement {
+  const density = useTableDensity();
+  const options = useMemo<readonly MultiSelectOption[]>(
+    () => (def.options ?? []).map((o) => ({ value: o.id, label: o.label })),
+    [def.options],
+  );
+  const { reading, apply, onOpenChange } = useMultiSelectAllTicked(committed, onCommit);
+  const { text, more } = multiSelectAllTickedLabel(def.placeholder, options, reading);
+  const set = committed.mode !== "all";
+
+  return (
+    <DropdownMenu.Root onOpenChange={onOpenChange}>
+      <DropdownMenu.Trigger asChild>
+        <button
+          type="button"
+          disabled={options.length === 0}
+          aria-label={`Filter by ${def.label}`}
+          className={cn(CELL_BASE[density], set && CELL_SET, "disabled:opacity-60", "text-left")}
+        >
+          <span className="min-w-0 flex-1 truncate">
+            {text}
+            {more > 0 && <span className="ml-1 tabular-nums">{`+${String(more)}`}</span>}
+          </span>
+          <ChevronDown className="h-3 w-3 shrink-0" aria-hidden="true" />
+        </button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content align="start" sideOffset={2} className={ALL_TICKED_MENU}>
+          <MultiSelectAllTickedList size="compact" options={options} reading={reading} onApply={apply} />
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  );
+}
+
+/** A committed `allTicked` reading as the grid's value — `null` (drop the key) for "all". */
+function gridFilterOfReading(next: MultiSelectCommitted): GridFilterValue | null {
+  if (next.mode === "only") return gridFilterSelect(next.values);
+  if (next.mode === "except") return gridFilterExclude(next.excluded);
+  return null;
+}
+
 function DateRangeCell({
   def,
   value,
@@ -505,7 +596,16 @@ export function GridFilterRow({
       {columns.map((def) => (
         <FilterHeadCell key={def.key} def={def} density={density}>
           {def.kind === "select" ? (
-            def.multiple === true ? (
+            def.multiple === true && def.selectAll === "allTicked" ? (
+              <AllTickedCell
+                def={def}
+                committed={multiSelectReadingOf(
+                  gridFilterSelected(values[def.key]),
+                  gridFilterExcluded(values[def.key]),
+                )}
+                onCommit={(next) => commit(def, gridFilterOfReading(next))}
+              />
+            ) : def.multiple === true ? (
               <MultiSelectCell
                 def={def}
                 selected={gridFilterSelected(values[def.key])}

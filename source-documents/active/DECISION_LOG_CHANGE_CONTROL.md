@@ -5,6 +5,79 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-013 — "Select all" ticks every option, so the reader can untick what they do not want
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Status | **BUILT, GREEN, CLOSED OUT, PR OPENED.** D-1…D-5 recorded below. 0 open defects, 0 open decisions |
+| Date | 2026-10-06 |
+| Raised by | The owner, 2026-10-06 |
+| Branch point | `origin/main` @ `26fa005` (CR-DESIGN-SYSTEM-012, PR #31) |
+| Approved layout | **B** — the box counts ("5 of 6 batches"), the open list names what is hidden (`runs/current/mockups/CR-DESIGN-SYSTEM-013/option-b.html`) |
+| Ship mode | **on-green** — the conductor polls CI and merges |
+| Archive | `runs/change-10/` (see D-5: CR-011's earlier archive there moved, byte for byte, to `runs/change-10/CR-DESIGN-SYSTEM-011/`) |
+
+### What was asked
+The owner, in their words: *"when you select all, it physically selects and makes a tick mark next to all the
+batches... because all have been selected you can actually go and deselect ones that you don't want to see...
+now there's no way to just deselect what you don't want to see."* The standard behaviour of every tick-list in
+the package (`MultiSelectMenu`, used by `GridFilterRow` and `DataTableToolbar`) should be Excel's: every option
+ticked while nothing is narrowed; unticking one hides just that one; Select all re-ticks everything; unticking
+Select all clears every tick. The trigger and the counts must stay honest. The plan was to choose deliberately
+between storing "everything except X" as an include list or an exclude list without breaking stored views.
+
+### What was decided at the plan gate (owner: "plan APPROVED (layout B) — ship on-green")
+- **"Everything except" is stored as an EXCLUDE list, in a NEW field** (`excluded` on the grid's select value and
+  on the toolbar's multiSelect value; wire encoding a repeated `f_<key>_not`). A batch received tomorrow is not
+  silently left out of a saved view, share or schedule, and "all but one" of 200 batches is one id, not 199 (past
+  DC's `MAX_FILTER_VALUES = 40`). An include-list value keeps exactly the meaning it has today. A reader that
+  predates the field sees "nothing chosen" and **widens**; it never shows only what was hidden.
+- **Rows with no value keep showing** in "everything except" (owner confirm point 2).
+- **Unticking every box is a draft held in the open menu; the report keeps showing everything** until a box is
+  ticked (owner confirm point 3).
+- **Opt-in, behind one word** (`selectAll: "allTicked"`), with every default unchanged: four apps pin this
+  package and each switches it on in its own change, at the same time as it teaches its query writer `_not`.
+- **Layout B** — trigger "5 of 6 batches"; footer "Hidden: SBF-2610-003" / "Nothing hidden" / "Nothing ticked —
+  showing everything until you tick one"; "only" keeps today's "SBF-001 +2".
+
+### Clarify questions and answers
+None raised. The owner's three confirm points (exclusion form, blank rows kept, empty draft shows everything) were
+answered by the plan approval itself; no `[clarify]` line exists in the owner responses.
+
+### Decided during the build
+- **D-1 the state machine lives in its own pure module** (`src/components/multi-select-reading.ts`), the React half
+  in `MultiSelectAllTicked.tsx` — not appended to `MultiSelectMenu.tsx` as the plan sketched. Appending took that
+  file to 546 lines (sensor RC-05); the split follows this package's own `grid-view.ts` ↔ `GridFilterRow.tsx`
+  convention. `MultiSelectMenu.tsx` changed by two `export` keywords and a comment.
+- **D-2 an exclusion read back for a def that has not opted in opens as "All" and reports `widened: true`**
+  (`filterValueFromStored`). Honouring it would hide rows behind a control reading "All depots".
+- **D-3 one existing spec extended, not weakened:** `DragBoard.additive.test.tsx` pins the export inventory
+  exactly; it now lists this change's three approved names (plan §4.5) and still fails on any undeclared export.
+- **D-4 the dependency audit — `source-map-js` override.** A new high advisory (GHSA-68fv-2mgg-jv7q, <1.2.2, via the
+  auto-installed `next` peer > postcss) failed the audit on every PR, `main` included. Fixed with a
+  `pnpm.overrides` floor (`source-map-js@<1.2.2` → `^1.2.2`) — the remedy the owner chose twice for this exact shape
+  (D-12 of `-002`; the `-009` gate) — **not** an `ignoreGhsas` entry. An override is a fix, not an exception; no
+  consumer's install moves.
+- **D-5 the archive slot.** The conductor assigned `runs/change-10/`, which already held CR-011's archive. CR-011's
+  six files were moved unchanged into `runs/change-10/CR-DESIGN-SYSTEM-011/` (pointer: `runs/change-10/README.md`)
+  rather than overwritten. Historical citations of `runs/change-10/...` for CR-011 resolve through that README.
+
+### The contract this creates for consumers
+**Additive only.** Three new exports (`gridFilterExclude`, `gridFilterExcluded`, `storedExclusionFromFilterValue`);
+two optional fields (`excluded`); one widened literal union (`selectAll` gains `"allTicked"`); one optional
+parameter (`filterValueFromStored`'s `storedExcluded`). Nothing removed, renamed or re-defaulted. Follow-ups per
+app (plan §7): **DC** bumps to the MERGED sha, flips `grid-props.ts:95`, and teaches `_not` to its URL writer,
+parser, SQL (`expr IS NULL OR expr NOT IN (…)`), echo and saved views in the same change; **CRM** flips per def and
+stores `storedExclusionFromFilterValue` beside the existing value in the same change.
+
+### Verification
+`pnpm test` **450 / 21 files** (baseline **405 / 19**); typecheck clean; byte-identity vs `main@26fa005` **10,029
+shapes, 0 differences**; seven-screen snapshot zero-line diff; mutation battery **15/15**; sensors 0 open; audit
+exit 0; **real Edge browser: 17/17 checks, 6 frames** (`runs/change-10/evidence/frames/`).
+
+---
+
 ## CR-DESIGN-SYSTEM-012 — a picker list can be split into sections
 
 | Field | Value |

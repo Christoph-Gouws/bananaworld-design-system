@@ -30,6 +30,8 @@
 //   DataTableToolbar        the bar: search, one control per filter def, and Clear once anything is on
 //   SelectFilterControl     kind "select"      — a Radix Select, single choice, "All x" sentinel
 //   MultiSelectFilterControl kind "multiSelect" — the tick-list, shared parts from MultiSelectMenu
+//   AllTickedFilterControl  kind "multiSelect" with selectAll "allTicked" — Excel's list, every option
+//                           ticked until the reader unticks one (CR-DESIGN-SYSTEM-013)
 //   DateRangeFilterControl  kind "dateRange"   — two inline date inputs, each bounding the other
 //
 // The pure search / filter / sort arithmetic is NOT here — it is `src/lib/table-controls.ts`, which
@@ -56,6 +58,7 @@ import {
   type FilterValue,
   type FilterValues,
   type MultiSelectFilterDef,
+  type MultiSelectFilterValue,
   type SelectFilterDef,
   type SelectOption,
   type SortAccessor,
@@ -74,6 +77,13 @@ import {
   multiSelectToggle,
   multiSelectTriggerLabel,
 } from "./MultiSelectMenu";
+// The opt-in `selectAll: "allTicked"` list (CR-DESIGN-SYSTEM-013) — the same one the grid's cell renders.
+import { MultiSelectAllTickedList, useMultiSelectAllTicked } from "./MultiSelectAllTicked";
+import {
+  multiSelectAllTickedLabel,
+  multiSelectReadingOf,
+  type MultiSelectCommitted,
+} from "./multi-select-reading";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./Select";
 
 const ALL_SENTINEL = "__all__";
@@ -225,6 +235,17 @@ export function DataTableToolbar<Row>({
             />
           );
         }
+        if (def.kind === "multiSelect" && def.selectAll === "allTicked") {
+          return (
+            <AllTickedFilterControl
+              key={def.key}
+              def={def}
+              options={controls.optionsFor(def.key)}
+              value={multiSelectValueOf(controls.filterValues[def.key])}
+              onChange={(value) => controls.setFilter(def.key, value)}
+            />
+          );
+        }
         if (def.kind === "multiSelect") {
           return (
             <MultiSelectFilterControl
@@ -267,6 +288,9 @@ function selectValueOf(value: FilterValue | undefined): string | null {
 }
 function multiSelectValuesOf(value: FilterValue | undefined): readonly string[] {
   return value !== undefined && value.kind === "multiSelect" ? value.values : [];
+}
+function multiSelectValueOf(value: FilterValue | undefined): MultiSelectFilterValue {
+  return value !== undefined && value.kind === "multiSelect" ? value : { kind: "multiSelect", values: [] };
 }
 function dateRangeFrom(value: FilterValue | undefined): string | null {
   return value !== undefined && value.kind === "dateRange" ? value.from : null;
@@ -317,6 +341,28 @@ function allOptionLabel(label: string): string {
   return `All ${label.toLowerCase()}`;
 }
 
+// A tick-list's closed trigger and its open menu, shared by both tick-list controls below. Arrays of
+// the classes each control used to write inline, spread into `cn` in the same order — so the string
+// `cn` receives, and therefore what every shipped screen renders, is unchanged (CR-DESIGN-SYSTEM-013).
+const MULTI_TRIGGER_CHROME = [
+  // Sizing and chrome copied from SelectTrigger so the toolbar's rhythm is unchanged whichever kind a
+  // screen declares.
+  "inline-flex items-center justify-between gap-2 w-full min-w-0",
+  "bg-surface text-fg border border-border rounded-md shadow-xs",
+  "h-9 min-w-[10rem] px-3 text-sm",
+  "[[data-surface=tablet]_&]:h-14 [[data-surface=tablet]_&]:px-4 [[data-surface=tablet]_&]:text-base [[data-surface=tablet]_&]:border-[1.5px]",
+  "transition-[border-color,box-shadow] duration-fast ease-out",
+  "focus-visible:outline-none focus-visible:border-accent focus-visible:shadow-focus",
+  "data-[state=open]:border-accent",
+] as const;
+const MULTI_MENU_CONTENT = [
+  "z-[var(--z-dropdown)] min-w-[var(--radix-dropdown-menu-trigger-width)]",
+  // Cap to the room Radix says it has, and let the list scroll inside that — the lesson CR-DC-008 paid
+  // for on Select, applied here before a long depot list can repeat it.
+  "max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto",
+  "rounded-md border border-border bg-surface p-1 shadow-lg animate-fade-in",
+] as const;
+
 function MultiSelectFilterControl<Row>({
   def,
   options,
@@ -356,18 +402,7 @@ function MultiSelectFilterControl<Row>({
           <button
             type="button"
             aria-label={`Filter by ${def.label}`}
-            className={cn(
-              // Sizing and chrome copied from SelectTrigger so the toolbar's rhythm is unchanged
-              // whichever kind a screen declares.
-              "inline-flex items-center justify-between gap-2 w-full min-w-0",
-              "bg-surface text-fg border border-border rounded-md shadow-xs",
-              "h-9 min-w-[10rem] px-3 text-sm",
-              "[[data-surface=tablet]_&]:h-14 [[data-surface=tablet]_&]:px-4 [[data-surface=tablet]_&]:text-base [[data-surface=tablet]_&]:border-[1.5px]",
-              "transition-[border-color,box-shadow] duration-fast ease-out",
-              "focus-visible:outline-none focus-visible:border-accent focus-visible:shadow-focus",
-              "data-[state=open]:border-accent",
-              chosenNone && "text-fg-subtle",
-            )}
+            className={cn(...MULTI_TRIGGER_CHROME, chosenNone && "text-fg-subtle")}
           >
             <span className="min-w-0 flex-1 truncate text-left">
               {text}
@@ -377,17 +412,7 @@ function MultiSelectFilterControl<Row>({
           </button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>
-          <DropdownMenu.Content
-            align="start"
-            sideOffset={4}
-            className={cn(
-              "z-[var(--z-dropdown)] min-w-[var(--radix-dropdown-menu-trigger-width)]",
-              // Cap to the room Radix says it has, and let the list scroll inside that — the lesson
-              // CR-DC-008 paid for on Select, applied here before a long depot list can repeat it.
-              "max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto",
-              "rounded-md border border-border bg-surface p-1 shadow-lg animate-fade-in",
-            )}
-          >
+          <DropdownMenu.Content align="start" sideOffset={4} className={cn(...MULTI_MENU_CONTENT)}>
             {def.selectAll === "master" ? (
               // 🔴 IT CLEARS, IT NEVER COMMITS EVERY ID (CR-DESIGN-SYSTEM-010 F2). Committing the
               //    option list narrowed the table — `matchesFilter`'s multiSelect arm drops every row
@@ -427,6 +452,70 @@ function MultiSelectFilterControl<Row>({
       </DropdownMenu.Root>
     </div>
   );
+}
+
+/**
+ * `selectAll: "allTicked"` — Excel's list (CR-DESIGN-SYSTEM-013, owner's layout B). Every option ticked
+ * while nothing is narrowed; unticking one hides just that one (`excluded`); unticking "Select all"
+ * clears every tick so the reader can tick the few they want.
+ *
+ * 🔴 A FOURTH CONTROL, SO `MultiSelectFilterControl` KEEPS ITS PATH. It shares that control's chrome
+ *    (the two constants above) and `MultiSelectMenu`'s whole open list — the same one the grid's cell
+ *    renders — so the two surfaces cannot tick, count or word this mode differently.
+ */
+function AllTickedFilterControl<Row>({
+  def,
+  options,
+  value,
+  onChange,
+}: {
+  readonly def: MultiSelectFilterDef<Row>;
+  readonly options: readonly SelectOption[];
+  readonly value: MultiSelectFilterValue;
+  readonly onChange: (value: MultiSelectFilterValue) => void;
+}): ReactElement {
+  const { reading, apply, onOpenChange } = useMultiSelectAllTicked(
+    multiSelectReadingOf(value.values, value.excluded ?? []),
+    (next) => onChange(filterValueOfReading(next)),
+  );
+  const { text, more } = multiSelectAllTickedLabel(allOptionLabel(def.label), options, reading);
+  // Unset follows what the TABLE shows: the draft with every box clear is still showing everything.
+  const unset = reading.mode === "all" || reading.mode === "none";
+
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-2xs font-semibold uppercase tracking-wide text-fg-subtle">
+        {def.label}
+      </span>
+      <DropdownMenu.Root onOpenChange={onOpenChange}>
+        <DropdownMenu.Trigger asChild>
+          <button
+            type="button"
+            aria-label={`Filter by ${def.label}`}
+            className={cn(...MULTI_TRIGGER_CHROME, unset && "text-fg-subtle")}
+          >
+            <span className="min-w-0 flex-1 truncate text-left">
+              {text}
+              {more > 0 && <span className="ml-1 text-fg-muted tabular-nums">{`+${more}`}</span>}
+            </span>
+            <ChevronDown className="h-4 w-4 shrink-0 text-fg-muted [[data-surface=tablet]_&]:h-5 [[data-surface=tablet]_&]:w-5" />
+          </button>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content align="start" sideOffset={4} className={cn(...MULTI_MENU_CONTENT)}>
+            <MultiSelectAllTickedList options={options} reading={reading} onApply={apply} />
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
+    </div>
+  );
+}
+
+/** A committed `allTicked` reading as the toolbar's value — `values: []` and no `excluded` for "all". */
+function filterValueOfReading(next: MultiSelectCommitted): MultiSelectFilterValue {
+  if (next.mode === "only") return { kind: "multiSelect", values: next.values };
+  if (next.mode === "except") return { kind: "multiSelect", values: [], excluded: next.excluded };
+  return { kind: "multiSelect", values: [] };
 }
 
 function DateRangeFilterControl({

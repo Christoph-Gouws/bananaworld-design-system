@@ -33,6 +33,9 @@ export {
 export {
   filterValueFromStored,
   storedFromFilterValue,
+  // Its sibling for "everything except" (CR-DESIGN-SYSTEM-013): the ids an exclusion hides, stored
+  // beside the value above and read back through `filterValueFromStored`'s optional third parameter.
+  storedExclusionFromFilterValue,
   type StoredFilterReading,
 } from "./table-controls";
 // The paging arithmetic behind `TablePagination` (CR-DESIGN-SYSTEM-004). Exported in its own right
@@ -60,6 +63,10 @@ export {
   // and read a three-room filter as one room.
   gridFilterSelected,
   gridFilterSelect,
+  // "Everything except these" (CR-DESIGN-SYSTEM-013) — the only constructor and the only reader of
+  // `excluded`, exported for the same reason: the consumer writing `f_<key>_not` asks the cell's question.
+  gridFilterExclude,
+  gridFilterExcluded,
   type GridSortDir,
   type GridSort,
   type GridGroupLevel,
