@@ -34,6 +34,25 @@
 // to disk round-trips to the same rows through the old parser AND the new one. A consumer adopting
 // this writes `append` instead of `set` and `getAll` instead of `get`, and migrates nothing.
 
+// ============================================================================
+// 🔴 "EVERYTHING EXCEPT" IS STORED AS AN EXCLUDE LIST (CR-DESIGN-SYSTEM-013 §3)
+// ============================================================================
+// A cell in the opt-in `selectAll: "allTicked"` mode starts with every option ticked, and unticking one
+// hides just that one. That state is held as the ids HIDDEN, never as the ids still showing:
+//
+//     everything except one   f_batch_not=SBF-003                    ← a REPEATED `_not` parameter,
+//     except two              f_batch_not=SBF-003&f_batch_not=SBF-007   in displayed-option order
+//
+// Why not the include list of what is left: a batch received tomorrow would be silently missing from
+// every saved view, share and schedule, and "all but one" of 200 batches is 199 ids — past any bound a
+// consumer clamps a filter to. Why a NEW field and a NEW parameter rather than a mode flag on `values`:
+// a reader built before this change sees `value: ""` and reads it as "nothing chosen", so it shows
+// everything, including what was hidden. It WIDENS. A flag on the include list would have had an old
+// reader show precisely the batches the reader hid, which is the worst failure available.
+//
+// ⚠ AN INCLUDE LIST AND AN EXCLUSION NEVER APPEAR ON THE SAME KEY. Every value written before this
+//   change carries no `excluded`, so every stored view keeps exactly the meaning it has today.
+
 /** Which way a column is sorted. Lower-case, matching `TableHead`'s existing `SortDirection`. */
 export type GridSortDir = "asc" | "desc";
 
@@ -135,6 +154,16 @@ export type GridFilterValue =
        *    reader, so no caller in this package or in a consumer ever builds this object itself.
        */
       readonly values?: readonly string[];
+      /**
+       * "Everything EXCEPT these" (CR-DESIGN-SYSTEM-013) — the ids HIDDEN, in displayed-option order.
+       *
+       * ⚠ PRESENT ONLY WHEN NON-EMPTY, and then `value === ""` and `values` is absent. So a reader that
+       *   predates this field reads "nothing chosen" and shows everything: it widens, it never inverts.
+       *
+       * 🔴 NEVER AUTHORED BY HAND, for the same reason as `values`: `gridFilterExclude` is the only
+       *    constructor and `gridFilterExcluded` the only reader.
+       */
+      readonly excluded?: readonly string[];
     }
   | { readonly kind: "numberMin"; readonly value: string }
   | { readonly kind: "dateRange"; readonly from: string | null; readonly to: string | null };
@@ -164,9 +193,15 @@ export function gridFilterIsEmpty(value: GridFilterValue): boolean {
   if (value.kind === "dateRange") return value.from === null && value.to === null;
   // A select is empty when NOTHING is chosen — neither the first id nor any of the rest. For every
   // value expressible before CR-DESIGN-SYSTEM-009 this answers bit for bit what it answered then,
-  // because `values` did not exist and an absent list is an empty one.
+  // because `values` did not exist and an absent list is an empty one. The same holds for `excluded`
+  // (CR-DESIGN-SYSTEM-013): an exclusion hides something, so it is not empty, or `gridFilterSet` would
+  // drop it and the cell would read "everything" while the reader had just hidden a batch.
   if (value.kind === "select") {
-    return value.value.trim().length === 0 && (value.values ?? []).length === 0;
+    return (
+      value.value.trim().length === 0 &&
+      (value.values ?? []).length === 0 &&
+      (value.excluded ?? []).length === 0
+    );
   }
   return value.value.trim().length === 0;
 }
@@ -176,6 +211,9 @@ export function gridFilterIsEmpty(value: GridFilterValue): boolean {
  *
  * The ONE reader of the two-field shape above. A caller that reached for `.value` directly would read
  * a three-room filter as one room, which is the failure this exists to make unavailable.
+ *
+ * ⚠ AN EXCLUSION NAMES NO INCLUDED ID, so it reads `[]` here — read `gridFilterExcluded` for it. That
+ *   is also exactly what a reader written before CR-DESIGN-SYSTEM-013 sees, which is why it widens.
  */
 export function gridFilterSelected(value: GridFilterValue | undefined): readonly string[] {
   if (value === undefined || value.kind !== "select") return [];
@@ -196,6 +234,24 @@ export function gridFilterSelect(ids: readonly string[]): GridFilterValue | null
   if (first === undefined) return null;
   if (chosen.length === 1) return { kind: "select", value: first };
   return { kind: "select", value: first, values: chosen };
+}
+
+/**
+ * The value for "everything except these ids", or `null` for none hidden — which `gridFilterSet` then
+ * DROPS, so hiding nothing is the same one empty state as choosing nothing (CR-DESIGN-SYSTEM-013).
+ *
+ * The ONE constructor of `excluded`: ids in displayed-option order, blanks and repeats dropped.
+ */
+export function gridFilterExclude(ids: readonly string[]): GridFilterValue | null {
+  const hidden = [...new Set(ids.filter((id) => id.trim().length > 0))];
+  if (hidden.length === 0) return null;
+  return { kind: "select", value: "", excluded: hidden };
+}
+
+/** The ids a `select` value HIDES — `[]` for absent, an include list, or another kind. The ONE reader. */
+export function gridFilterExcluded(value: GridFilterValue | undefined): readonly string[] {
+  if (value === undefined || value.kind !== "select") return [];
+  return value.excluded ?? [];
 }
 
 /**

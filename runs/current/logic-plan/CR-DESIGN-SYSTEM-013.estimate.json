@@ -1,0 +1,14 @@
+{
+  "files": 7,
+  "lines": 450,
+  "steps": 4,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Package defines the 'except' filter shape; DC writes it to links, saved views, shares, schedules (follow-up CR-DC)",
+    "Package defines the stored helpers; CRM writes its saved toolbar filters (follow-up CR-CRM)",
+    "Opt-in: no app sees a change until it switches the mode on at its own pin bump"
+  ],
+  "migrationExpected": false
+}

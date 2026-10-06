@@ -35,6 +35,7 @@ export {
   // here as well or a consumer cannot reach them from the package root at all.
   filterValueFromStored,
   storedFromFilterValue,
+  storedExclusionFromFilterValue,
   type StoredFilterReading,
   // The paging arithmetic (CR-DESIGN-SYSTEM-004). `TablePagination` itself arrives through the
   // `export * from "./components"` above; these live in ./lib, so they have to be named here as well
@@ -53,6 +54,8 @@ export {
   gridFilterIsEmpty,
   gridFilterSelected,
   gridFilterSelect,
+  gridFilterExclude,
+  gridFilterExcluded,
   type GridSortDir,
   type GridSort,
   type GridGroupLevel,

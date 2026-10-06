@@ -10,6 +10,7 @@ import {
   emptyFilterValues,
   filterValueFromStored,
   hasActiveControls,
+  storedExclusionFromFilterValue,
   storedFromFilterValue,
   type DateRangeFilterDef,
   type FilterDef,
@@ -454,6 +455,99 @@ describe("the new names are reachable from the package root, not only the deep f
     expect([def.kind, value.kind, reading.widened, anyDef.kind, anyValue.kind, option.value]).toEqual(
       ["multiSelect", "multiSelect", false, "select", "multiSelect", "a"],
     );
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// CR-DESIGN-SYSTEM-013 — "everything except", the engine half. Only an `allTicked` control writes
+// `excluded`; every spec above pins what a value WITHOUT it does, and none of them was edited.
+// ---------------------------------------------------------------------------------------------
+describe("an exclusion in the filter engine", () => {
+  interface Lot {
+    readonly id: string;
+    readonly batch: string | null;
+  }
+  const LOTS: readonly Lot[] = [
+    { id: "1", batch: "SBF-001" },
+    { id: "2", batch: "SBF-002" },
+    { id: "3", batch: null },
+    { id: "4", batch: "SBF-003" },
+  ];
+  const batchDef: MultiSelectFilterDef<Lot> = {
+    kind: "multiSelect",
+    key: "batch",
+    label: "Batches",
+    accessor: (l) => l.batch,
+    selectAll: "allTicked",
+  };
+  const ids = (values: FilterValues): readonly string[] =>
+    applyTableControls(LOTS, { filters: [batchDef], filterValues: values }).map((l) => l.id);
+
+  it("🔴 HIDES EXACTLY WHAT WAS UNTICKED, and KEEPS the row with no batch (owner point 2)", () => {
+    expect(ids({ batch: { kind: "multiSelect", values: [], excluded: ["SBF-002"] } })).toEqual([
+      "1",
+      "3",
+      "4",
+    ]);
+  });
+
+  it("an include list still leaves the row with no batch out — unchanged", () => {
+    expect(ids({ batch: { kind: "multiSelect", values: ["SBF-001", "SBF-003"] } })).toEqual(["1", "4"]);
+  });
+
+  it("🔴 'Clear' lights for an exclusion — it is narrowing", () => {
+    expect(
+      hasActiveControls("", { batch: { kind: "multiSelect", values: [], excluded: ["SBF-002"] } }),
+    ).toBe(true);
+    expect(hasActiveControls("", { batch: { kind: "multiSelect", values: [] } })).toBe(false);
+  });
+
+  it("🔴 THE STORED CONTRACT IS UNCHANGED; the exclusion travels in a sibling", () => {
+    const except = { kind: "multiSelect" as const, values: [], excluded: ["SBF-002", "SBF-003"] };
+    // The include-shape writer says "nothing to store" — exactly what its body always said for `[]`.
+    expect(storedFromFilterValue(except)).toBeNull();
+    expect(storedExclusionFromFilterValue(except)).toEqual(["SBF-002", "SBF-003"]);
+    expect(storedExclusionFromFilterValue({ kind: "multiSelect", values: ["SBF-001"] })).toBeNull();
+    expect(storedExclusionFromFilterValue({ kind: "select", value: "SBF-001" })).toBeNull();
+  });
+
+  it("🔴 reads the sibling back — and OMITTING it behaves exactly as before", () => {
+    expect(filterValueFromStored(batchDef, null, ["SBF-002"])).toEqual({
+      value: { kind: "multiSelect", values: [], excluded: ["SBF-002"] },
+      widened: false,
+    });
+    expect(filterValueFromStored(batchDef, null, "SBF-002")).toEqual({
+      value: { kind: "multiSelect", values: [], excluded: ["SBF-002"] },
+      widened: false,
+    });
+    expect(filterValueFromStored(batchDef, ["SBF-001", "SBF-003"])).toEqual(
+      filterValueFromStored(batchDef, ["SBF-001", "SBF-003"], undefined),
+    );
+    expect(filterValueFromStored(batchDef, "SBF-001", [])).toEqual({
+      value: { kind: "multiSelect", values: ["SBF-001"] },
+      widened: false,
+    });
+  });
+
+  it("errs wider and SAYS so when the stored pair cannot be one filter", () => {
+    // An include list beside an exclusion: the exclusion is the wider reading.
+    expect(filterValueFromStored(batchDef, ["SBF-001"], ["SBF-002"])).toEqual({
+      value: { kind: "multiSelect", values: [], excluded: ["SBF-002"] },
+      widened: true,
+    });
+    // 🔴 A multiSelect that did not opt in cannot SHOW an exclusion — honouring it would hide rows
+    //    behind a control reading "All depots". It opens as "All" and says it was not as saved.
+    const plain: MultiSelectFilterDef<Lot> = { ...batchDef, selectAll: undefined };
+    expect(filterValueFromStored(plain, null, ["SBF-002"])).toEqual({
+      value: { kind: "multiSelect", values: [] },
+      widened: true,
+    });
+    // A single-select cannot hold an exclusion at all, so it opens as "All".
+    const single: SelectFilterDef<Lot> = { kind: "select", key: "batch", label: "Batch", accessor: (l) => l.batch };
+    expect(filterValueFromStored(single, null, ["SBF-002"])).toEqual({
+      value: { kind: "select", value: null },
+      widened: true,
+    });
   });
 });
 

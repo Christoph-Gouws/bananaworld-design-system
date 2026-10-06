@@ -27,6 +27,9 @@
 // ⚠ INTERNAL, NOT BARRELLED. Like `cn`, these are how the shipped controls are built, not a control a
 //   consumer composes for itself. Nothing here is added to `components/index.ts`, so no export moves.
 //
+// ⚠ THE OPT-IN `allTicked` MODE (CR-DESIGN-SYSTEM-013) IS BUILT FROM THESE PARTS in its own module,
+//   `MultiSelectAllTicked.tsx`, which imports them rather than copying them. Nothing here reads it.
+//
 // PURE UI (TECH-COMP-003): Radix `DropdownMenu` primitives and class strings, nothing else. Hand-
 // rolling any of it would throw away the keyboard, the focus return, the typeahead and the
 // `menuitemcheckbox` roles that are the entire reason the primitive exists.
@@ -105,13 +108,15 @@ export function multiSelectToggle(
 // conflicting classes, so a second padding or type class emitted anywhere is a silent override. The
 // "default" entry is verbatim what `DataTableToolbar` shipped, in its original order, which is what
 // makes its DOM snapshot's byte-identity provable rather than argued.
-const ITEM_SIZE: Record<MultiSelectItemSize, string> = {
+// Exported (to `MultiSelectAllTicked.tsx` only — this file is not barrelled) so the `allTicked` master
+// row is built from the SAME strings as every other row, not a second copy of them.
+export const ITEM_SIZE: Record<MultiSelectItemSize, string> = {
   default:
     "py-1.5 pl-7 pr-2 text-sm outline-none [[data-surface=tablet]_&]:py-3 [[data-surface=tablet]_&]:pl-9 [[data-surface=tablet]_&]:text-base",
   compact: "py-1 pl-7 pr-2 text-xs outline-none",
 };
 
-const ITEM_ICON: Record<MultiSelectItemSize, string> = {
+export const ITEM_ICON: Record<MultiSelectItemSize, string> = {
   default: "h-4 w-4",
   compact: "h-3 w-3",
 };
