@@ -237,3 +237,22 @@ export {
   type DateRangeQuickChoice,
   type DateRangeDraft,
 } from "./DateRangeChrome";
+// 🔴 "WHO DID WHAT, WHEN, AND WHAT CHANGED" (CR-DESIGN-SYSTEM-014, raised by Bananaworld-DC CR-DC-222).
+//    A timeline on a rail and a Field · Before · After table — pure presentation, every word handed in.
+//    ADDITIVE: no name here begins `Activity` or `Change` today — asserted by the export inventory in
+//    `tests/components/DragBoard.additive.test.tsx` and in `tests/components/ActivityTimeline.test.tsx`.
+export {
+  ActivityTimeline,
+  ActivityTimelineItem,
+  type ActivityTimelineProps,
+  type ActivityTimelineItemProps,
+  type ActivityTimelineTone,
+} from "./ActivityTimeline";
+export {
+  ChangeTable,
+  type ChangeTableProps,
+  type ChangeTableRow,
+  type ChangeTableMode,
+  type ChangeTableHeadings,
+  type ChangeTableMore,
+} from "./ChangeTable";

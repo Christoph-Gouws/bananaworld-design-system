@@ -1,6 +1,12 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-10-06, at the close of **CR-DESIGN-SYSTEM-013**.
+> Last updated: 2026-10-06, at the close of **CR-DESIGN-SYSTEM-014**.
+
+## Latest: CR-DESIGN-SYSTEM-014 — `ActivityTimeline` + `ChangeTable` (raised by DC CR-DC-222)
+Additive: three runtime exports plus their types. `ChangeTable` is DC's Audit Log before/after table, promoted with
+its exact classes. Built from the DC session, merged on green. Archive `runs/change-13/`; decision log entry
+CR-DESIGN-SYSTEM-014; rules `runs/change-13/evidence/developer-handover.md`. 458/22 · battery 5/5 · sensors 0.
+**`main` moved past `d94a5eb` (CR-013 merged, PR #32) with this change.** Everything below is CR-013's handover, still true.
 
 ## Most recent unit of work: CR-DESIGN-SYSTEM-013 — "Select all" ticks every option
 
