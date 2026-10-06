@@ -5,6 +5,30 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-014 — an activity timeline and a change table
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Raised by | Bananaworld-DC **CR-DC-222** (the per-document History button), 2026-10-06 |
+| Branch point | `origin/main` @ `d94a5ebf` (CR-DESIGN-SYSTEM-013, PR #32) |
+| Approved layout | **A** — approved in DC (`CR-DC-222` plan §2, §6.1); no mockup gate here (the -008 / -011 precedent) |
+| Ship mode | on-green; merged by the authoring session on the owner's approval of the DC plan (its brief, point 2) |
+
+| # | Decision | Rationale |
+|---|---|---|
+| D-1 | **Three new runtime exports** (`ActivityTimeline`, `ActivityTimelineItem`, `ChangeTable`) **and their types; nothing else moves.** | Additive keeps it a change: every consumer pins by sha and moves when it chooses. |
+| D-2 | **`ChangeTable` is DC's CR-DC-221 `DiffTable`, promoted with its exact classes.** | The request asks for ONE shared component. Promoting the shipped table leaves one copy, and DC's Audit Log panel renders identically. |
+| D-3 | **A `values` mode (Field · Recorded as).** | Some DC records keep only their new values. Painting each as "— → value" would claim a "before" nobody recorded. |
+| D-4 | **The toggle for kept-back rows lives inside `ChangeTable` (`more`).** | It has one caller. A separate disclosure export would be a second name for one use. |
+| D-5 | **No clock, zone, sort or grouping in the package.** | The consumer writes every word and orders the entries (TECH-COMP-003). Grouping by day was layout C, which was not picked. |
+
+**Clarify questions and answers:** the owner responses for CR-DC-222 were "[plan] plan APPROVED (layout A) — ship
+on-green". No further question arose. **Outcome:** `runs/change-13/output/test-results.md` (458/22, battery 5/5,
+sensors 0).
+
+---
+
 ## CR-DESIGN-SYSTEM-013 — "Select all" ticks every option, so the reader can untick what they do not want
 
 | Field | Value |
