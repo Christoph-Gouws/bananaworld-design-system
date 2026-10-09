@@ -75,7 +75,7 @@
     "overrides": {
       "nanoid@<3.3.17": "^3.3.17",
       "next@<15.5.24": "^15.5.24",
-      "sharp@<0.35.4": "^0.35.4",
+      "sharp@<0.35.5": "^0.35.5",
       "source-map-js@<1.2.2": "^1.2.2"
     },
     "//auditConfig": "GHSA-f88m-g3jw-g9cj (sharp <0.35.0, libvips CVEs) reaches this package ONLY through the `next` PEER dependency that pnpm auto-installs so tsc can typecheck. This library ships TypeScript source only (files:[\"src\"]) and no sharp; consumer apps (Bananaworld-DC / -CRM) provide and patch their own next+sharp. Ignored so `pnpm audit --prod` reflects what this library actually ships, not a peer's transitive tree. Revisit if next/sharp ever move out of peerDependencies. Owner-approved 2026-07-22 (Hard Rule 2, in writing). INERT SINCE 2026-09-09 (CR-DESIGN-SYSTEM-009): the `sharp@<0.35.4` override above now floors sharp at 0.35.4, so this advisory no longer matches anything in the closure. LEFT IN PLACE rather than deleted — retiring an owner-approved exception is a security-posture change in its own right and not a side effect of a CI fix. Housekeeping follow-up recorded in runs/change-08/output/known-issues.md.",
