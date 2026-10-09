@@ -1,0 +1,15 @@
+{
+  "files": 4,
+  "lines": 55,
+  "steps": 3,
+  "uiBearing": false,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes the opt-in teal theme; packhouse reads it in its own M-02 (merged sha)",
+    "DC + CRM read the kit; pins do not move; re-checked on throwaway branches only",
+    "RMS + org-admin: nothing they load changes",
+    "Kit toast lifetimes vs packhouse 6-second rule: noted only, packhouse M-04 handles it"
+  ],
+  "migrationExpected": false
+}
