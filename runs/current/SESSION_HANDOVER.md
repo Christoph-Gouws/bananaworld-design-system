@@ -1,6 +1,13 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-10-06, at the close of **CR-DESIGN-SYSTEM-014**.
+> Last updated: 2026-10-09, at the close of **CR-DESIGN-SYSTEM-015**.
+
+## Latest: CR-DESIGN-SYSTEM-015 — opt-in packhouse theme (kit 0.2.0)
+Additive: `src/lib/themes/packhouse.css` (five accent tokens), export `./themes/packhouse.css`, guard test
+`tests/themes/packhouse-theme.test.ts`, README "Themes". No `tokens.css` change; no consumer imports it. 464/23 ·
+battery 6/6. DC + CRM re-check done and owner-accepted: `runs/change-12/evidence/dc-crm-recheck.md`. Archive
+`runs/change-12/`; rules `runs/change-12/evidence/developer-handover.md`. The packhouse pins the MERGED sha and compares
+`<sha>:src` and `<sha>:package.json` trees (owner rule, code-only). Everything below is CR-014's handover, still true.
 
 ## Latest: CR-DESIGN-SYSTEM-014 — `ActivityTimeline` + `ChangeTable` (raised by DC CR-DC-222)
 Additive: three runtime exports plus their types. `ChangeTable` is DC's Audit Log before/after table, promoted with

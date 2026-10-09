@@ -1,7 +1,19 @@
 # Active unit — `bananaworld-design-system`
 
 > This is a FILE, not a unit folder. It records what is currently in flight.
-> Updated 2026-10-06.
+> Updated 2026-10-09.
+
+## Current: CR-DESIGN-SYSTEM-015 — opt-in packhouse theme — **BUILT, GREEN, CLOSED OUT, PR OPEN**
+
+| Field | Value |
+|---|---|
+| Unit type | **Change Request**, archived to `runs/change-12/` |
+| Branch | `change/cr-design-system-015`, off `origin/main` @ `cde6f4e` |
+| Layout · ship mode | n/a (not UI-bearing) · **on-green** |
+| Build status | 464/23 green; mutations 6/6; DC + CRM re-check owner-accepted |
+| Remaining | Nothing in this repo. Follow-up: packhouse EPIC-001-M-02 pins the merged sha |
+
+No `runs/epic-NN/`, `milestone-NN/` or `runs/current/epic-plan/` was created.
 
 ## Current: CR-DESIGN-SYSTEM-013 — "Select all" ticks every option — **BUILT, GREEN, CLOSED OUT, PR OPEN**
 
