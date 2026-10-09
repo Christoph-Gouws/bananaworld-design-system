@@ -1,0 +1,2 @@
+# Not a secret: the SHA-256 of src/lib/tokens.css, a tamper-guard constant in tests/themes/packhouse-theme.test.ts (CR-DESIGN-SYSTEM-015).
+59ce1abc366d3126e0ea9a57ebad2b82281b62a7:tests/themes/packhouse-theme.test.ts:generic-api-key:16

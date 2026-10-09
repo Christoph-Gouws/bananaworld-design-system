@@ -5,6 +5,27 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-015 — the opt-in packhouse theme
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Date | 2026-10-09 |
+| Raised by | Bananaworld Packhouse (`bananaworld-ph`) EPIC-001-M-02 |
+| Approved layout · ship mode | n/a (not UI-bearing) · **on-green** |
+
+**Asked.** Add an opt-in packhouse theme to the shared kit: five accent tokens only, behind `[data-theme="packhouse"]`, exported as `./themes/packhouse.css`, version 0.1.0 → 0.2.0, a guard test, a README entry; and re-check every DC and CRM screen plus their CI against it (QG-CEN-003).
+
+**Decided at the plan gate.** Plan approved, ship on-green. The colour (teal, option B) was the packhouse owner ruling DLC-DEC-054. The plan added `:root[data-theme]` to the selector list so the theme wins on `<html>` regardless of import order, and kept to five tokens (so the attribute must sit on `<html>`).
+
+**Clarify questions and answers.** None recorded in the owner responses; none were needed.
+
+**Re-check ruling (owner, 2026-10-09).** The DC + CRM re-check was BLOCKED under the plan's literal rule (two required checks red, screenshots not pixel-zero) but no difference traces to this change: browser CSS/JS byte-identical (DC 513/513, CRM 215/215), the two red checks (DC Gitleaks, CRM Dependency Audit) are red on each app's `main`, and screenshot variation is run-to-run noise. The owner ACCEPTED it as clearing QG-CEN-003 / packhouse AC-02, and changed the fingerprint rule to code-only (`git rev-parse <sha>:src` and `:package.json`). The two red checks become their own change runs.
+
+**Outcome.** 464 tests / 23 files (baseline 458 / 22); typecheck clean; mutation battery 6/6; real-browser frames 01–03. Evidence: `runs/change-12/`.
+
+---
+
 ## CR-DESIGN-SYSTEM-014 — an activity timeline and a change table
 
 | Field | Value |

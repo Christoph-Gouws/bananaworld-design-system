@@ -44,6 +44,34 @@ Set `data-surface="browser"` (or `"tablet"`) on the layout root (`<body>`) so pe
 resolve. The package also requires the consumer's Tailwind theme to define the Bananaworld token scale
 (the `bg`/`surface`/`accent`/… colours, radii, shadows) — see each app's `tailwind.config.ts`.
 
+## Themes
+
+A theme redeclares the **accent family only** (five colour tokens) and nothing else; sizes, shapes and every other
+colour stay `tokens.css`'s. Themes are **opt-in**: an app sees one only if it BOTH imports the file AND sets the
+attribute. No existing caller does either, so they render exactly as before.
+
+```css
+/* app/globals.css: tokens first, then the theme */
+@import "@bananaworld/design-system/tokens.css";
+@import "@bananaworld/design-system/themes/packhouse.css";
+```
+
+```tsx
+<html data-theme="packhouse"> {/* on <html>, with data-surface on <body> as usual */}
+```
+
+**Placement:** put `data-theme` on `<html>`. The focus halo (`--shadow-focus`) is resolved where `tokens.css` declares
+it, so a theme attribute on a tablet-surface element with no themed ancestor keeps the yellow halo.
+
+| Theme | Source | `--color-accent` | `-hover` | `-subtle` | `--color-fg-on-accent` | `--color-ring` |
+|---|---|---|---|---|---|---|
+| `packhouse` (teal) | packhouse DLC-DEC-054, option B | `#0F766E` | `#0B5F58` | `#D5F3EF` | `#FFFFFF` | `#0F766E` |
+
+### Changelog
+
+- **0.2.0** — Opt-in packhouse theme (`./themes/packhouse.css`). DC and CRM unaffected: neither imports the file nor
+  sets the attribute. `tokens.css` unchanged.
+
 ## Local development
 
 Linked locally via a `file:` dependency (`"@bananaworld/design-system": "file:../bananaworld-design-system"`).
