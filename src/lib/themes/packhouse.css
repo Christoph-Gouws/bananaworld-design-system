@@ -1,0 +1,12 @@
+/* Packhouse theme (opt-in). DLC-DEC-054, packhouse teal, option B. Accent family ONLY: every other token is
+ * tokens.css's. Import AFTER tokens.css; set data-theme="packhouse" on <html>. See README "Themes". */
+:root[data-theme="packhouse"],
+[data-theme="packhouse"],
+[data-theme="packhouse"][data-surface],
+[data-theme="packhouse"] [data-surface] {
+  --color-accent: #0f766e;
+  --color-accent-hover: #0b5f58;
+  --color-accent-subtle: #d5f3ef;
+  --color-fg-on-accent: #ffffff;
+  --color-ring: #0f766e;
+}

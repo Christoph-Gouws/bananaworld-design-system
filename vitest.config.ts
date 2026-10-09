@@ -26,6 +26,13 @@ export default defineConfig({
           environment: "happy-dom",
         },
       },
+      {
+        test: {
+          name: "themes",
+          include: ["tests/themes/**/*.test.ts"],
+          environment: "node",
+        },
+      },
     ],
   },
 });
