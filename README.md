@@ -67,8 +67,36 @@ it, so a theme attribute on a tablet-surface element with no themed ancestor kee
 |---|---|---|---|---|---|---|
 | `packhouse` (teal) | packhouse DLC-DEC-054, option B | `#0F766E` | `#0B5F58` | `#D5F3EF` | `#FFFFFF` | `#0F766E` |
 
+## Navigation busy signal
+
+A thin accent bar across the top of the content area, plus a small spinner on the clicked `Link`, while a client
+navigation is in flight. **Opt-in per app:** until an app mounts `NavigationBusyProvider`, every kit `Link` renders
+exactly as before.
+
+```tsx
+// app/(console)/layout.tsx — a client boundary or a client child component
+<NavigationBusyProvider>
+  <Sidebar />                                  {/* kit <Link>s: each gets the spinner automatically */}
+  <main aria-busy={useNavigationBusy()}>       {/* read the hook in a client child */}
+    <NavigationBusyBar />                      {/* first child of the scrolling content area, outside its padding */}
+    <div className="p-6">{children}</div>
+  </main>
+</NavigationBusyProvider>
+```
+
+- Fed by `useLinkStatus` from `next/link` (**next 15.3+**; on older `next` the bar simply never shows). Needs no
+  Suspense boundary and no `loading.tsx`, and makes no request (tablet keeps `prefetch={false}`).
+- Nothing shows for a navigation shorter than 150 ms. Reduced motion: the bar is a still full-width line, the spinner
+  a still ring. While busy the bar is `role="progressbar"` (indeterminate); idle, it is `aria-hidden`.
+- `<Link pendingIndicator={false}>` hides that link's spinner; it still feeds the bar.
+- Only kit `Link`s feed the signal (plain `next/link` does not). `router.push` and back/forward are not covered.
+- The bar uses core Tailwind utilities only (no custom keyframes), but the app's Tailwind `content` must scan this
+  package's `src/`.
+
 ### Changelog
 
+- **0.3.0** — Navigation busy signal (`NavigationBusyProvider`, `NavigationBusyBar`, `useNavigationBusy`, and a
+  `pendingIndicator` prop on `Link`). Opt-in: an app that does not mount the provider renders every `Link` as before.
 - **0.2.0** — Opt-in packhouse theme (`./themes/packhouse.css`). DC and CRM unaffected: neither imports the file nor
   sets the attribute. `tokens.css` unchanged.
 

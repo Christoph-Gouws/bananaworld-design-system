@@ -1,9 +1,19 @@
 # Active unit — `bananaworld-design-system`
 
 > This is a FILE, not a unit folder. It records what is currently in flight.
-> Updated 2026-10-09.
+> Updated 2026-10-11.
 
-## Current: CR-DESIGN-SYSTEM-015 — opt-in packhouse theme — **BUILT, GREEN, CLOSED OUT, PR OPEN**
+## Current: CR-DESIGN-SYSTEM-018 — navigation busy signal (top bar + link spinner) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
+
+| Field | Value |
+|---|---|
+| Unit type | **Change Request**, archived to `runs/change-16/` |
+| Branch | `change/cr-design-system-018`, off `origin/main` @ `820c980` |
+| Layout · ship mode | **A** · **on-green** |
+| Build status | 517/25 green; mutations 7/7; browser proof 26/26 |
+| Remaining | Nothing in this repo. Follow-up: Org Admin mounts the provider (CR-ORGADMIN-015) |
+
+## Previous: CR-DESIGN-SYSTEM-015 — opt-in packhouse theme — built, merged (PR #34)
 
 | Field | Value |
 |---|---|

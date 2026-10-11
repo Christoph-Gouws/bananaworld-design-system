@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option B: a short stripe sweeps across</title>
+<style>
+  :root{--bg:#fafaf9;--surface:#fff;--muted:#f5f5f4;--sunken:#efefee;--border:#e7e5e4;--border-strong:#d6d3d1;
+    --fg:#18181b;--fg-muted:#52525b;--fg-subtle:#71717a;--accent:#fac80a;--accent-subtle:#fef3c7}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:14px;line-height:1.5}
+  .page{max-width:1160px;margin:0 auto;padding:28px 20px 80px}
+  h1{font-size:22px;margin:0 0 6px}.sub{color:var(--fg-muted);margin:0 0 14px;max-width:85ch}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .cap{font-size:11px;color:var(--fg-subtle);margin:0 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .frame{border:1px solid var(--border-strong);border-radius:10px;overflow:hidden;background:var(--bg);box-shadow:0 4px 14px rgba(24,24,27,.08)}
+  .desk{width:620px;--here:#fff}.tab{width:400px;--here:#f5f5f4}.mini{width:360px}
+  .top{height:42px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 14px;font-weight:600;font-size:13px}
+  .top .who{margin-left:auto;font-weight:400;color:var(--fg-subtle);font-size:12px}
+  .logo{width:16px;height:16px;border-radius:4px;background:var(--accent)}
+  .tab .top{height:54px;font-size:17px}.tab .top .who{font-size:14px}
+  .shell{display:flex;height:270px}.tab .shell{flex-direction:column;height:360px}.mini .shell{height:190px}
+  .side{width:148px;flex:none;background:var(--muted);border-right:1px solid var(--border);padding:10px 8px;display:flex;flex-direction:column;gap:2px}
+  .mini .side{width:118px}
+  .side a,.tabs a{color:var(--fg-muted);text-decoration:none;padding:5px 8px;border-radius:6px;font-size:13px;display:flex;align-items:center}
+  .tabs{display:flex;gap:4px;padding:8px 10px;background:var(--surface);border-bottom:1px solid var(--border)}
+  .tabs a{font-size:16px;padding:0 12px;height:44px}
+  .content{position:relative;flex:1;overflow:hidden}
+  .pg{position:absolute;top:14px;left:16px;right:16px}.pg h3{margin:0 0 8px;font-size:16px}.tab .pg h3{font-size:20px}
+  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);font-size:12px}
+  .tab table{font-size:15px}
+  th{text-align:left;color:var(--fg-subtle);font-weight:500;background:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border)}
+  td{padding:6px 8px;border-bottom:1px solid var(--border)}.tab td,.tab th{padding:10px}
+  .bar{position:absolute;left:0;right:0;top:0;height:3px;overflow:hidden;z-index:2;opacity:0}.tab .bar{height:4px}
+  .bar i{display:block;height:100%;width:35%;background:var(--accent)}
+  .sp{position:relative;display:inline-block;width:0;height:12px;vertical-align:middle;opacity:0}
+  .sp b{position:absolute;left:7px;top:50%;margin-top:-6px;width:12px;height:12px;border-radius:50%;border:2px solid var(--border-strong);border-top-color:var(--fg-muted)}
+  .tab .sp{height:16px}.tab .sp b{width:16px;height:16px;margin-top:-8px;left:9px}
+  .pg.new{opacity:0}
+  .side a.l-old,.tabs a.l-old{background:var(--here);color:var(--fg);font-weight:500}
+  .live .bar{animation:show 6s infinite}.live .bar i{animation:slide 1.1s linear infinite}
+  .live .sp{animation:show 6s infinite}.live .sp b{animation:rot .8s linear infinite}
+  .live .pg.old{animation:oldPg 6s infinite}.live .pg.new{animation:newPg 6s infinite}
+  .live .l-old{animation:hereOld 6s infinite}.live .l-new{animation:hereNew 6s infinite}
+  @keyframes show{0%,17.9%{opacity:0}18%,74.9%{opacity:1}75%,100%{opacity:0}}
+  @keyframes slide{0%{transform:translateX(-110%)}100%{transform:translateX(290%)}}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  @keyframes oldPg{0%,74.9%{opacity:1}75%,100%{opacity:0}}
+  @keyframes newPg{0%,74.9%{opacity:0}75%,100%{opacity:1}}
+  @keyframes hereOld{0%,74.9%{background:var(--here);color:var(--fg);font-weight:500}75%,100%{background:transparent;color:var(--fg-muted);font-weight:400}}
+  @keyframes hereNew{0%,14.9%{background:transparent;color:var(--fg-muted)}15%,74.9%{background:var(--sunken);color:var(--fg)}75%,100%{background:var(--here);color:var(--fg);font-weight:500}}
+  .still .bar{opacity:1}.still .bar i{transform:translateX(90%)}.still .sp{opacity:1}.still .l-new{background:var(--sunken);color:var(--fg)}
+  .rm .bar i{transform:none!important;width:100%}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Option B: a short stripe sweeps across</h1>
+  <p class="sub">Someone clicks <b>Users</b> while on <b>Organisations</b>. A short yellow stripe runs left to right
+  over and over until the new page arrives, then the line disappears. The page stays put until then. A small spinner
+  turns just after the word clicked. The pictures repeat every six seconds.</p>
+  <div class="row">
+    <div><p class="cap">Desktop</p>
+      <div class="frame desk live">
+        <div class="top"><span class="logo"></span>Org Admin<span class="who">Signed in</span></div>
+        <div class="shell">
+          <nav class="side"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a><a>Audit log</a></nav>
+          <main class="content"><div class="bar"><i></i></div>
+            <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Country</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>South Africa</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>Kenya</td><td>17</td></tr><tr><td>Coastal Fresh</td><td>Mozambique</td><td>9</td></tr></table></div>
+            <div class="pg new"><h3>Users</h3><table><tr><th>Name</th><th>Role</th><th>Last seen</th></tr><tr><td>Thandi M.</td><td>Admin</td><td>Today</td></tr><tr><td>Pieter V.</td><td>Viewer</td><td>Yesterday</td></tr><tr><td>Amina K.</td><td>Editor</td><td>3 days ago</td></tr></table></div>
+          </main>
+        </div>
+      </div>
+    </div>
+    <div><p class="cap">Tablet</p>
+      <div class="frame tab live">
+        <div class="top"><span class="logo"></span>Org Admin<span class="who">Signed in</span></div>
+        <div class="shell">
+          <nav class="tabs"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a></nav>
+          <main class="content"><div class="bar"><i></i></div>
+            <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>17</td></tr><tr><td>Coastal Fresh</td><td>9</td></tr></table></div>
+            <div class="pg new"><h3>Users</h3><table><tr><th>Name</th><th>Role</th></tr><tr><td>Thandi M.</td><td>Admin</td></tr><tr><td>Pieter V.</td><td>Viewer</td></tr><tr><td>Amina K.</td><td>Editor</td></tr></table></div>
+          </main>
+        </div>
+      </div>
+    </div>
+    <div><p class="cap">Still: while waiting</p>
+      <div class="frame desk mini still">
+        <div class="top"><span class="logo"></span>Org Admin</div>
+        <div class="shell">
+          <nav class="side"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a></nav>
+          <main class="content"><div class="bar"><i></i></div>
+            <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>17</td></tr></table></div>
+          </main>
+        </div>
+      </div>
+    </div>
+    <div><p class="cap">Still: less movement</p>
+      <div class="frame desk mini still rm">
+        <div class="top"><span class="logo"></span>Org Admin</div>
+        <div class="shell">
+          <nav class="side"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a></nav>
+          <main class="content"><div class="bar"><i></i></div>
+            <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>17</td></tr></table></div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

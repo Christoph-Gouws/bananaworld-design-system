@@ -62,6 +62,10 @@ const ADDED_BY_011 = [
 // Names added by LATER changes, each listed under its own id so this inventory stays exact: the spec
 // below still fails on any export nobody declared. CR-DESIGN-SYSTEM-013 — "everything except" (§4.5).
 const ADDED_SINCE_011 = [
+  // CR-DESIGN-SYSTEM-018 — the navigation busy signal.
+  "NavigationBusyBar",
+  "NavigationBusyProvider",
+  "useNavigationBusy",
   // CR-DESIGN-SYSTEM-014 — the activity timeline and the change table.
   "ActivityTimeline",
   "ActivityTimelineItem",

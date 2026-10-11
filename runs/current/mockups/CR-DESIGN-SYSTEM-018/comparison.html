@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The "page is on its way" line: compare A, B and C</title>
+<style>
+  :root{
+    --bg:#fafaf9; --surface:#fff; --muted:#f5f5f4; --sunken:#efefee;
+    --border:#e7e5e4; --border-strong:#d6d3d1;
+    --fg:#18181b; --fg-muted:#52525b; --fg-subtle:#71717a;
+    --accent:#fac80a; --accent-subtle:#fef3c7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1160px;margin:0 auto;padding:28px 20px 80px}
+  h1{font-size:22px;line-height:1.25;margin:0 0 6px}
+  .sub{color:var(--fg-muted);margin:0 0 8px;max-width:85ch}
+  .same{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:10px 14px;margin:14px 0 6px;font-size:13px;color:#065f46;max-width:85ch}
+  .opt{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px 20px;margin-top:22px}
+  .opt h2{font-size:17px;margin:0 0 2px}
+  .opt .lead{font-size:13px;color:var(--fg-muted);margin:0 0 14px;max-width:85ch}
+  .pill{display:inline-block;background:var(--accent-subtle);color:#78350f;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .cap{font-size:11px;color:var(--fg-subtle);margin:0 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .why{font-size:12px;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:8px 12px;margin-top:14px;max-width:85ch}
+  .tradeoff{font-size:12px;color:#78350f;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:8px 12px;margin-top:14px;max-width:85ch}
+
+  /* ── the mock app ── */
+  .frame{border:1px solid var(--border-strong);border-radius:10px;overflow:hidden;background:var(--bg);box-shadow:0 4px 14px rgba(24,24,27,.08)}
+  .desk{width:620px;--here:#fff}
+  .tab{width:400px;--here:#f5f5f4}
+  .mini{width:360px}
+  .top{height:42px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 14px;font-weight:600;font-size:13px}
+  .top .who{margin-left:auto;font-weight:400;color:var(--fg-subtle);font-size:12px}
+  .logo{width:16px;height:16px;border-radius:4px;background:var(--accent)}
+  .tab .top{height:54px;font-size:17px}
+  .tab .top .who{font-size:14px}
+  .shell{display:flex;height:270px}
+  .tab .shell{flex-direction:column;height:360px}
+  .mini .shell{height:190px}
+  .side{width:148px;flex:none;background:var(--muted);border-right:1px solid var(--border);padding:10px 8px;display:flex;flex-direction:column;gap:2px}
+  .mini .side{width:118px}
+  .side a,.tabs a{color:var(--fg-muted);text-decoration:none;padding:5px 8px;border-radius:6px;font-size:13px;display:flex;align-items:center;cursor:default}
+  .tabs{display:flex;gap:4px;padding:8px 10px;background:var(--surface);border-bottom:1px solid var(--border)}
+  .tabs a{font-size:16px;padding:0 12px;height:44px}
+  .content{position:relative;flex:1;overflow:hidden}
+  .pg{position:absolute;top:14px;left:16px;right:16px}
+  .pg h3{margin:0 0 8px;font-size:16px}
+  .tab .pg h3{font-size:20px}
+  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:12px}
+  .tab table{font-size:15px}
+  th{text-align:left;color:var(--fg-subtle);font-weight:500;background:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border)}
+  td{padding:6px 8px;border-bottom:1px solid var(--border)}
+  .tab td,.tab th{padding:10px 10px}
+  tr:last-child td{border-bottom:0}
+
+  /* the line */
+  .bar{position:absolute;left:0;right:0;top:0;height:3px;overflow:hidden;z-index:2;pointer-events:none}
+  .tab .bar{height:4px}
+  .bar i{display:block;height:100%;background:var(--accent);transform-origin:left center;transform:scaleX(0)}
+  .ob .bar{opacity:0}
+  .ob .bar i{width:35%;transform:none}
+
+  /* the spinner beside the clicked link — takes no room, so nothing moves */
+  .sp{position:relative;display:inline-block;width:0;height:12px;vertical-align:middle;opacity:0}
+  .sp b{position:absolute;left:7px;top:50%;margin-top:-6px;width:12px;height:12px;border-radius:50%;border:2px solid var(--border-strong);border-top-color:var(--fg-muted)}
+  .tab .sp{height:16px}
+  .tab .sp b{width:16px;height:16px;margin-top:-8px;left:9px}
+
+  .pg.new{opacity:0}
+  .side a.l-old,.tabs a.l-old{background:var(--here);color:var(--fg);font-weight:500}
+
+  /* ── live loop: 6 s — idle, click at 15%, line + spinner from 18%, new page at 75% ── */
+  .live .bar i{animation:fill 6s infinite}
+  .live.ob .bar{animation:show 6s infinite}
+  .live.ob .bar i{animation:slide 1.1s linear infinite}
+  .live .sp{animation:show 6s infinite}
+  .live .sp b{animation:rot .8s linear infinite}
+  .live .pg.old{animation:oldPg 6s infinite}
+  .live.oc .pg.old{animation:oldDim 6s infinite}
+  .live .pg.new{animation:newPg 6s infinite}
+  .live .l-old{animation:hereOld 6s infinite}
+  .live .l-new{animation:hereNew 6s infinite}
+  @keyframes fill{0%,17.9%{transform:scaleX(0);opacity:0}18%{transform:scaleX(.04);opacity:1}74%{transform:scaleX(.85);opacity:1}77%{transform:scaleX(1);opacity:1}82%,100%{transform:scaleX(1);opacity:0}}
+  @keyframes show{0%,17.9%{opacity:0}18%,74.9%{opacity:1}75%,100%{opacity:0}}
+  @keyframes slide{0%{transform:translateX(-110%)}100%{transform:translateX(290%)}}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  @keyframes oldPg{0%,74.9%{opacity:1}75%,100%{opacity:0}}
+  @keyframes oldDim{0%,21.9%{opacity:1}25%,74.9%{opacity:.45}75%,100%{opacity:0}}
+  @keyframes newPg{0%,74.9%{opacity:0}75%,100%{opacity:1}}
+  @keyframes hereOld{0%,74.9%{background:var(--here);color:var(--fg);font-weight:500}75%,100%{background:transparent;color:var(--fg-muted);font-weight:400}}
+  @keyframes hereNew{0%,14.9%{background:transparent;color:var(--fg-muted)}15%,74.9%{background:var(--sunken);color:var(--fg)}75%,100%{background:var(--here);color:var(--fg);font-weight:500}}
+
+  /* ── still frame: "while waiting" ── */
+  .still .bar i{transform:scaleX(.55)}
+  .still.ob .bar{opacity:1}
+  .still.ob .bar i{transform:translateX(90%)}
+  .still .sp{opacity:1}
+  .still.oc .pg.old{opacity:.45}
+  .still .l-new{background:var(--sunken);color:var(--fg)}
+  /* reduced movement: a still, full-width line and a still ring */
+  .rm .bar i{transform:none!important;width:100%!important}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>A thin yellow line while the next page is on its way</h1>
+  <p class="sub">Each option shows the same moment on a <b>desktop</b> and a <b>tablet</b> (both shrunk to fit):
+  someone clicks <b>Users</b> while on <b>Organisations</b>. The pictures repeat every six seconds. A still of the
+  "waiting" moment sits underneath. Only the line's movement differs between A and B. C adds one thing.</p>
+  <div class="same"><b>Same in A, B and C:</b> the current page stays put until the new one is ready, and nothing
+  jumps. A small spinner turns just after the word you clicked. Quick page changes show nothing at all. The tablet
+  gets a slightly thicker line and a bigger spinner. People who have asked their device for less movement see a
+  still line (bottom of this page).</div>
+
+  <!-- ═════════════ A ═════════════ -->
+  <section class="opt">
+    <h2>A: the line fills up <span class="pill">Recommended</span></h2>
+    <p class="lead">The line grows from the left, slowing as it goes, then shoots to the end and fades the moment the
+    new page arrives. It reads like "almost there".</p>
+    <div class="row">
+      <div><p class="cap">Desktop</p>
+        <div class="frame desk live oa">
+          <div class="top"><span class="logo"></span>Org Admin<span class="who">Signed in</span></div>
+          <div class="shell">
+            <nav class="side"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a><a>Audit log</a></nav>
+            <main class="content"><div class="bar"><i></i></div>
+              <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Country</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>South Africa</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>Kenya</td><td>17</td></tr><tr><td>Coastal Fresh</td><td>Mozambique</td><td>9</td></tr></table></div>
+              <div class="pg new"><h3>Users</h3><table><tr><th>Name</th><th>Role</th><th>Last seen</th></tr><tr><td>Thandi M.</td><td>Admin</td><td>Today</td></tr><tr><td>Pieter V.</td><td>Viewer</td><td>Yesterday</td></tr><tr><td>Amina K.</td><td>Editor</td><td>3 days ago</td></tr></table></div>
+            </main>
+          </div>
+        </div>
+      </div>
+      <div><p class="cap">Tablet</p>
+        <div class="frame tab live oa">
+          <div class="top"><span class="logo"></span>Org Admin<span class="who">Signed in</span></div>
+          <div class="shell">
+            <nav class="tabs"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a></nav>
+            <main class="content"><div class="bar"><i></i></div>
+              <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>17</td></tr><tr><td>Coastal Fresh</td><td>9</td></tr></table></div>
+              <div class="pg new"><h3>Users</h3><table><tr><th>Name</th><th>Role</th></tr><tr><td>Thandi M.</td><td>Admin</td></tr><tr><td>Pieter V.</td><td>Viewer</td></tr><tr><td>Amina K.</td><td>Editor</td></tr></table></div>
+            </main>
+          </div>
+        </div>
+      </div>
+      <div><p class="cap">Still: while waiting</p>
+        <div class="frame desk mini still oa">
+          <div class="top"><span class="logo"></span>Org Admin</div>
+          <div class="shell">
+            <nav class="side"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a></nav>
+            <main class="content"><div class="bar"><i></i></div>
+              <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>17</td></tr></table></div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="why">Why I recommend it: it is the calmest of the three, it tells you roughly how far along things are,
+    and it is the simplest to build, so there is the least to go wrong.</div>
+  </section>
+
+  <!-- ═════════════ B ═════════════ -->
+  <section class="opt">
+    <h2>B: a short stripe sweeps across</h2>
+    <p class="lead">A short yellow stripe runs left to right over and over until the new page arrives, then the line
+    disappears. It reads like "working on it".</p>
+    <div class="row">
+      <div><p class="cap">Desktop</p>
+        <div class="frame desk live ob">
+          <div class="top"><span class="logo"></span>Org Admin<span class="who">Signed in</span></div>
+          <div class="shell">
+            <nav class="side"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a><a>Audit log</a></nav>
+            <main class="content"><div class="bar"><i></i></div>
+              <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Country</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>South Africa</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>Kenya</td><td>17</td></tr><tr><td>Coastal Fresh</td><td>Mozambique</td><td>9</td></tr></table></div>
+              <div class="pg new"><h3>Users</h3><table><tr><th>Name</th><th>Role</th><th>Last seen</th></tr><tr><td>Thandi M.</td><td>Admin</td><td>Today</td></tr><tr><td>Pieter V.</td><td>Viewer</td><td>Yesterday</td></tr><tr><td>Amina K.</td><td>Editor</td><td>3 days ago</td></tr></table></div>
+            </main>
+          </div>
+        </div>
+      </div>
+      <div><p class="cap">Tablet</p>
+        <div class="frame tab live ob">
+          <div class="top"><span class="logo"></span>Org Admin<span class="who">Signed in</span></div>
+          <div class="shell">
+            <nav class="tabs"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a></nav>
+            <main class="content"><div class="bar"><i></i></div>
+              <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>17</td></tr><tr><td>Coastal Fresh</td><td>9</td></tr></table></div>
+              <div class="pg new"><h3>Users</h3><table><tr><th>Name</th><th>Role</th></tr><tr><td>Thandi M.</td><td>Admin</td></tr><tr><td>Pieter V.</td><td>Viewer</td></tr><tr><td>Amina K.</td><td>Editor</td></tr></table></div>
+            </main>
+          </div>
+        </div>
+      </div>
+      <div><p class="cap">Still: while waiting</p>
+        <div class="frame desk mini still ob">
+          <div class="top"><span class="logo"></span>Org Admin</div>
+          <div class="shell">
+            <nav class="side"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a></nav>
+            <main class="content"><div class="bar"><i></i></div>
+              <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>17</td></tr></table></div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tradeoff">Trade-off: busier to look at, and it never shows how far along things are. It also needs one
+    extra moving part in the build.</div>
+  </section>
+
+  <!-- ═════════════ C ═════════════ -->
+  <section class="opt">
+    <h2>C: the line fills up, and the old page fades a little</h2>
+    <p class="lead">Exactly A, plus the page you are leaving turns pale while you wait, so nobody starts typing into
+    a page that is about to change.</p>
+    <div class="row">
+      <div><p class="cap">Desktop</p>
+        <div class="frame desk live oc">
+          <div class="top"><span class="logo"></span>Org Admin<span class="who">Signed in</span></div>
+          <div class="shell">
+            <nav class="side"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a><a>Audit log</a></nav>
+            <main class="content"><div class="bar"><i></i></div>
+              <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Country</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>South Africa</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>Kenya</td><td>17</td></tr><tr><td>Coastal Fresh</td><td>Mozambique</td><td>9</td></tr></table></div>
+              <div class="pg new"><h3>Users</h3><table><tr><th>Name</th><th>Role</th><th>Last seen</th></tr><tr><td>Thandi M.</td><td>Admin</td><td>Today</td></tr><tr><td>Pieter V.</td><td>Viewer</td><td>Yesterday</td></tr><tr><td>Amina K.</td><td>Editor</td><td>3 days ago</td></tr></table></div>
+            </main>
+          </div>
+        </div>
+      </div>
+      <div><p class="cap">Tablet</p>
+        <div class="frame tab live oc">
+          <div class="top"><span class="logo"></span>Org Admin<span class="who">Signed in</span></div>
+          <div class="shell">
+            <nav class="tabs"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a></nav>
+            <main class="content"><div class="bar"><i></i></div>
+              <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>17</td></tr><tr><td>Coastal Fresh</td><td>9</td></tr></table></div>
+              <div class="pg new"><h3>Users</h3><table><tr><th>Name</th><th>Role</th></tr><tr><td>Thandi M.</td><td>Admin</td></tr><tr><td>Pieter V.</td><td>Viewer</td></tr><tr><td>Amina K.</td><td>Editor</td></tr></table></div>
+            </main>
+          </div>
+        </div>
+      </div>
+      <div><p class="cap">Still: while waiting</p>
+        <div class="frame desk mini still oc">
+          <div class="top"><span class="logo"></span>Org Admin</div>
+          <div class="shell">
+            <nav class="side"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a></nav>
+            <main class="content"><div class="bar"><i></i></div>
+              <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>17</td></tr></table></div>
+            </main>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tradeoff">Trade-off: each app has to switch on the fading itself, screen by screen, and a pale page
+    can look broken if the wait is long.</div>
+  </section>
+
+  <!-- ═════════════ reduced movement ═════════════ -->
+  <section class="opt">
+    <h2>For people who asked their device for less movement (all options)</h2>
+    <p class="lead">The line appears full width and stays still. The spinner is a still ring. Both disappear when
+    the new page arrives.</p>
+    <div class="row">
+      <div class="frame desk mini still oa rm">
+        <div class="top"><span class="logo"></span>Org Admin</div>
+        <div class="shell">
+          <nav class="side"><a class="l-old">Organisations</a><a class="l-new">Users<span class="sp"><b></b></span></a><a>Roles</a></nav>
+          <main class="content"><div class="bar"><i></i></div>
+            <div class="pg old"><h3>Organisations</h3><table><tr><th>Name</th><th>Users</th></tr><tr><td>Bananaworld SA</td><td>42</td></tr><tr><td>Green Valley Farms</td><td>17</td></tr></table></div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

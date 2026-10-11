@@ -5,6 +5,25 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-018 — a navigation busy signal: a top bar and a spinner on the clicked link
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Date | 2026-10-11 |
+| Raised by | Owner ruling under Org Admin **CR-ORGADMIN-015** (its `loading.tsx` is removed because of the Next 15.4.2+ stall, vercel/next.js#87529, #66426) |
+| Approved layout · ship mode | **A** (a filling bar, recommended) · **on-green** |
+
+**Asked.** A shared "page is on its way" signal: a thin house-yellow bar across the top of the content area while a client navigation is in flight (old page stays, no layout shift, reduced-motion respected, `role=progressbar` / `aria-busy`), and a small spinner on the clicked link via `useLinkStatus` inside the kit `Link`, with an opt-out. No Suspense boundary, no `loading.tsx`. Same on tablet, no extra network.
+
+**Decided at the plan gate.** Plan approved, layout A, ship on-green. The tension between "every consumer gets it" and the lane rule "never change a default" is resolved by making a `NavigationBusyProvider` the on-switch: inside one, every kit `Link` gets the spinner (opt-out `pendingIndicator={false}`); outside one, `Link` renders exactly as before. A 150 ms delay keeps quick page changes from flickering. Programmatic navigation and back/forward are not covered.
+
+**Clarify questions and answers.** None recorded in the owner responses; none were needed.
+
+**Outcome.** 517 tests / 25 files (baseline 464 / 23); typecheck clean; mutation battery 7/7; real-browser proof 26/26 (frames 01–08, 64/64 revalidating server-action submissions with no `loading.tsx`); version 0.3.0. No consumer pin bumped. Evidence: `runs/change-16/`.
+
+---
+
 ## CR-DESIGN-SYSTEM-015 — the opt-in packhouse theme
 
 | Field | Value |
