@@ -1,6 +1,13 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-10-09, at the close of **CR-DESIGN-SYSTEM-015**.
+> Last updated: 2026-10-11, at the close of **CR-DESIGN-SYSTEM-018**.
+
+## Latest: CR-DESIGN-SYSTEM-018 — navigation busy signal (kit 0.3.0)
+Additive, opt-in: `NavigationBusyProvider`, `NavigationBusyBar`, `useNavigationBusy` (new `src/components/NavigationBusy.tsx`)
+and `Link`'s `pendingIndicator` prop. No provider ⇒ `Link` renders exactly as at `820c980` (frozen-copy test). No
+Suspense / `loading.tsx`. 517/25 · mutations 7/7 · Edge proof 26/26. Archive `runs/change-16/`; rules
+`runs/change-16/evidence/developer-handover.md`. Org Admin wires it next (merged sha, not the branch). Run prettier with
+`--print-width 100`. Everything below is CR-015's handover, still true.
 
 ## Latest: CR-DESIGN-SYSTEM-015 — opt-in packhouse theme (kit 0.2.0)
 Additive: `src/lib/themes/packhouse.css` (five accent tokens), export `./themes/packhouse.css`, guard test

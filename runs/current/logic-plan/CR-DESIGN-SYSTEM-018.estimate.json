@@ -1,0 +1,15 @@
+{
+  "files": 5,
+  "lines": 250,
+  "steps": 3,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes the busy signal; Org Admin reads it (mounts it, pins merged sha)",
+    "Kit to DC: no change unless DC mounts it after its own stall proof",
+    "Kit to CRM, RMS: no change by construction",
+    "Next.js link status (15.3+) read by the kit Link, with a safe fallback"
+  ],
+  "migrationExpected": false
+}

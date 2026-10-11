@@ -123,6 +123,14 @@ export {
 export { EmptyState, type EmptyStateProps } from "./EmptyState";
 export { ErrorState, type ErrorStateProps } from "./ErrorState";
 export { Link, type LinkProps } from "./Link";
+// CR-DESIGN-SYSTEM-018 — navigation busy signal (opt-in: mount the provider; the kit Link feeds it).
+export {
+  NavigationBusyProvider,
+  NavigationBusyBar,
+  useNavigationBusy,
+  type NavigationBusyProviderProps,
+  type NavigationBusyBarProps,
+} from "./NavigationBusy";
 export { ExportButton, type ExportButtonProps, type ExportFormat } from "./ExportButton";
 export { PrintPreview, type PrintPreviewProps } from "./PrintPreview";
 export { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "./Tooltip";
