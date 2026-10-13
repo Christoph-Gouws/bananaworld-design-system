@@ -95,6 +95,10 @@ exactly as before.
 
 ### Changelog
 
+- **0.3.1** — Behaviour fix: a `Button` with `inflight` is now always disabled, even when the caller passes
+  `disabled={false}` (it used `disabled ?? inflight`, so `false` kept it clickable and a second tap double-submitted).
+  Callers that passed both will see the button grey while in flight, like every other busy button. No new prop, export
+  or default.
 - **0.3.0** — Navigation busy signal (`NavigationBusyProvider`, `NavigationBusyBar`, `useNavigationBusy`, and a
   `pendingIndicator` prop on `Link`). Opt-in: an app that does not mount the provider renders every `Link` as before.
 - **0.2.0** — Opt-in packhouse theme (`./themes/packhouse.css`). DC and CRM unaffected: neither imports the file nor

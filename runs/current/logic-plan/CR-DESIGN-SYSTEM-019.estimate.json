@@ -1,0 +1,14 @@
+{
+  "files": 3,
+  "lines": 8,
+  "steps": 2,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes the busy-button rule; Manga Verde reads it at its pin bump (with its purchase-screen fix)",
+    "Kit writes; DC reads at its own bump - 12 DC submit buttons become single-tap",
+    "Kit writes; CRM, Org Admin, RMS, Packhouse each read at their own bump and check their screens"
+  ],
+  "migrationExpected": false
+}

@@ -71,7 +71,7 @@ const buttonStyles = cva(
 export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonStyles> {
   asChild?: boolean;
-  inflight?: boolean; // UX-DS-021 — disable + show progress feedback
+  inflight?: boolean; // UX-DS-021 — disable + show progress feedback; never clickable, whatever `disabled` says
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -97,7 +97,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         inflight && "cursor-progress",
         className,
       )}
-      disabled={disabled ?? inflight}
+      disabled={Boolean(disabled) || inflight}
       data-inflight={inflight || undefined}
       aria-busy={inflight || undefined}
       {...props}

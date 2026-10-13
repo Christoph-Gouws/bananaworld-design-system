@@ -1,7 +1,17 @@
 # Active unit — `bananaworld-design-system`
 
 > This is a FILE, not a unit folder. It records what is currently in flight.
-> Updated 2026-10-11.
+> Updated 2026-10-13.
+
+## Current: CR-DESIGN-SYSTEM-019 — a busy button can no longer be tapped (kit 0.3.1) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
+
+| Field | Value |
+|---|---|
+| Unit type | **Change Request**, archived to `runs/change-17/` |
+| Branch | `change/cr-design-system-019`, off `origin/main` @ `f508f99` |
+| Layout · ship mode | **A** · **on-green** |
+| Build status | 531/26 green; typecheck clean |
+| Remaining | Nothing in this repo. Follow-up: consumer pin bumps S1–S6 (Manga Verde first) |
 
 ## Current: CR-DESIGN-SYSTEM-018 — navigation busy signal (top bar + link spinner) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
 

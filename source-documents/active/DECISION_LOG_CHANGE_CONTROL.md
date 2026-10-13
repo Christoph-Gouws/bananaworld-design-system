@@ -1140,3 +1140,24 @@ foundation. The visual treatment differs only because the owner chose layout B a
 Built as approved. `pnpm typecheck` clean; `pnpm test` **79 passed / 7 files** (baseline 61/6 before
 any edit, so +18 new tests). 57 insertions and **0 deletions** in the source file. 0 open defects.
 Full evidence in `runs/change-01/`.
+
+---
+
+## CR-DESIGN-SYSTEM-019 — a busy button can no longer be tapped (kit 0.3.1)
+
+### What was asked
+Owner ruling 2026-10-13, after a live double purchase at Manga Verde (Macia, 14:15:23 and 14:15:24, same
+purchase posted twice to Xero). `Button` used `disabled={disabled ?? inflight}`, so a caller's
+`disabled={false}` kept a busy button clickable. Fix: `Boolean(disabled) || inflight`; add a unit test; report
+whether any consumer relies on a busy button staying clickable; list the consumer pin bumps owed.
+
+### What was decided at the plan gate
+Plan approved, layout **A** (the busy button greys out like every other `inflight`-only button), ship mode
+**on-green**. Mockups B (keep full colour) and C (automatic spinner) were rejected: they would change every busy
+button in every app. No clarify questions were asked or answered.
+
+### Outcome
+Built as approved. One expression, the `inflight` comment, version 0.3.1, a behaviour-fix changelog entry and 14
+new tests. `pnpm test` 531/26 (baseline 517/25), typecheck clean. DC reading: 12 sites change, none is a cancel.
+No consumer pin bumped; S1–S6 owed (`runs/change-17/output/known-issues.md`). No real-browser run was possible
+in the session; recorded in `deployed-verification.md`. Archive `runs/change-17/`.
