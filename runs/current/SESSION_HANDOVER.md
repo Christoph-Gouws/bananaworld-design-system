@@ -1,6 +1,12 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-10-11, at the close of **CR-DESIGN-SYSTEM-018**.
+> Last updated: 2026-10-13, at the close of **CR-DESIGN-SYSTEM-019**.
+
+## Latest: CR-DESIGN-SYSTEM-019 — a busy button can no longer be tapped (kit 0.3.1)
+Bug fix, NOT additive: `Button` used `disabled ?? inflight`, so `disabled={false}` kept a busy button clickable (live
+double purchase at Manga Verde). Now `Boolean(disabled) || inflight`. 531/26. Archive `runs/change-17/`; rules
+`runs/change-17/evidence/developer-handover.md`. Owed: every consumer pins the MERGED sha in its own change (Manga
+Verde first); list in `runs/change-17/output/known-issues.md`. No browser run was possible. Below is CR-018's handover.
 
 ## Latest: CR-DESIGN-SYSTEM-018 — navigation busy signal (kit 0.3.0)
 Additive, opt-in: `NavigationBusyProvider`, `NavigationBusyBar`, `useNavigationBusy` (new `src/components/NavigationBusy.tsx`)
