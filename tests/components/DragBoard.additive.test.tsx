@@ -74,6 +74,9 @@ const ADDED_SINCE_011 = [
   "gridFilterExclude",
   "gridFilterExcluded",
   "storedExclusionFromFilterValue",
+  // CR-DC-247 — the series colours (ten categorical hues) and their wrap-round picker.
+  "SERIES_COLOURS",
+  "seriesColour",
 ] as const;
 
 // 🔴 A COMPILE-TIME CHECK, not a runtime one: if a later edit narrowed or renamed a grid prop this
