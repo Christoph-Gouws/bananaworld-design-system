@@ -5,6 +5,8 @@
 // (data-surface) and the class-name composer every primitive uses live here.
 
 export { cn } from "./cn";
+// Ten categorical colours for telling several things of one kind apart (CR-DC-247).
+export { SERIES_COLOURS, seriesColour, type SeriesColour } from "./series-colours";
 export { SurfaceProvider, useSurface, type Surface } from "./SurfaceContext";
 export {
   formatMoney,

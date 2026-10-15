@@ -14,7 +14,11 @@ export default defineConfig({
       {
         test: {
           name: "engines",
-          include: ["tests/pricing/**/*.test.ts", "tests/sales-order/**/*.test.ts"],
+          include: [
+            "tests/pricing/**/*.test.ts",
+            "tests/sales-order/**/*.test.ts",
+            "tests/lib/**/*.test.ts",
+          ],
           environment: "node",
         },
       },
