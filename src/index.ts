@@ -13,6 +13,10 @@
 export * from "./components";
 export {
   cn,
+  // Ten categorical colours (CR-DC-247) — enumerated here like everything else from ./lib.
+  SERIES_COLOURS,
+  seriesColour,
+  type SeriesColour,
   SurfaceProvider,
   useSurface,
   type Surface,
