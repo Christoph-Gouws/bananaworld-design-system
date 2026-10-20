@@ -1,9 +1,19 @@
 # Active unit — `bananaworld-design-system`
 
 > This is a FILE, not a unit folder. It records what is currently in flight.
-> Updated 2026-10-13.
+> Updated 2026-10-20.
 
-## Current: CR-DESIGN-SYSTEM-019 — a busy button can no longer be tapped (kit 0.3.1) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
+## Current: CR-DESIGN-SYSTEM-020 — ExportButton download link (kit 0.5.0) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
+
+| Field | Value |
+|---|---|
+| Unit type | **Change Request**, archived to `runs/change-18/` |
+| Branch | `change/cr-design-system-020`, off `origin/main` @ `1fefb6c` |
+| Layout · ship mode | **A** · **on-green** |
+| Build status | 554/28 green; typecheck clean; Edge 16/16 |
+| Remaining | Nothing in this repo. Follow-up: CR-MANGAVERDE-069 pins the merged sha |
+
+## Previous: CR-DESIGN-SYSTEM-019 — a busy button can no longer be tapped (kit 0.3.1) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
 
 | Field | Value |
 |---|---|

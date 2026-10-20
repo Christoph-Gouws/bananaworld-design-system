@@ -1,12 +1,16 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-10-13, at the close of **CR-DESIGN-SYSTEM-019**.
+> Last updated: 2026-10-20, at the close of **CR-DESIGN-SYSTEM-020**.
 
-## Latest: CR-DESIGN-SYSTEM-019 — a busy button can no longer be tapped (kit 0.3.1)
-Bug fix, NOT additive: `Button` used `disabled ?? inflight`, so `disabled={false}` kept a busy button clickable (live
-double purchase at Manga Verde). Now `Boolean(disabled) || inflight`. 531/26. Archive `runs/change-17/`; rules
-`runs/change-17/evidence/developer-handover.md`. Owed: every consumer pins the MERGED sha in its own change (Manga
-Verde first); list in `runs/change-17/output/known-issues.md`. No browser run was possible. Below is CR-018's handover.
+## Latest: CR-DESIGN-SYSTEM-020 — ExportButton gets a real download link (kit 0.5.0)
+Additive: optional `href` + `fileName` on `ExportButton` (link = `<a download>`; link + disabled/inflight = disabled
+button; no `href` = today's toast, byte-identical, frozen-copy test). 554/28 · Edge 16/16 · frames in
+`runs/change-18/evidence/frames/`. Archive `runs/change-18/`; rules `runs/change-18/evidence/developer-handover.md`.
+Owed: CR-MANGAVERDE-069 pins the MERGED sha (from `1fefb6c6`); DC's pin not moved.
+
+## Previous: CR-DESIGN-SYSTEM-019 — a busy button can no longer be tapped (kit 0.3.1)
+`Button` now `Boolean(disabled) || inflight`. Archive `runs/change-17/`. Consumers pin the MERGED sha (list in
+`runs/change-17/output/known-issues.md`). Below is CR-018's handover.
 
 ## Latest: CR-DESIGN-SYSTEM-018 — navigation busy signal (kit 0.3.0)
 Additive, opt-in: `NavigationBusyProvider`, `NavigationBusyBar`, `useNavigationBusy` (new `src/components/NavigationBusy.tsx`)

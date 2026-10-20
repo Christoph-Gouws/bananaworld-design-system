@@ -1,0 +1,15 @@
+{
+  "files": 4,
+  "lines": 95,
+  "steps": 2,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes the download link; Manga Verde reads it when CR-MANGAVERDE-069 moves its pin to the merged sha",
+    "Kit writes; DC reads at its own bump - its export buttons pass no link, so they render exactly as today",
+    "Kit writes; CRM, RMS, Org Admin read only at their own bump - no link given means no change",
+    "Manga Verde's server writes the file; the browser fetches it - the kit makes no network call"
+  ],
+  "migrationExpected": false
+}

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CR-DESIGN-SYSTEM-013 — browser proof</title>
+  </head>
+  <body style="margin: 0">
+    <div id="root"></div>
+    <!-- The package barrel re-exports `Link`, which imports next/link; Next.js reads process.env, which a
+         Next app's bundler supplies. This page has no Next, so it supplies the one global Next expects. -->
+    <script>window.process = { env: { NODE_ENV: "development" } };</script>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>
