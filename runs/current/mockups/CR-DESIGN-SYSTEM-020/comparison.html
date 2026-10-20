@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Export buttons that really download: compare A, B and C</title>
+<style>
+  :root{--bg:#fafaf9;--surface:#fff;--muted:#f5f5f4;--sunken:#e7e5e4;--border:#e7e5e4;--border-strong:#d6d3d1;
+    --fg:#18181b;--fg-muted:#52525b;--fg-subtle:#71717a;--accent-subtle:#fef3c7}
+  *{box-sizing:border-box}
+  html,body{overflow-x:hidden}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1200px;margin:0 auto;padding:24px 16px 60px}
+  h1{font-size:22px;line-height:1.25;margin:0 0 6px}
+  .sub{color:var(--fg-muted);margin:0 0 8px;max-width:85ch}
+  .today{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin:14px 0 6px;max-width:85ch}
+  .today h2{font-size:15px;margin:0 0 6px}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;margin-top:18px}
+  @media (min-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
+  .opt{min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 16px 18px}
+  .opt h2{font-size:19px;line-height:1.3;margin:0 0 4px}
+  .pill{display:inline-block;background:var(--accent-subtle);color:#78350f;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:600;vertical-align:middle}
+  .lead{font-size:13px;color:var(--fg-muted);margin:0 0 6px}
+  .cap{font-size:11px;color:var(--fg-subtle);margin:14px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .card{max-width:100%;background:var(--surface);border:1px solid var(--border-strong);border-radius:10px;padding:12px 14px}
+  .card h3{font-size:14px;margin:0 0 2px}
+  .card p{font-size:12px;color:var(--fg-muted);margin:0 0 10px}
+  .acts{display:flex;flex-wrap:wrap;gap:8px}
+  .phone{max-width:300px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 12px;border-radius:6px;
+    font:500 14px/1 inherit;font-family:inherit;background:var(--surface);color:var(--fg);border:1px solid var(--border);
+    box-shadow:0 1px 2px rgba(24,24,27,.06);text-decoration:none;white-space:nowrap;cursor:pointer}
+  .btn:hover{background:var(--muted);border-color:var(--border-strong)}
+  .btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(250,200,10,.55)}
+  .phone .btn{min-height:44px}
+  .btn.off{opacity:.5;cursor:not-allowed}
+  .btn.off:hover{background:var(--surface);border-color:var(--border)}
+  .btn svg{width:16px;height:16px;flex:none}
+  .tag{font-size:10px;font-weight:700;letter-spacing:.04em;background:var(--sunken);color:var(--fg-muted);border-radius:4px;padding:2px 5px}
+  .note{font-size:12px;color:var(--fg-subtle);margin-top:8px}
+  .why{font-size:12px;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:8px 12px;margin-top:14px}
+  .tradeoff{font-size:12px;color:#78350f;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:8px 12px;margin-top:14px}
+  .toast{display:none;position:fixed;left:50%;bottom:18px;transform:translateX(-50%);max-width:calc(100vw - 32px);background:var(--fg);color:#fff;border-radius:8px;padding:10px 14px;font-size:13px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+  <symbol id="sheet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/></symbol>
+  <symbol id="page" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+</svg>
+<div class="page">
+  <h1>Export buttons that really download</h1>
+  <p class="sub">On Manga Verde's report screens, the Excel and PDF buttons will save the file to your phone or computer. All three options do that the same way. They differ only in how the button looks. The words are Manga Verde's own, so they can be in Portuguese.</p>
+
+  <div class="today">
+    <h2>Today</h2>
+    <div class="acts"><button class="btn" type="button" data-today><svg aria-hidden="true"><use href="#dl"/></svg>Export Excel</button></div>
+    <div class="note">Tap it: you only get a "coming soon" note. The warehouse app's export button keeps doing exactly this.</div>
+  </div>
+
+  <div class="grid">
+    <!-- ───────── A ───────── -->
+    <section class="opt" id="A">
+      <h2>Option A — Same as today's button <span class="pill">Recommended</span></h2>
+      <p class="lead">The usual download picture and words. Finger-sized on phones.</p>
+      <p class="cap">Computer</p>
+      <div class="card"><h3>Compras do mês</h3><p>Outubro 2026 · todas as estações</p>
+        <div class="acts">
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#dl"/></svg>Exportar Excel</a>
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#dl"/></svg>Exportar PDF</a>
+        </div></div>
+      <p class="cap">Phone</p>
+      <div class="card phone"><h3>Compras do mês</h3><p>Outubro 2026</p>
+        <div class="acts">
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#dl"/></svg>Exportar Excel</a>
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#dl"/></svg>Exportar PDF</a>
+        </div></div>
+      <p class="cap">Not ready yet</p>
+      <div class="card phone"><p>Sem compras neste período</p>
+        <div class="acts"><button class="btn off" type="button" disabled><svg aria-hidden="true"><use href="#dl"/></svg>Exportar Excel</button></div></div>
+      <div class="why">Matches every other export button. Nothing new to learn.</div>
+    </section>
+
+    <!-- ───────── B ───────── -->
+    <section class="opt" id="B">
+      <h2>Option B — A picture per file type</h2>
+      <p class="lead">A sheet for Excel, a page for PDF. Finger-sized on phones.</p>
+      <p class="cap">Computer</p>
+      <div class="card"><h3>Compras do mês</h3><p>Outubro 2026 · todas as estações</p>
+        <div class="acts">
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#sheet"/></svg>Exportar Excel</a>
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#page"/></svg>Exportar PDF</a>
+        </div></div>
+      <p class="cap">Phone</p>
+      <div class="card phone"><h3>Compras do mês</h3><p>Outubro 2026</p>
+        <div class="acts">
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#sheet"/></svg>Exportar Excel</a>
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#page"/></svg>Exportar PDF</a>
+        </div></div>
+      <p class="cap">Not ready yet</p>
+      <div class="card phone"><p>Sem compras neste período</p>
+        <div class="acts"><button class="btn off" type="button" disabled><svg aria-hidden="true"><use href="#sheet"/></svg>Exportar Excel</button></div></div>
+      <div class="tradeoff">Easier to tell apart, but no longer matches the warehouse app's export buttons, which keep the plain picture.</div>
+    </section>
+
+    <!-- ───────── C ───────── -->
+    <section class="opt" id="C">
+      <h2>Option C — A small file-type tag</h2>
+      <p class="lead">The usual picture, plus a tag naming the file type.</p>
+      <p class="cap">Computer</p>
+      <div class="card"><h3>Compras do mês</h3><p>Outubro 2026 · todas as estações</p>
+        <div class="acts">
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#dl"/></svg>Exportar<span class="tag">XLSX</span></a>
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#dl"/></svg>Exportar<span class="tag">PDF</span></a>
+        </div></div>
+      <p class="cap">Phone</p>
+      <div class="card phone"><h3>Compras do mês</h3><p>Outubro 2026</p>
+        <div class="acts">
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#dl"/></svg>Exportar<span class="tag">XLSX</span></a>
+          <a class="btn" href="#" data-dl><svg aria-hidden="true"><use href="#dl"/></svg>Exportar<span class="tag">PDF</span></a>
+        </div></div>
+      <p class="cap">Not ready yet</p>
+      <div class="card phone"><p>Sem compras neste período</p>
+        <div class="acts"><button class="btn off" type="button" disabled><svg aria-hidden="true"><use href="#dl"/></svg>Exportar<span class="tag">XLSX</span></button></div></div>
+      <div class="tradeoff">Names the file type, but the tag is extra text read out to blind users and needs translating. Also no longer matches the warehouse app.</div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+  // Demo only: show what a tap does, without downloading anything.
+  var t = document.getElementById("toast"), timer;
+  function say(msg){ t.textContent = msg; t.style.display = "block"; clearTimeout(timer); timer = setTimeout(function(){ t.style.display = "none"; }, 2200); }
+  document.querySelectorAll("[data-dl]").forEach(function (a) {
+    a.addEventListener("click", function (e) { e.preventDefault(); say("The file is saved to your downloads."); });
+  });
+  document.querySelector("[data-today]").addEventListener("click", function () { say("Export coming soon."); });
+</script>
+</body>
+</html>

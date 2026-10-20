@@ -1161,3 +1161,16 @@ Built as approved. One expression, the `inflight` comment, version 0.3.1, a beha
 new tests. `pnpm test` 531/26 (baseline 517/25), typecheck clean. DC reading: 12 sites change, none is a cancel.
 No consumer pin bumped; S1–S6 owed (`runs/change-17/output/known-issues.md`). No real-browser run was possible
 in the session; recorded in `deployed-verification.md`. Archive `runs/change-17/`.
+
+---
+
+## CR-DESIGN-SYSTEM-020 — ExportButton gets a real download link (kit 0.5.0)
+
+### What was asked
+Companion of CR-MANGAVERDE-069 (MV report exports to Excel and PDF), blocked at build until this merges: `ExportButton` only showed a toast. Add optional `href` and `fileName`: a plain browser download; a disabled button when `href` is set and `disabled`; no `href` renders exactly as today (pins DC); no network call in the package; touch target ≥ 44 px; axe clean; README entry.
+
+### What was decided at the plan gate
+Plan approved, layout **A** (same look as today's export button, finger-sized on touch; a greyed button when not ready), ship mode **on-green**. Mockups B (per-format icon) and C (file-type tag) rejected: they would make MV's buttons differ from DC's. No clarify questions were asked or answered.
+
+### Outcome
+Built as approved. `pnpm test` 554/28 (baseline 531/26), typecheck clean, audit exit 0, real Edge run 16/16. No consumer pin bumped; CR-MANGAVERDE-069 moves MV's pin to the merged sha. Mutation battery not run. Archive `runs/change-18/`.

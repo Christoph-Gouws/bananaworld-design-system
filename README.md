@@ -95,6 +95,9 @@ exactly as before.
 
 ### Changelog
 
+- **0.5.0** — `ExportButton` accepts optional `href` and `fileName`. With a link it renders a plain browser download
+  (`<a download>`); with a link and `disabled`/`inflight`, a disabled button. Without a link it renders exactly as
+  before (the 'coming soon' toast). No export, default or existing prop changed.
 - **0.3.1** — Behaviour fix: a `Button` with `inflight` is now always disabled, even when the caller passes
   `disabled={false}` (it used `disabled ?? inflight`, so `false` kept it clickable and a second tap double-submitted).
   Callers that passed both will see the button grey while in flight, like every other busy button. No new prop, export
@@ -103,6 +106,14 @@ exactly as before.
   `pendingIndicator` prop on `Link`). Opt-in: an app that does not mount the provider renders every `Link` as before.
 - **0.2.0** — Opt-in packhouse theme (`./themes/packhouse.css`). DC and CRM unaffected: neither imports the file nor
   sets the attribute. `tokens.css` unchanged.
+
+## Export button download link
+
+`ExportButton` has three shapes. No `href` (or `""`): the "coming soon" toast; needs a `ToastProvider`. `href` (+
+optional `fileName`): a real `<a href download>` — the browser does the download, the kit makes no network call, no
+provider needed, the ref is not attached. `href` + `disabled`/`inflight`: a disabled `<button>` (add your own
+tooltip). Pass `children` to translate the label. `download` only saves for same-origin URLs or a reply with
+`Content-Disposition: attachment`; otherwise browsers navigate.
 
 ## Local development
 
