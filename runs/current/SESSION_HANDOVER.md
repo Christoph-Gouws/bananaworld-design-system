@@ -1,12 +1,16 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-10-20, at the close of **CR-DESIGN-SYSTEM-020**.
+> Last updated: 2026-10-22, at the close of **CR-DESIGN-SYSTEM-021**.
 
-## Latest: CR-DESIGN-SYSTEM-020 — ExportButton gets a real download link (kit 0.5.0)
-Additive: optional `href` + `fileName` on `ExportButton` (link = `<a download>`; link + disabled/inflight = disabled
-button; no `href` = today's toast, byte-identical, frozen-copy test). 554/28 · Edge 16/16 · frames in
-`runs/change-18/evidence/frames/`. Archive `runs/change-18/`; rules `runs/change-18/evidence/developer-handover.md`.
-Owed: CR-MANGAVERDE-069 pins the MERGED sha (from `1fefb6c6`); DC's pin not moved.
+## Latest: CR-DESIGN-SYSTEM-021 — `Keypad` + `ActionTile` for the DC market tablet (kit 0.6.0)
+Additive: new `Keypad` (whole-number pad, 64 px keys on touch, Delete = clear) and `ActionTile` (icon + label, button or
+`Link`); no `FigureTile` (`ListCard` covers it). 615/30 · mutants 11/11 · Edge 34/34 · frames
+`runs/change-19/evidence/frames/`. Archive `runs/change-19/`; rules `runs/change-19/evidence/developer-handover.md`.
+Also: `next` override floor raised to 15.5.28 (audit was red on main; `runs/change-19/output/known-issues.md` K-1).
+Owed: CR-DC-256 pins the MERGED sha and re-exports the two names; no consumer pin moved.
+
+## Previous: CR-DESIGN-SYSTEM-020 — ExportButton download link (kit 0.5.0)
+Optional `href` + `fileName`; archive `runs/change-18/`. Owed: CR-MANGAVERDE-069 pins the MERGED sha.
 
 ## Previous: CR-DESIGN-SYSTEM-019 — a busy button can no longer be tapped (kit 0.3.1)
 `Button` now `Boolean(disabled) || inflight`. Archive `runs/change-17/`. Consumers pin the MERGED sha (list in

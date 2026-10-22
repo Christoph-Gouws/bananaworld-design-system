@@ -1174,3 +1174,19 @@ Plan approved, layout **A** (same look as today's export button, finger-sized on
 
 ### Outcome
 Built as approved. `pnpm test` 554/28 (baseline 531/26), typecheck clean, audit exit 0, real Edge run 16/16. No consumer pin bumped; CR-MANGAVERDE-069 moves MV's pin to the merged sha. Mutation battery not run. Archive `runs/change-18/`.
+
+---
+
+## CR-DESIGN-SYSTEM-021 — a tablet number pad (Keypad) and a big icon-and-label button (ActionTile) (kit 0.6.0)
+
+### What was asked
+Companion of CR-DC-256 (DC market crate station, part 2 of 3), blocked at build until this merges: add `Keypad` (3-column whole-number pad, 64 px keys on touch, controlled, `maxDigits` default 4, optional label/target, keyboard digits/Backspace/Delete), `ActionTile` (icon + label, hint, count badge, default/primary, button or link) and `FigureTile` only if no existing part covers it. Additive, minor bump to 0.6.0, no consumer pin changes.
+
+### What was decided at the plan gate
+Plan approved 2026-10-22, layout **A** (number box above the keys, "expected" figure small beside the count), ship mode **on-green**. `FigureTile` NOT added: `ListCard` with the app's own text covers it. `Delete` = clear (Backspace = last digit). Primary tile is the dark tile, not accent yellow. Optional `words` prop translates the three built-in words. No clarify questions were asked or answered.
+
+### Decision taken at build (within the approved approach)
+A real-browser axe run failed the first draft (label-in-name, disabled-label contrast). The tile's accessible name is now its visible text (label, count, hint) rather than `aria-labelledby` plus `aria-describedby`; a disabled pad's box is muted, not faded.
+
+### Outcome
+Built as approved. No consumer pin bumped; CR-DC-256 pins the merged sha. Archive `runs/change-19/`.
