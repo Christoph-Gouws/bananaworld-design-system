@@ -1,6 +1,6 @@
 {
   "name": "@bananaworld/design-system",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "Shared Bananaworld design system + shared pure logic used by both Bananaworld-DC and Bananaworld-CRM. The UI barrel ('.') is the 28 pure UI primitives + per-surface (data-surface) tokens — pure presentation only: no network, no permission/scope logic (TECH-COMP-003 / ADR-001). A separate './pricing' subpath ships THE single shared price-calculation engine (pure, no IO — CRM ADR-007 / PRD-FUNC-060) so a quote and the eventual order price identically; it never imports the UI layer. Shipped as TypeScript source; consumers transpile it via Next.js transpilePackages.",
   "license": "UNLICENSED",
@@ -75,7 +75,7 @@
     "//overrides-source-map-js": "source-map-js — ONE high advisory (GHSA-68fv-2mgg-jv7q, <1.2.2, event-loop DoS through indexed source-map section offsets) reaches the prod closure by the same ONE path as the two entries above: the auto-installed `next` PEER > postcss@8.4.31 > source-map-js. It post-dates this repo's last dependency touch, so it fails the Dependency Audit on EVERY pull request here, main included. TAKEN RATHER THAN IGNORED, on the standing remedy the owner chose twice for this exact shape (D-12, 2026-08-14; the CR-DESIGN-SYSTEM-009 gate, 2026-09-09): an override trades nothing away, so it is a fix and not an exception, and no Hard Rule 2 citation belongs here. Like the next entry, pnpm honours `overrides` only in the root project, so this constrains THIS repo's CI closure and nothing a consumer installs. Recorded at CR-DESIGN-SYSTEM-013 (2026-10-06), decision log D-4.",
     "overrides": {
       "nanoid@<3.3.17": "^3.3.17",
-      "next@<15.5.24": "^15.5.24",
+      "next@<15.5.28": "^15.5.28",
       "sharp@<0.35.5": "^0.35.5",
       "source-map-js@<1.2.2": "^1.2.2"
     },

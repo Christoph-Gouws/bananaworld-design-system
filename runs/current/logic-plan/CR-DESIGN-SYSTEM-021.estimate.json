@@ -1,0 +1,14 @@
+{
+  "files": 6,
+  "lines": 330,
+  "steps": 3,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes Keypad + ActionTile; DC reads them via its own pin bump in CR-DC-256",
+    "CRM, RMS, Org Admin, Manga Verde: pins unchanged, nothing they render changes",
+    "The count belongs to the app; the pad only displays it and reports key presses"
+  ],
+  "migrationExpected": false
+}

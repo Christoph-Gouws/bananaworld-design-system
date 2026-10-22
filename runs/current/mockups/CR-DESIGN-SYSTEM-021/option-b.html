@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-021 — Option B — count and "expected" side by side</title>
+<style>
+  :root{--bg:#fafaf9;--surface:#fff;--muted:#f4f4f5;--sunken:#e4e4e7;--border:#d4d4d8;--border-strong:#a1a1aa;--fg:#09090b;--fg-muted:#3f3f46;--fg-subtle:#52525b;--accent:#fac80a;--accent-subtle:#fef3c7}
+  *{box-sizing:border-box}html,body{overflow-x:hidden;max-width:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:14px;line-height:1.45}
+  .page{max-width:1100px;margin:0 auto;padding:22px 14px 56px}
+  h1{font-size:21px;margin:0 0 6px}.lead{color:var(--fg-muted);margin:0 0 6px;max-width:85ch}
+  .cols{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+  @media (min-width:900px){.cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .cap{font-size:11px;color:var(--fg-subtle);margin:16px 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .dev{max-width:375px;border:1px solid var(--border);border-radius:14px;padding:12px;background:var(--surface)}
+  .figs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:8px}
+  .card{border:1px solid var(--border);border-radius:10px;padding:10px 12px;min-height:80px;background:var(--surface);min-width:0}
+  .card .k{font-size:12px;color:var(--fg-muted)}.card .v{font-size:28px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.15}.card .s{font-size:11px;color:var(--fg-subtle)}
+  .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tiles.two{grid-template-columns:repeat(2,minmax(0,1fr));max-width:375px}
+  .tile{position:relative;width:100%;height:100%;min-height:86px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--fg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 6px;text-align:center;font:600 15px/1.2 inherit;font-family:inherit;overflow-wrap:anywhere;cursor:pointer}
+  .tile:hover{background:var(--muted)}.tile:focus-visible,.key:focus-visible{outline:none;box-shadow:0 0 0 1px #fff,0 0 0 3px var(--accent)}
+  .tile svg{width:28px;height:28px;flex:none}.tile .h{font-size:11px;font-weight:400;color:var(--fg-subtle)}
+  .tile.dark{background:var(--fg);color:#fff;border-color:var(--fg)}.tile.dark:hover{background:#27272a}.tile.dark .h{color:#d4d4d8}
+  .tile.off{opacity:.5;cursor:not-allowed}
+  .ib{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:999px;background:var(--accent);color:#18181b;font-size:12px;font-weight:700;padding:0 6px;margin-left:4px;vertical-align:middle;font-variant-numeric:tabular-nums}
+  .kp{display:flex;flex-direction:column;gap:8px;min-width:0}
+  .win2{border:1px solid var(--border-strong);border-radius:10px;padding:8px 12px}
+  .win2 .l{font-weight:600;margin-bottom:2px}
+  .win2 .pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .win2 .pair>div{border-radius:8px;background:var(--muted);padding:4px 10px}
+  .win2 .k{font-size:11px;color:var(--fg-subtle)}
+  .win2 .n,.win2 .n2{font-size:30px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.1}.win2 .n2{color:var(--fg-muted)}
+  .e{color:#a1a1aa}
+  .keys{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .key{height:64px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--fg);font:500 24px/1 inherit;font-family:inherit;font-variant-numeric:tabular-nums;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+  .key:hover{background:var(--muted)}.key:active{background:var(--sunken)}.key.g{background:var(--muted);color:var(--fg-muted);font-size:15px}.key svg{width:24px;height:24px}
+  .kp.off .key,.kp.off .win2{opacity:.5}
+  .states{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:375px}
+  .st{min-width:0}.st .sl{font-size:11px;color:var(--fg-subtle);margin:0 0 4px;font-weight:600}
+  .mini .key{height:34px;font-size:15px;border-radius:7px}.mini .key.g{font-size:10px}.mini .key svg{width:16px;height:16px}.mini .keys{gap:4px}
+  .mini .win2{padding:4px 8px}.mini .win2 .l{font-size:12px}.mini .win2 .n,.mini .win2 .n2{font-size:18px}.mini .win2 .k{font-size:9px}.mini .win2 .pair>div{padding:2px 6px}
+  .tradeoff{font-size:12px;color:#78350f;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:8px 12px;margin-top:14px;max-width:85ch}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
+  <symbol id="in" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></symbol>
+  <symbol id="add" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></symbol>
+  <symbol id="del" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/><path d="m12 9 6 6"/><path d="m18 9-6 6"/></symbol>
+</svg>
+<div class="page">
+  <h1>Option B — count and "expected" side by side, same size</h1>
+  <p class="lead">Both figures sit next to each other at the same size. On the big buttons the small number sits after the name. Try the pad. The figures are made up.</p>
+  <div class="cols">
+    <div>
+      <div class="cap">Phone width — home</div>
+      <div class="dev">
+        <div class="figs">
+          <div class="card"><div class="k">Crates with clients</div><div class="v">187</div><div class="s">Standard 160 · Foldable 19 · Bin 8</div></div>
+          <div class="card"><div class="k">Crates on the floor</div><div class="v">65</div><div class="s">Standard 50 · Foldable 11 · Bin 4</div></div>
+        </div>
+        <div class="tiles">
+          <button class="tile dark" type="button"><svg aria-hidden="true"><use href="#out"/></svg>Crates out</button>
+          <button class="tile dark" type="button"><svg aria-hidden="true"><use href="#in"/></svg>Crates in</button>
+          <button class="tile" type="button"><svg aria-hidden="true"><use href="#add"/></svg>New client</button>
+        </div>
+      </div>
+      <div class="cap">Phone width — counting (try it)</div>
+      <div class="dev">
+        <div class="kp" data-live data-max="4">
+          <div class="win2"><div class="l">Standard Crate</div><div class="pair"><div><div class="k">Counted</div><div class="n" aria-live="polite">35</div></div><div><div class="k">Expected</div><div class="n2">40</div></div></div></div>
+          <div class="keys">
+            <button class="key" type="button" data-k="1">1</button><button class="key" type="button" data-k="2">2</button><button class="key" type="button" data-k="3">3</button>
+            <button class="key" type="button" data-k="4">4</button><button class="key" type="button" data-k="5">5</button><button class="key" type="button" data-k="6">6</button>
+            <button class="key" type="button" data-k="7">7</button><button class="key" type="button" data-k="8">8</button><button class="key" type="button" data-k="9">9</button>
+            <button class="key g" type="button" data-k="c">Clear</button><button class="key" type="button" data-k="0">0</button><button class="key g" type="button" data-k="b" aria-label="Delete last digit"><svg aria-hidden="true"><use href="#del"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="cap">Every state of the pad</div>
+      <div class="states">
+        <div class="st"><p class="sl">Empty</p><div class="kp mini"><div class="win2"><div class="l">Bin</div><div class="pair"><div><div class="k">Counted</div><div class="n e">—</div></div><div><div class="k">Expected</div><div class="n2">14</div></div></div></div><div class="keys"><span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key">4</span><span class="key">5</span><span class="key">6</span><span class="key">7</span><span class="key">8</span><span class="key">9</span><span class="key g">Clear</span><span class="key">0</span><span class="key g"><svg aria-hidden="true"><use href="#del"/></svg></span></div></div></div>
+        <div class="st"><p class="sl">Typed</p><div class="kp mini"><div class="win2"><div class="l">Bin</div><div class="pair"><div><div class="k">Counted</div><div class="n">12</div></div><div><div class="k">Expected</div><div class="n2">14</div></div></div></div><div class="keys"><span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key">4</span><span class="key">5</span><span class="key">6</span><span class="key">7</span><span class="key">8</span><span class="key">9</span><span class="key g">Clear</span><span class="key">0</span><span class="key g"><svg aria-hidden="true"><use href="#del"/></svg></span></div></div></div>
+        <div class="st"><p class="sl">Full (four digits)</p><div class="kp mini"><div class="win2"><div class="l">Bin</div><div class="pair"><div><div class="k">Counted</div><div class="n">9999</div></div><div><div class="k">Expected</div><div class="n2">14</div></div></div></div><div class="keys"><span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key">4</span><span class="key">5</span><span class="key">6</span><span class="key">7</span><span class="key">8</span><span class="key">9</span><span class="key g">Clear</span><span class="key">0</span><span class="key g"><svg aria-hidden="true"><use href="#del"/></svg></span></div></div></div>
+        <div class="st"><p class="sl">Switched off</p><div class="kp mini off"><div class="win2"><div class="l">Bin</div><div class="pair"><div><div class="k">Counted</div><div class="n">12</div></div><div><div class="k">Expected</div><div class="n2">14</div></div></div></div><div class="keys"><span class="key">1</span><span class="key">2</span><span class="key">3</span><span class="key">4</span><span class="key">5</span><span class="key">6</span><span class="key">7</span><span class="key">8</span><span class="key">9</span><span class="key g">Clear</span><span class="key">0</span><span class="key g"><svg aria-hidden="true"><use href="#del"/></svg></span></div></div></div>
+      </div>
+      <div class="cap">Every state of the big button</div>
+      <div class="tiles two">
+        <button class="tile" type="button"><svg aria-hidden="true"><use href="#add"/></svg>New client</button>
+        <button class="tile dark" type="button"><svg aria-hidden="true"><use href="#out"/></svg>Crates out<span class="h">to a buyer</span></button>
+        <button class="tile off" type="button" disabled><svg aria-hidden="true"><use href="#in"/></svg>Crates in</button>
+        <button class="tile" type="button"><svg aria-hidden="true"><use href="#add"/></svg><span>Starting count for a buyer<span class="ib">3</span></span></button>
+      </div>
+    </div>
+  </div>
+  <div class="tradeoff">Trade-off: easiest straight comparison, but the number you are not typing is just as loud as the one you are. The small number after the name pushes long names onto two lines sooner.</div>
+</div>
+<script>
+  document.querySelectorAll('.kp[data-live]').forEach(function (pad) {
+    var out = pad.querySelector('.n'), max = Number(pad.getAttribute('data-max')) || 4, value = out.textContent.trim();
+    function show() { if (value === '') { out.textContent = '—'; out.classList.add('e'); } else { out.textContent = value; out.classList.remove('e'); } }
+    function press(k) { if (k === 'c') value = ''; else if (k === 'b') value = value.slice(0, -1); else if (value === '0') value = k; else if (value.length < max) value = value + k; show(); }
+    pad.querySelectorAll('[data-k]').forEach(function (b) { b.addEventListener('click', function () { press(b.getAttribute('data-k')); }); });
+    pad.addEventListener('keydown', function (e) {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (/^[0-9]$/.test(e.key)) { press(e.key); e.preventDefault(); }
+      else if (e.key === 'Backspace') { press('b'); e.preventDefault(); }
+      else if (e.key === 'Delete') { press('c'); e.preventDefault(); }
+    });
+  });
+</script>
+</body>
+</html>

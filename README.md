@@ -95,6 +95,9 @@ exactly as before.
 
 ### Changelog
 
+- **0.6.0** — `Keypad` (on-screen whole-number pad, 64 px keys on touch) and `ActionTile` (large icon-and-label
+  button or link). New names only; nothing existing changed. A figure card is `ListCard` with your own caption,
+  number and sub-text.
 - **0.5.0** — `ExportButton` accepts optional `href` and `fileName`. With a link it renders a plain browser download
   (`<a download>`); with a link and `disabled`/`inflight`, a disabled button. Without a link it renders exactly as
   before (the 'coming soon' toast). No export, default or existing prop changed.
@@ -114,6 +117,32 @@ optional `fileName`): a real `<a href download>` — the browser does the downlo
 provider needed, the ref is not attached. `href` + `disabled`/`inflight`: a disabled `<button>` (add your own
 tooltip). Pass `children` to translate the label. `download` only saves for same-origin URLs or a reply with
 `Content-Disposition: attachment`; otherwise browsers navigate.
+
+## Tablet counting and big buttons
+
+```tsx
+const [crates, setCrates] = useState("");
+<Keypad value={crates} onChange={setCrates} maxDigits={4} label="Standard Crate" target={40} />
+
+<div className="grid grid-cols-3 gap-2">   {/* the grid is the app's; the tile sets none */}
+  <ActionTile icon={PackageMinus} label="Crates out" variant="primary" />
+  <ActionTile icon={PackageCheck} label="Crates in" count={3} />
+  <ActionTile icon={UserPlus} label="New client" href="/clients/new" />
+</div>
+
+{/* A figure card is ListCard with your own text — there is no FigureTile. */}
+<ListCard density="card">
+  <div className="text-sm text-fg-muted">Crates on the floor</div>
+  <div className="text-3xl font-semibold tabular-nums">412</div>
+</ListCard>
+```
+
+`Keypad` is controlled (you own the string) and counts whole numbers only. A leading zero is dropped, a digit past
+`maxDigits` (default 4) is ignored, and `onChange` fires only when the value changes. With focus on a key, the
+keyboard types `0`–`9`, `Backspace` deletes the last digit and `Delete` clears. The pad never rounds, never parses and
+never decides whether a count is allowed — that is your rule. `words` translates Clear / Delete last digit / empty.
+`ActionTile` is a `<button>`, or the kit `Link` when `href` is given (`href` + `disabled` is a disabled button). Its
+accessible name is its visible text (label, count, hint).
 
 ## Local development
 
