@@ -95,6 +95,10 @@ exactly as before.
 
 ### Changelog
 
+- **0.7.1** — `Link` inside a `NavigationBusyProvider`: the waiting ring no longer moves anything in a link laid out
+  as a row (flex/grid), a block or a tile; it sits just after the link's words. Links in running text are unchanged.
+  An inline `<a>` that wraps block children and has no display class still gets the in-flow ring: give it `block`.
+  Also: the grid filter's three open lists share one chrome constant (same classes). Behaviour fix, CR-DESIGN-SYSTEM-022.
 - **0.7.0** — `LinkedRecords` / `LinkedRecordsItem` (a one-line "Linked · Dispatches DSP-00131 7 Oct" list with a
   summary card) and one optional `linked` prop on `DocumentHeader`. New names and a new optional prop only; a header
   without `linked` renders byte-identically, and `DOCUMENT_HEADER_SLOTS` is untouched.

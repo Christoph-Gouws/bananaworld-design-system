@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option C — no waiting ring in menu rows</title>
+<style>
+  :root{--bg:#fafaf9;--surface:#fff;--muted:#f5f5f4;--sunken:#efefee;--border:#e7e5e4;--border-strong:#d6d3d1;--fg:#18181b;--fg-muted:#52525b;--fg-subtle:#71717a;--accent:#fac80a;--accent-subtle:#fef3c7}
+  *{box-sizing:border-box} html,body{overflow-x:hidden}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:14px;line-height:1.5}
+  .page{max-width:520px;margin:0 auto;padding:24px 16px 64px}
+  .opt{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+  .opt h2{font-size:20px;margin:0 0 4px}
+  .lead{font-size:13px;color:var(--fg-muted);margin:0 0 6px}
+  .demo{margin-top:16px}
+  .cap{font-size:11px;color:var(--fg-subtle);margin:0 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .tradeoff{font-size:12px;color:#78350f;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:8px 12px;margin-top:16px}
+  .side{background:var(--muted);border:1px solid var(--border);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:2px;max-width:280px}
+  .side a{position:relative;display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;color:var(--fg-muted);font-size:14px}
+  .side a.on{background:var(--sunken);color:var(--fg);font-weight:500}
+  .ico{position:relative;width:16px;height:16px;border-radius:4px;border:2px solid currentColor;flex:none}
+  .rowb{position:relative;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);max-width:280px}
+  .badge{background:var(--accent);border-radius:999px;font-size:12px;font-weight:700;padding:0 8px;min-width:24px;text-align:center;line-height:20px}
+  .tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:96px;width:140px;border-radius:10px;background:#18181b;color:#fff;font-weight:600;font-size:16px}
+  .tile .ico{width:22px;height:22px}
+  .txt{color:var(--fg);text-decoration:underline;text-underline-offset:2px;position:relative}
+  p.sent{margin:0;max-width:280px}
+  .ring{position:absolute;width:12px;height:12px;border-radius:50%;border:2px solid var(--border-strong);border-top-color:var(--fg-muted);animation:rot .8s linear infinite}
+  .after{left:calc(100% + 4px);top:50%;margin-top:-6px}
+  .topline{position:relative;height:40px;border:1px solid var(--border);border-radius:8px;background:var(--surface);overflow:hidden;max-width:280px}
+  .topline i{position:absolute;left:0;top:0;height:3px;width:60%;background:var(--accent)}
+  .topline span{position:absolute;left:10px;top:12px;font-size:12px;color:var(--fg-subtle)}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.ring{animation:none}}
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="opt">
+    <h2>Option C — no ring in those rows</h2>
+    <p class="lead">While waiting, menu rows, rows with a count and the big buttons show no ring. The thin yellow line
+    at the top of the page is the only sign. Links in sentences keep their ring. Nothing moves.</p>
+    <div class="demo"><p class="cap">Menu row with a picture</p>
+      <nav class="side"><a><span class="ico"></span><span>Organisations</span></a><a class="on"><span class="ico"></span><span>Users</span></a><a><span class="ico"></span><span>Roles</span></a></nav></div>
+    <div class="demo"><p class="cap">Row with a count</p>
+      <div class="rowb"><span>Orders</span><span class="badge">12</span></div></div>
+    <div class="demo"><p class="cap">Big tablet button</p>
+      <div class="tile"><span class="ico"></span><span>Crates in</span></div></div>
+    <div class="demo"><p class="cap">The line at the top of the page</p>
+      <div class="topline"><i></i><span>Next page on its way…</span></div></div>
+    <div class="demo"><p class="cap">Link in a sentence (unchanged)</p>
+      <p class="sent">See the <a class="txt">orders list<i class="ring after"></i></a> for details.</p></div>
+    <div class="tradeoff">The simplest, but in the main menu you lose the sign of which row you clicked. That sign is
+    what the ring was asked for.</div>
+  </section>
+</div>
+</body>
+</html>

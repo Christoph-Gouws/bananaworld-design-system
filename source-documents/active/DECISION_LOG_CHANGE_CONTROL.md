@@ -1208,3 +1208,22 @@ Plan approved, layout **A** (the short touch panel), ship mode **on-green**. Opt
 
 ### Outcome
 Built as approved. `pnpm test` 671/32 (baseline 615/30), typecheck clean, mutants 10/10, real Edge run 33/33. No consumer pin bumped; CR-DC-223 pins the merged sha. Archive `runs/change-21/`.
+
+---
+
+## CR-DESIGN-SYSTEM-022 — batched review follow-up: six findings from CR-013, CR-015, CR-018, CR-021 (kit 0.7.1)
+
+### What was asked
+Six medium findings an independent reviewer raised on already-merged work, batched into one change. Each was to be confirmed against the code as it is now, then fixed, deferred, or dropped.
+
+### What was decided at the plan gate
+Plan approved 2026-10-27, layout **A** for the waiting ring (just after the link's words; B over the start and C no ring in row links not picked), ship mode **on-green**. No clarify questions were asked or answered. All six findings CONFIRMED against current code; none no-longer-holds. Owner ratified by approving the plan (defaults: keep, keep):
+- **F3 (CR-015 F2) and F5 (CR-021 F1) — the two unplanned security floors STAY.** `next` floor `<15.5.28` (raised in CR-DESIGN-SYSTEM-021, 2026-10-22) clears GHSA-2464-fhr4-w9xw (critical) and GHSA-p3m5-59mp-jv5r (high), both patched in 15.5.28. `sharp` floor `<0.35.5` (raised in CR-DESIGN-SYSTEM-015, 2026-10-09) clears GHSA-wq5f-xc86-pv6w (high, patched 0.35.5). Reverting either reopens a known hole. Neither raise was in its change's plan; the paper defect is fixed here: the notes in `package.json` now say so, and a test fails if a floor has no note. The record errors are named, not rewritten: CR-015 `test-results.md` ("no dependency changed") and CR-021's "Built as approved" above.
+- **F6 (CR-021 F2) — `ActionTile`'s accessible name keeps the hint.** The CR-021 build reversed an approved plan clause (hint as description) without an owner gate and filed it "within the approved approach". It was forced: axe `label-content-name-mismatch` (WCAG 2.5.3) rejects a name that omits visible text. Ratified here. No code change; no app passes a `hint` yet.
+
+### Decisions taken at build (within the approved plan)
+- F1: `FILTER_MENU` constant, same bytes. F2: gitleaks allowlist by VALUE (the tokens.css SHA-256) in `.gitleaks.toml`; `.gitleaksignore` deleted (its commit `59ce1abc` is not on `main`; the squash commit is `820c980`). F4: the mark leaves the flow for any link whose computed `display` is not `inline`; placement A.
+- The sharp advisory ID was confirmed from the advisory itself (`gh api`), not assumed.
+
+### Outcome
+Built as approved. `pnpm test` 680/34 (baseline 671/32), typecheck clean, audit exit 0, real Edge run ALL PASS (the same run FAILS 12 checks on the old `Link`). Gitleaks was NOT run locally (not installed); the nightly scan or a dispatch of `secret-scan.yml` is the check. No consumer pin bumped. Archive `runs/change-20/`.

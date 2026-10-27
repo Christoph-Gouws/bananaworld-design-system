@@ -16,4 +16,8 @@ paths = [
 ]
 regexes = [
   '''(REPLACE_ME|YOUR_.+_HERE|<.+>|placeholder|example|sample-only)''',
+  # Not a secret: the SHA-256 of src/lib/tokens.css, the tamper-guard constant in
+  # tests/themes/packhouse-theme.test.ts (CR-DESIGN-SYSTEM-015). Matched by VALUE, so it holds on every
+  # commit sha, the squash-merge included. One public value, not a path: it cannot hide a real key.
+  '''e641cb32a15f0e94cd400496a6441568f1289726b7fdd3c48cb133520803ea17''',
 ]

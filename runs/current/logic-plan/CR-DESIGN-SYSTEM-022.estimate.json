@@ -1,0 +1,15 @@
+{
+  "files": 6,
+  "lines": 100,
+  "steps": 4,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit Link fix reaches Org Admin only at its own pin bump; only the waiting ring moves",
+    "DC (pin bb6c22e) unaffected: no provider, filter lists byte-identical, tiles untouched",
+    "CRM/RMS/Manga Verde: nothing rendered changes unless they mounted the busy provider",
+    "Kit CI only: secret-scan exemption and override notes; nothing a consumer installs"
+  ],
+  "migrationExpected": false
+}
