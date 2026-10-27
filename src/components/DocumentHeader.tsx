@@ -259,6 +259,14 @@ export interface DocumentHeaderProps {
    * line that keeps `PermissionGate` and the sync indicators in their apps.
    */
   readonly origin: DocumentOrigin;
+  /**
+   * 🔴 CR-DESIGN-SYSTEM-023 — the linked-records line, full width under the four slots, inside the same
+   *    frame. Absent (or null) ⇒ the header renders exactly as before: one `<dl>`, same classes, same
+   *    children. NOT a slot: `DOCUMENT_HEADER_SLOTS` is untouched, and the line sits OUTSIDE the `<dl>`
+   *    so the list keeps exactly its four `dt`s — which Bananaworld-DC's specs read in order. A node
+   *    that renders nothing leaves the strip empty and it collapses (`empty:hidden`).
+   */
+  readonly linked?: ReactNode;
 }
 
 /** The second line of the taken-number refusal — the owner's addition of 2026-08-08 (KI-M002-06). */
@@ -283,7 +291,7 @@ export function DocumentHeader(props: DocumentHeaderProps): ReactElement {
   const slots = DOCUMENT_HEADER_SLOTS;
 
   return (
-    <dl className="grid grid-cols-1 gap-4 rounded-lg border border-border p-4 sm:grid-cols-2 lg:grid-cols-4">
+    <HeaderFrame linked={props.linked}>
       {slots.map((slot) => {
         if (slot === "Date") {
           // 🔴 THE ORDER OF PRECEDENCE IS THE NON-REGRESSION RULE, EXPRESSED AS CODE. A form's OWN
@@ -330,7 +338,33 @@ export function DocumentHeader(props: DocumentHeaderProps): ReactElement {
           />
         );
       })}
-    </dl>
+    </HeaderFrame>
+  );
+}
+
+// 🔴 CR-DESIGN-SYSTEM-023 — the frame. WITHOUT `linked` it IS today's single `<dl>` (the same class string and
+//    children, proven byte-identical against a frozen copy of this file at bb6c22e). WITH it, the frame moves
+//    to a wrapper and the line sits beneath the list, never inside it: a `<div role="group">` is not a valid
+//    child of a `<dl>`, and a fifth `<dt>` would break the four-`dt` order DC's specs read.
+function HeaderFrame({
+  linked,
+  children,
+}: {
+  linked: ReactNode;
+  children: ReactNode;
+}): ReactElement {
+  if (linked === undefined || linked === null) {
+    return (
+      <dl className="grid grid-cols-1 gap-4 rounded-lg border border-border p-4 sm:grid-cols-2 lg:grid-cols-4">
+        {children}
+      </dl>
+    );
+  }
+  return (
+    <div className="rounded-lg border border-border p-4">
+      <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{children}</dl>
+      <div className="mt-4 border-t border-border pt-3 empty:hidden">{linked}</div>
+    </div>
   );
 }
 

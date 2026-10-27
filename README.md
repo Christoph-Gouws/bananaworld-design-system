@@ -95,6 +95,9 @@ exactly as before.
 
 ### Changelog
 
+- **0.7.0** — `LinkedRecords` / `LinkedRecordsItem` (a one-line "Linked · Dispatches DSP-00131 7 Oct" list with a
+  summary card) and one optional `linked` prop on `DocumentHeader`. New names and a new optional prop only; a header
+  without `linked` renders byte-identically, and `DOCUMENT_HEADER_SLOTS` is untouched.
 - **0.6.0** — `Keypad` (on-screen whole-number pad, 64 px keys on touch) and `ActionTile` (large icon-and-label
   button or link). New names only; nothing existing changed. A figure card is `ListCard` with your own caption,
   number and sub-text.
@@ -117,6 +120,27 @@ optional `fileName`): a real `<a href download>` — the browser does the downlo
 provider needed, the ref is not attached. `href` + `disabled`/`inflight`: a disabled `<button>` (add your own
 tooltip). Pass `children` to translate the label. `download` only saves for same-origin URLs or a reply with
 `Content-Disposition: attachment`; otherwise browsers navigate.
+
+## Linked records
+
+```tsx
+<DocumentHeader {...headerProps} linked={
+  <LinkedRecords label="Linked" emptyText="Nothing linked to this document yet" state="ready"
+    groups={[{ key: "dsp", label: "Dispatches", more: <span>+2 more</span>, items: [
+      { key: "1", link: <DrillLink href="/dispatches/1">DSP-00131</DrillLink>, text: "DSP-00131", date: "7 Oct",
+        summary: { type: "Dispatch", number: "DSP-00131", status: "Posted", rows: [{ label: "Customer", value: "Acme" }] } },
+      { key: "2", link: null, text: "CM-00009", refusedLabel: "You can't open crate corrections" },
+    ] }]} />
+} />
+```
+
+Presentation only: you hand in formatted text, your own link node and (for a document the viewer may not open) a
+`refusedLabel`; a refused item shows a lock and its number, never a date, card or button. Mount `TooltipProvider`
+once at the shell (the card is the kit `Tooltip`; a tooltip outside a provider throws). Your link needs no
+`forwardRef`: the kit wraps it in a span. On a device that cannot hover (`hover: none`) each item with a summary also
+shows a 40 px info button that opens the card in a bottom `Sheet` with your link again. `words` translates Summary
+of / Close / Open / error / Retry. `DocumentHeader linked` puts the line under the four slots, inside the same frame
+and outside the `<dl>`; pass nothing (or a node that renders `null`) for an unsaved document and the strip hides.
 
 ## Tablet counting and big buttons
 

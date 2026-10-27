@@ -269,3 +269,17 @@ export {
 //    the additive test. A figure card is `ListCard` with your own text (README).
 export { Keypad, type KeypadProps } from "./Keypad";
 export { ActionTile, type ActionTileProps } from "./ActionTile";
+// 🔴 LINKED RECORDS (CR-DESIGN-SYSTEM-023, companion of Bananaworld-DC CR-DC-223). One line, grouped by type,
+//    with a summary card (tooltip on mouse/keyboard, bottom sheet on touch). Presentation only — the app
+//    hands in its own link node. ADDITIVE: new names only — declared in the export inventory in the
+//    additive test. `DocumentHeader` gains one optional `linked` prop to carry it.
+export {
+  LinkedRecords,
+  LinkedRecordsItem,
+  type LinkedRecordsProps,
+  type LinkedRecordsItemProps,
+  type LinkedRecordsGroup,
+  type LinkedRecordsEntry,
+  type LinkedRecordsSummary,
+  type LinkedRecordsWords,
+} from "./LinkedRecords";

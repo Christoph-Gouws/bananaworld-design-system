@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-023 · Linked line — compare A, B and C</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0}
+body{font:14px/1.45 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#0f172a;background:#f4f5f7;-webkit-text-size-adjust:100%;overflow-x:hidden}
+.page{max-width:1400px;margin:0 auto;padding:18px 12px 56px}
+h1{font-size:21px;margin:0 0 6px;letter-spacing:-.01em}
+.lede{color:#475569;margin:0 0 18px;max-width:820px}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr);gap:28px}
+@media(min-width:900px){.cmp{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
+.opt{min-width:0}
+.opt>h2{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+.opt>.why{color:#475569;margin:0 0 12px}
+.rec{display:inline-block;font-size:11px;font-weight:700;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:999px;padding:1px 8px;vertical-align:middle;margin-left:4px}
+.frames{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.frame{position:relative;background:#fff;border:1px solid #e3e6ea;border-radius:12px;overflow:hidden;min-width:0}
+.cap{font-size:12px;color:#64748b;padding:8px 12px;border-bottom:1px solid #eef0f3;background:#fafbfc}
+.cap b{color:#334155}
+.appbar{height:40px;background:#0f172a;color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;padding:0 14px}
+.main{padding:12px 12px 16px;min-width:0}
+.tr{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}
+.dt{font-size:16px;font-weight:650;margin:0}
+.badge{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;border:1px solid #bbf7d0;color:#166534;background:#f0fdf4;white-space:nowrap}
+.hdr{border:1px solid #e3e6ea;border-radius:8px;padding:12px;min-width:0}
+.slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0}
+.slots dt{font-size:12px;font-weight:500;color:#64748b;margin:0 0 5px}.slots dd{margin:0;min-width:0}
+.val{height:32px;display:flex;align-items:center;padding:0 9px;border:1px solid #e3e6ea;border-radius:6px;background:#f8fafc;font-size:13px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.la{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:12px;padding-top:10px;border-top:1px solid #e3e6ea;font-size:13px;min-width:0}
+.lab{font-size:11px;font-weight:650;color:#64748b;text-transform:uppercase;letter-spacing:.06em}
+.optC .la{border-top:0;padding-top:0}
+.optC .lab{font-size:12px;font-weight:500;text-transform:none;letter-spacing:0}
+.g{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0}
+.gt{color:#475569;font-weight:500}
+.it{position:relative;display:inline-flex;align-items:center;gap:6px;min-width:0}
+.lnk{color:#2563eb;font-weight:550;text-decoration:underline;text-decoration-color:rgba(37,99,235,.38);text-decoration-thickness:1.5px;text-underline-offset:3px;white-space:nowrap}
+.lnk.hov{text-decoration-color:#2563eb;background:#eff6ff;border-radius:3px}
+.d{font-size:12px;color:#64748b;white-space:nowrap}
+.lock{color:#94a3b8;font-weight:500;white-space:nowrap}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;margin:-8px -8px -8px -4px;flex:none}
+.ib i{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;border:1px solid #cfd5dc;background:#fff;color:#475569;font:italic 600 13px Georgia,serif}
+.ib.on i{border-color:#2563eb;color:#2563eb;background:#eff6ff}
+.card{position:absolute;z-index:5;top:calc(100% + 8px);left:0;width:240px;max-width:66vw;background:#fff;border:1px solid #e3e6ea;border-radius:10px;box-shadow:0 10px 30px -8px rgba(15,23,42,.22),0 2px 6px rgba(15,23,42,.06);padding:11px;font-size:12.5px;white-space:normal}
+.ct{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#64748b;font-size:11px;font-weight:650;text-transform:uppercase;letter-spacing:.05em}
+.pill{font-size:11px;font-weight:600;border:1px solid #e3e6ea;border-radius:999px;padding:1px 8px;color:#334155;text-transform:none;letter-spacing:0}
+.cn{font-size:15px;font-weight:650;margin:4px 0 8px}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;margin:0}.kv dt{color:#64748b}.kv dd{margin:0;font-weight:550;min-width:0;overflow-wrap:anywhere}
+.spacer{height:140px}
+.tall{min-height:520px}
+.scrim{position:absolute;inset:74px 0 0 0;background:rgba(15,23,42,.32);z-index:6}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:7;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -10px 30px -10px rgba(15,23,42,.3);display:flex;flex-direction:column}
+.optB .sheet{top:74px}
+.sheet .sh{padding:14px 16px 10px;border-bottom:1px solid #eef0f3}
+.sheet .sh .cn{font-size:18px;margin:2px 0 0}
+.sheet .sb{padding:12px 16px;flex:1}
+.sheet .kv{font-size:14px;gap:7px 12px}
+.sheet .sf{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 16px 14px;border-top:1px solid #eef0f3}
+.sheet .sf .open{margin-right:auto;font-size:14px}
+.close{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 16px;border-radius:8px;border:1px solid #d7dbe1;background:#fff;font-weight:600}
+.shared{margin-top:28px}
+.shared h2{font-size:19px;margin:0 0 4px}
+.states{display:grid;gap:10px}
+.states .la{margin-top:0}
+.empty{color:#94a3b8}
+.skel{display:inline-block;width:190px;max-width:50vw;height:14px;border-radius:6px;background:#eceff3}
+.err{color:#64748b}
+.retry{color:#2563eb;font-weight:650}
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Linked line in the shared kit — pick the phone and tablet card</h1>
+<p class="lede">All three are the line you already chose for the warehouse change. Each shows a computer first, with the mouse resting on a number, and then a phone or tablet after tapping the <b>i</b>. The only differences are the panel's height on a phone or tablet (A and C short, B tall) and, in C, how the line is set off from the header.</p>
+
+<div class="cmp">
+
+<section class="opt optA">
+ <h2>Option A — short panel <span class="rec">Recommended</span></h2>
+ <p class="why">This is how you saw it. A thin divider sets the line apart. On a phone or tablet the card comes up in a short panel, just tall enough to read.</p>
+ <div class="frames">
+  <div class="frame">
+   <div class="cap"><b>Computer</b> · mouse on DSP-00131</div>
+   <div class="main">
+    <div class="tr"><h3 class="dt">SO-01247</h3><span class="badge">Posted</span></div>
+    <div class="hdr">
+     <dl class="slots"><div><dt>Order date</dt><dd><div class="val">06/10/2026</div></dd></div><div><dt>Document no.</dt><dd><div class="val">SO-01247</div></dd></div></dl>
+     <div class="la"><span class="lab">Linked</span>
+      <span class="g"><span class="gt">Dispatches</span><span class="it"><a class="lnk hov">DSP-00131 ↗</a><span class="d">7 Oct</span>
+       <div class="card"><div class="ct"><span>Dispatch</span><span class="pill">Posted</span></div><div class="cn">DSP-00131</div><dl class="kv"><dt>Date</dt><dd>Wed 7 Oct 2026</dd><dt>Customer</dt><dd>Fresh Way Spar Nelspruit</dd><dt>Total</dt><dd>96 units · 1 498 kg</dd></dl></div>
+      </span></span>
+      <span class="g"><span class="gt">Delivery run</span><span class="it"><a class="lnk">RUN-2610-014 ↗</a><span class="d">7 Oct</span></span></span>
+      <span class="g"><span class="gt">Crate correction</span><span class="it"><span class="lock">🔒 CRC-00017</span></span></span>
+     </div>
+    </div>
+    <div class="spacer"></div>
+   </div>
+  </div>
+  <div class="frame tall">
+   <div class="cap"><b>Phone or tablet</b> · tapped the i</div>
+   <div class="appbar">Bananaworld DC</div>
+   <div class="main">
+    <div class="hdr">
+     <dl class="slots"><div><dt>Order date</dt><dd><div class="val">06/10/2026</div></dd></div><div><dt>Document no.</dt><dd><div class="val">SO-01247</div></dd></div></dl>
+     <div class="la"><span class="lab">Linked</span><span class="g"><span class="gt">Dispatches</span><span class="it"><a class="lnk">DSP-00131</a><span class="d">7 Oct</span><span class="ib on"><i>i</i></span></span></span></div>
+    </div>
+   </div>
+   <div class="scrim"></div>
+   <div class="sheet">
+    <div class="sh"><div class="ct"><span>Dispatch</span><span class="pill">Posted</span></div><div class="cn">DSP-00131</div></div>
+    <div class="sb"><dl class="kv"><dt>Date</dt><dd>Wed 7 Oct 2026</dd><dt>Customer</dt><dd>Fresh Way Spar Nelspruit</dd><dt>Total</dt><dd>96 units · 1 498 kg</dd></dl></div>
+    <div class="sf"><span class="open">Open <a class="lnk">DSP-00131 ↗</a></span><span class="close">Close</span></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="opt optB">
+ <h2>Option B — tall panel</h2>
+ <p class="why">The same line. On a phone or tablet the kit's usual panel fills the screen below the top bar, so the short card sits above a lot of empty space.</p>
+ <div class="frames">
+  <div class="frame">
+   <div class="cap"><b>Computer</b> · mouse on DSP-00131 (same as A)</div>
+   <div class="main">
+    <div class="tr"><h3 class="dt">SO-01247</h3><span class="badge">Posted</span></div>
+    <div class="hdr">
+     <dl class="slots"><div><dt>Order date</dt><dd><div class="val">06/10/2026</div></dd></div><div><dt>Document no.</dt><dd><div class="val">SO-01247</div></dd></div></dl>
+     <div class="la"><span class="lab">Linked</span>
+      <span class="g"><span class="gt">Dispatches</span><span class="it"><a class="lnk hov">DSP-00131 ↗</a><span class="d">7 Oct</span>
+       <div class="card"><div class="ct"><span>Dispatch</span><span class="pill">Posted</span></div><div class="cn">DSP-00131</div><dl class="kv"><dt>Date</dt><dd>Wed 7 Oct 2026</dd><dt>Customer</dt><dd>Fresh Way Spar Nelspruit</dd><dt>Total</dt><dd>96 units · 1 498 kg</dd></dl></div>
+      </span></span>
+      <span class="g"><span class="gt">Delivery run</span><span class="it"><a class="lnk">RUN-2610-014 ↗</a><span class="d">7 Oct</span></span></span>
+      <span class="g"><span class="gt">Crate correction</span><span class="it"><span class="lock">🔒 CRC-00017</span></span></span>
+     </div>
+    </div>
+    <div class="spacer"></div>
+   </div>
+  </div>
+  <div class="frame tall">
+   <div class="cap"><b>Phone or tablet</b> · tapped the i</div>
+   <div class="appbar">Bananaworld DC</div>
+   <div class="main">
+    <div class="hdr">
+     <dl class="slots"><div><dt>Order date</dt><dd><div class="val">06/10/2026</div></dd></div><div><dt>Document no.</dt><dd><div class="val">SO-01247</div></dd></div></dl>
+     <div class="la"><span class="lab">Linked</span><span class="g"><span class="gt">Dispatches</span><span class="it"><a class="lnk">DSP-00131</a><span class="d">7 Oct</span><span class="ib on"><i>i</i></span></span></span></div>
+    </div>
+   </div>
+   <div class="scrim"></div>
+   <div class="sheet">
+    <div class="sh"><div class="ct"><span>Dispatch</span><span class="pill">Posted</span></div><div class="cn">DSP-00131</div></div>
+    <div class="sb"><dl class="kv"><dt>Date</dt><dd>Wed 7 Oct 2026</dd><dt>Customer</dt><dd>Fresh Way Spar Nelspruit</dd><dt>Total</dt><dd>96 units · 1 498 kg</dd></dl></div>
+    <div class="sf"><span class="open">Open <a class="lnk">DSP-00131 ↗</a></span><span class="close">Close</span></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="opt optC">
+ <h2>Option C — no divider</h2>
+ <p class="why">The same short panel as A. There is no divider above the line, and "Linked" looks like the header's other labels. It is quieter, but a little harder to spot.</p>
+ <div class="frames">
+  <div class="frame">
+   <div class="cap"><b>Computer</b> · mouse on DSP-00131</div>
+   <div class="main">
+    <div class="tr"><h3 class="dt">SO-01247</h3><span class="badge">Posted</span></div>
+    <div class="hdr">
+     <dl class="slots"><div><dt>Order date</dt><dd><div class="val">06/10/2026</div></dd></div><div><dt>Document no.</dt><dd><div class="val">SO-01247</div></dd></div></dl>
+     <div class="la"><span class="lab">Linked</span>
+      <span class="g"><span class="gt">Dispatches</span><span class="it"><a class="lnk hov">DSP-00131 ↗</a><span class="d">7 Oct</span>
+       <div class="card"><div class="ct"><span>Dispatch</span><span class="pill">Posted</span></div><div class="cn">DSP-00131</div><dl class="kv"><dt>Date</dt><dd>Wed 7 Oct 2026</dd><dt>Customer</dt><dd>Fresh Way Spar Nelspruit</dd><dt>Total</dt><dd>96 units · 1 498 kg</dd></dl></div>
+      </span></span>
+      <span class="g"><span class="gt">Delivery run</span><span class="it"><a class="lnk">RUN-2610-014 ↗</a><span class="d">7 Oct</span></span></span>
+      <span class="g"><span class="gt">Crate correction</span><span class="it"><span class="lock">🔒 CRC-00017</span></span></span>
+     </div>
+    </div>
+    <div class="spacer"></div>
+   </div>
+  </div>
+  <div class="frame tall">
+   <div class="cap"><b>Phone or tablet</b> · tapped the i</div>
+   <div class="appbar">Bananaworld DC</div>
+   <div class="main">
+    <div class="hdr">
+     <dl class="slots"><div><dt>Order date</dt><dd><div class="val">06/10/2026</div></dd></div><div><dt>Document no.</dt><dd><div class="val">SO-01247</div></dd></div></dl>
+     <div class="la"><span class="lab">Linked</span><span class="g"><span class="gt">Dispatches</span><span class="it"><a class="lnk">DSP-00131</a><span class="d">7 Oct</span><span class="ib on"><i>i</i></span></span></span></div>
+    </div>
+   </div>
+   <div class="scrim"></div>
+   <div class="sheet">
+    <div class="sh"><div class="ct"><span>Dispatch</span><span class="pill">Posted</span></div><div class="cn">DSP-00131</div></div>
+    <div class="sb"><dl class="kv"><dt>Date</dt><dd>Wed 7 Oct 2026</dd><dt>Customer</dt><dd>Fresh Way Spar Nelspruit</dd><dt>Total</dt><dd>96 units · 1 498 kg</dd></dl></div>
+    <div class="sf"><span class="open">Open <a class="lnk">DSP-00131 ↗</a></span><span class="close">Close</span></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+</div>
+
+<section class="shared">
+ <h2>The same in all three</h2>
+ <p class="lede">The grey number with a lock is a document this person may not open: no link, no "i" and no card. The other states are below.</p>
+ <div class="frame"><div class="main states">
+  <div class="la"><span class="lab">Linked</span><span class="empty">Nothing linked to this document yet</span></div>
+  <div class="la"><span class="lab">Linked</span><span class="skel"></span></div>
+  <div class="la"><span class="lab">Linked</span><span class="err">Couldn't load the links.</span><a class="retry">Retry</a></div>
+ </div></div>
+</section>
+
+</div>
+</body>
+</html>

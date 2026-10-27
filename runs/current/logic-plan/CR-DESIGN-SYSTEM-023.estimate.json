@@ -1,0 +1,15 @@
+{
+  "files": 5,
+  "lines": 370,
+  "steps": 3,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes LinkedRecords; DC reads it only when CR-DC-223 pins the merged sha",
+    "Kit adds optional DocumentHeader linked; DC/CRM unchanged until they pass it",
+    "DC renders the link and decides refusals; the kit only places and shows them",
+    "Apps' shell provides the tooltip provider; the kit's new part requires it"
+  ],
+  "migrationExpected": false
+}
