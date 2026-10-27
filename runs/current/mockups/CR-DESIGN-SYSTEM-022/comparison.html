@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where the waiting ring sits in menu rows: compare A, B and C</title>
+<style>
+  :root{
+    --bg:#fafaf9; --surface:#fff; --muted:#f5f5f4; --sunken:#efefee;
+    --border:#e7e5e4; --border-strong:#d6d3d1;
+    --fg:#18181b; --fg-muted:#52525b; --fg-subtle:#71717a;
+    --accent:#fac80a; --accent-subtle:#fef3c7;
+  }
+  *{box-sizing:border-box}
+  html,body{overflow-x:hidden}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1240px;margin:0 auto;padding:24px 16px 64px}
+  h1{font-size:22px;line-height:1.25;margin:0 0 6px}
+  .sub{color:var(--fg-muted);margin:0 0 10px;max-width:85ch}
+  .same{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:10px 14px;margin:12px 0;font-size:13px;color:#065f46;max-width:85ch}
+  .today{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px 16px;margin:16px 0 22px}
+  .today h2{font-size:18px;margin:0 0 4px}
+  .options{display:grid;grid-template-columns:1fr;gap:18px}
+  @media (min-width:900px){.options{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  .opt{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;min-width:0}
+  .opt h2{font-size:20px;line-height:1.25;margin:0 0 4px}
+  .lead{font-size:13px;color:var(--fg-muted);margin:0 0 6px}
+  .pill{display:inline-block;background:var(--accent-subtle);color:#78350f;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:600;margin-left:6px;vertical-align:middle}
+  .demo{margin-top:16px}
+  .cap{font-size:11px;color:var(--fg-subtle);margin:0 0 6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .why{font-size:12px;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:8px 12px;margin-top:16px}
+  .tradeoff{font-size:12px;color:#78350f;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:8px 12px;margin-top:16px}
+  .pair{display:flex;gap:12px;flex-wrap:wrap}
+  .pair > div{flex:1 1 150px;min-width:0}
+  .lbl{font-size:12px;color:var(--fg-subtle);margin:0 0 4px}
+
+  /* menu column */
+  .side{background:var(--muted);border:1px solid var(--border);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:2px;max-width:280px}
+  .side a{position:relative;display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;color:var(--fg-muted);font-size:14px;text-decoration:none}
+  .side a.on{background:var(--sunken);color:var(--fg);font-weight:500}
+  .ico{position:relative;width:16px;height:16px;border-radius:4px;border:2px solid currentColor;flex:none}
+  .w{position:relative}
+  /* row with a count on the right */
+  .rowb{position:relative;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);max-width:280px;font-size:14px;color:var(--fg)}
+  .badge{background:var(--accent);color:#18181b;border-radius:999px;font-size:12px;font-weight:700;padding:0 8px;min-width:24px;text-align:center;line-height:20px}
+  .mid{position:absolute;left:50%;transform:translateX(-50%)}
+  /* big tablet button */
+  .tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:96px;width:140px;max-width:100%;border-radius:10px;background:#18181b;color:#fff;font-weight:600;font-size:16px}
+  .tile .ico{width:22px;height:22px}
+  .tile.up{padding-bottom:7px}
+  /* sentence */
+  .txt{color:var(--fg);text-decoration:underline;text-underline-offset:2px;position:relative}
+  p.sent{margin:0;max-width:280px}
+
+  /* the ring */
+  .ring{position:absolute;width:12px;height:12px;border-radius:50%;border:2px solid var(--border-strong);border-top-color:var(--fg-muted);animation:rot .8s linear infinite;pointer-events:none}
+  .tile .ring{width:16px;height:16px;border-color:rgba(255,255,255,.35);border-top-color:#fff}
+  .after{left:calc(100% + 4px);top:50%;margin-top:-6px}
+  .tile .after{margin-top:-8px}
+  .overico{left:50%;top:50%;margin:-6px 0 0 -6px}
+  .tile .overico{margin:-8px 0 0 -8px}
+  .atstart{left:8px;top:50%;margin-top:-6px}
+  .tile .atstart{margin-top:-8px}
+  .farright{right:6px;top:50%;margin-top:-6px}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.ring{animation:none}}
+
+  /* the top line (shown in C) */
+  .topline{position:relative;height:40px;border:1px solid var(--border);border-radius:8px;background:var(--surface);overflow:hidden;max-width:280px}
+  .topline i{position:absolute;left:0;top:0;height:3px;width:60%;background:var(--accent)}
+  .topline span{position:absolute;left:10px;top:12px;font-size:12px;color:var(--fg-subtle)}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>The little "waiting" ring in menu rows: where should it sit?</h1>
+  <p class="sub">When someone clicks a link and the next page takes a moment, a small ring turns beside what they
+  clicked. In menu rows, rows with a count, and the big tablet buttons, the ring today nudges things out of place. All
+  three options below stop that. They differ only in <b>where the ring sits</b> in those rows.</p>
+  <div class="same"><b>Same in A, B and C:</b> nothing moves while you wait. Links inside ordinary sentences keep the
+  ring just after the words, exactly as today. The thin yellow line at the top of the page shows as before. Quick
+  page changes show nothing at all.</div>
+
+  <!-- ═════════════ TODAY ═════════════ -->
+  <section class="today">
+    <h2>Today: what goes wrong (for reference, not an option)</h2>
+    <p class="lead">Left: at rest. Right: while waiting. The count jumps to the middle of its row, and the tablet
+    button's picture and words jump up a little.</p>
+    <div class="pair">
+      <div><p class="lbl">At rest</p>
+        <div class="rowb"><span>Orders</span><span class="badge">12</span></div></div>
+      <div><p class="lbl">While waiting</p>
+        <div class="rowb"><span>Orders</span><span class="badge mid">12</span><span style="position:relative;width:12px;height:12px"><i class="ring" style="left:0;top:0"></i></span></div></div>
+    </div>
+    <div class="pair" style="margin-top:10px">
+      <div><p class="lbl">At rest</p>
+        <div class="tile"><span class="ico"></span><span>Crates in</span></div></div>
+      <div><p class="lbl">While waiting</p>
+        <div class="tile up"><span class="ico"></span><span>Crates in</span></div></div>
+    </div>
+  </section>
+
+  <div class="options">
+  <!-- ═════════════ A ═════════════ -->
+  <section class="opt">
+    <h2>Option A — just after the words <span class="pill">Recommended</span></h2>
+    <p class="lead">The ring sits just after the row's words, the same way it does for ordinary links.</p>
+    <div class="demo"><p class="cap">Menu row with a picture</p>
+      <nav class="side"><a>
+        <span class="ico"></span><span>Organisations</span></a><a class="on"><span class="ico"></span><span class="w">Users<i class="ring after"></i></span></a><a><span class="ico"></span><span>Roles</span></a></nav></div>
+    <div class="demo"><p class="cap">Row with a count</p>
+      <div class="rowb"><span class="w">Orders<i class="ring after"></i></span><span class="badge">12</span></div></div>
+    <div class="demo"><p class="cap">Big tablet button</p>
+      <div class="tile"><span class="ico"></span><span class="w">Crates in<i class="ring after"></i></span></div></div>
+    <div class="demo"><p class="cap">Link in a sentence (same in all three)</p>
+      <p class="sent">See the <a class="txt">orders list<i class="ring after"></i></a> for details.</p></div>
+    <div class="why">Why I recommend it: the ring looks the same everywhere, always right next to what you
+    clicked, and it never covers anything.</div>
+  </section>
+
+  <!-- ═════════════ B ═════════════ -->
+  <section class="opt">
+    <h2>Option B — over the start of the row</h2>
+    <p class="lead">The ring sits over the small picture at the start of the row. Where there is no picture, it sits
+    over the start of the words.</p>
+    <div class="demo"><p class="cap">Menu row with a picture</p>
+      <nav class="side"><a>
+        <span class="ico"></span><span>Organisations</span></a><a class="on"><span class="ico"><i class="ring overico"></i></span><span>Users</span></a><a><span class="ico"></span><span>Roles</span></a></nav></div>
+    <div class="demo"><p class="cap">Row with a count</p>
+      <div class="rowb"><span>Orders</span><span class="badge">12</span><i class="ring atstart"></i></div></div>
+    <div class="demo"><p class="cap">Big tablet button</p>
+      <div class="tile"><span class="ico"></span><span>Crates in</span><i class="ring atstart"></i></div></div>
+    <div class="demo"><p class="cap">Link in a sentence (same in all three)</p>
+      <p class="sent">See the <a class="txt">orders list<i class="ring after"></i></a> for details.</p></div>
+    <div class="tradeoff">Trade-off: it reads well in menus with pictures, but in a row without one it covers the
+    first letter of the word.</div>
+  </section>
+
+  <!-- ═════════════ C ═════════════ -->
+  <section class="opt">
+    <h2>Option C — no ring in those rows</h2>
+    <p class="lead">Menu rows, rows with a count and the big buttons show no ring. The thin yellow line at the top of
+    the page is the only sign. Links in sentences keep their ring.</p>
+    <div class="demo"><p class="cap">Menu row with a picture</p>
+      <nav class="side"><a>
+        <span class="ico"></span><span>Organisations</span></a><a class="on"><span class="ico"></span><span>Users</span></a><a><span class="ico"></span><span>Roles</span></a></nav></div>
+    <div class="demo"><p class="cap">Row with a count</p>
+      <div class="rowb"><span>Orders</span><span class="badge">12</span></div></div>
+    <div class="demo"><p class="cap">Big tablet button</p>
+      <div class="tile"><span class="ico"></span><span>Crates in</span></div></div>
+    <div class="demo"><p class="cap">The line at the top of the page (A and B show it too)</p>
+      <div class="topline"><i></i><span>Next page on its way…</span></div></div>
+    <div class="demo"><p class="cap">Link in a sentence (same in all three)</p>
+      <p class="sent">See the <a class="txt">orders list<i class="ring after"></i></a> for details.</p></div>
+    <div class="tradeoff">Trade-off: the simplest, but in the main menu you lose the sign of which row you clicked.
+    That sign is what the ring was asked for.</div>
+  </section>
+  </div>
+</div>
+</body>
+</html>

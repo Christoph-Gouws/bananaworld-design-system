@@ -163,6 +163,10 @@ const CELL_BASE: Record<TableDensity, string> = {
   compact: cn(CELL_CHROME.compact, CELL_TYPE),
 };
 
+// The open list's chrome, shared by all three select cells, so a change to it is made once.
+const FILTER_MENU =
+  "z-[var(--z-dropdown)] max-h-[15rem] w-[13rem] overflow-y-auto rounded-md border border-border-strong bg-surface p-1 shadow-lg animate-fade-in";
+
 // The filter row's own `<th>` padding, on the same one-class-per-axis rule.
 const TH_PAD: Record<TableDensity, string> = { default: "px-2 py-1.5", compact: "px-1 py-1" };
 
@@ -261,11 +265,7 @@ function SelectCell({
         </button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          align="start"
-          sideOffset={2}
-          className="z-[var(--z-dropdown)] max-h-[15rem] w-[13rem] overflow-y-auto rounded-md border border-border-strong bg-surface p-1 shadow-lg animate-fade-in"
-        >
+        <DropdownMenu.Content align="start" sideOffset={2} className={FILTER_MENU}>
           <DropdownMenu.Item
             onSelect={() => onCommit("")}
             className="flex cursor-pointer select-none items-center rounded-sm px-2.5 py-1.5 text-xs text-fg-muted outline-none data-[highlighted]:bg-surface-muted"
@@ -356,11 +356,7 @@ function MultiSelectCell({
         </button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content
-          align="start"
-          sideOffset={2}
-          className="z-[var(--z-dropdown)] max-h-[15rem] w-[13rem] overflow-y-auto rounded-md border border-border-strong bg-surface p-1 shadow-lg animate-fade-in"
-        >
+        <DropdownMenu.Content align="start" sideOffset={2} className={FILTER_MENU}>
           {/* The top row is the owner's A: one tri-state tick that means "nothing is being hidden",
               carrying "All 12" unset and "3 of 12" once some are named. Tapping it stops the
               narrowing — and `onCommit([])` → `gridFilterSelect([])` → `null` → `gridFilterSet` DROPS
@@ -397,11 +393,6 @@ function MultiSelectCell({
     </DropdownMenu.Root>
   );
 }
-
-// The open menu's chrome for the `allTicked` cell — the same string the two select cells above write
-// inline. They are left as they are, so their bytes are not argued about.
-const ALL_TICKED_MENU =
-  "z-[var(--z-dropdown)] max-h-[15rem] w-[13rem] overflow-y-auto rounded-md border border-border-strong bg-surface p-1 shadow-lg animate-fade-in";
 
 /**
  * The same cell in the opt-in `selectAll: "allTicked"` mode (CR-DESIGN-SYSTEM-013, owner's layout B).
@@ -449,7 +440,7 @@ function AllTickedCell({
         </button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content align="start" sideOffset={2} className={ALL_TICKED_MENU}>
+        <DropdownMenu.Content align="start" sideOffset={2} className={FILTER_MENU}>
           <MultiSelectAllTickedList size="compact" options={options} reading={reading} onApply={apply} />
         </DropdownMenu.Content>
       </DropdownMenu.Portal>

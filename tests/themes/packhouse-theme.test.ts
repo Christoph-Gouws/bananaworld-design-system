@@ -12,7 +12,7 @@ const read = (rel: string) =>
   readFileSync(resolve(root, rel), "utf8").replace(/\r\n/g, "\n");
 const stripComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, "");
 
-// SHA-256 of tokens.css (LF) at main@cde6f4e. Editing tokens.css must update this AND re-run QG-CEN-003.
+// SHA-256 of tokens.css (LF) at main@cde6f4e. Editing tokens.css must update this, add the new value to .gitleaks.toml's allowlist, AND re-run QG-CEN-003.
 const TOKENS_SHA256 =
   "e641cb32a15f0e94cd400496a6441568f1289726b7fdd3c48cb133520803ea17";
 
@@ -80,6 +80,10 @@ describe("tokens.css and the export surface", () => {
       .update(read("src/lib/tokens.css"))
       .digest("hex");
     expect(hash).toBe(TOKENS_SHA256);
+  });
+
+  it("the gitleaks allowlist names this hash, so the scan holds on every commit sha", () => {
+    expect(read(".gitleaks.toml")).toContain(TOKENS_SHA256);
   });
 
   it("exports the theme, and the four pre-existing entries are unchanged", () => {
