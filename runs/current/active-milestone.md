@@ -1,17 +1,21 @@
 # Active unit — `bananaworld-design-system`
 
 > This is a FILE, not a unit folder. It records what is currently in flight.
-> Updated 2026-10-22.
+> Updated 2026-10-27.
 
-## Current: CR-DESIGN-SYSTEM-021 — Keypad + ActionTile (kit 0.6.0) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
+## Current: CR-DESIGN-SYSTEM-023 — LinkedRecords + DocumentHeader `linked` (kit 0.7.0) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
 
 | Field | Value |
 |---|---|
-| Unit type | **Change Request**, archived to `runs/change-19/` |
-| Branch | `change/cr-design-system-021`, off `origin/main` @ `3953e6d` |
+| Unit type | **Change Request**, archived to `runs/change-21/` |
+| Branch | `change/cr-design-system-023`, off `origin/main` @ `bb6c22e` |
 | Layout · ship mode | **A** · **on-green** |
-| Build status | 615/30 green; typecheck clean; mutants 11/11; Edge 34/34 |
-| Remaining | Nothing in this repo. Follow-up: CR-DC-256 pins the merged sha |
+| Build status | 671/32 green; typecheck clean; mutants 10/10; Edge 33/33 |
+| Remaining | Nothing in this repo. Follow-up: CR-DC-223 pins the merged sha |
+
+## Previous: CR-DESIGN-SYSTEM-021 — Keypad + ActionTile (kit 0.6.0) — PR #39 merged
+
+Archived to `runs/change-19/`. Follow-up: CR-DC-256 pins the merged sha.
 
 ## Previous: CR-DESIGN-SYSTEM-020 — ExportButton download link (kit 0.5.0) — PR #38 merged
 

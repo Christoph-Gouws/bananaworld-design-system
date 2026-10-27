@@ -1190,3 +1190,21 @@ A real-browser axe run failed the first draft (label-in-name, disabled-label con
 
 ### Outcome
 Built as approved. No consumer pin bumped; CR-DC-256 pins the merged sha. Archive `runs/change-19/`.
+
+---
+
+## CR-DESIGN-SYSTEM-023 — a linked-records line (LinkedRecords) and one optional `linked` slot on DocumentHeader (kit 0.7.0)
+
+### What was asked
+Companion of CR-DC-223 (DC linked documents box), blocked at build until this merges: add `LinkedRecords` / `LinkedRecordsItem` (presentation only, layout A) and one optional `linked` prop on `DocumentHeader`. Additive, minor bump to 0.7.0, no consumer pin changes. Owner ruling 2026-10-27: raise and start.
+
+### What was decided at the plan gate
+Plan approved, layout **A** (the short touch panel), ship mode **on-green**. Options B (full-height panel) and C (no hairline) not built. No clarify questions were asked or answered.
+
+### Decisions taken at build (within the approved plan)
+- D-1: the line sits beside the header's `<dl>` inside the same frame, not inside it. Measured this session: axe reports `definition-list` for the brief's literal `<div role="group">` inside the `<dl>`.
+- D-2: the info button is decided in JavaScript by `matchMedia("(hover: none)")`. D-3: built-in words are optional and default to English. D-4: the app mounts `TooltipProvider`.
+- The controlled Sheet returns focus to the info button itself (no `Dialog.Trigger` exists to do it).
+
+### Outcome
+Built as approved. `pnpm test` 671/32 (baseline 615/30), typecheck clean, mutants 10/10, real Edge run 33/33. No consumer pin bumped; CR-DC-223 pins the merged sha. Archive `runs/change-21/`.

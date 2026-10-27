@@ -1,13 +1,16 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-10-22, at the close of **CR-DESIGN-SYSTEM-021**.
+> Last updated: 2026-10-27, at the close of **CR-DESIGN-SYSTEM-023**.
 
-## Latest: CR-DESIGN-SYSTEM-021 — `Keypad` + `ActionTile` for the DC market tablet (kit 0.6.0)
-Additive: new `Keypad` (whole-number pad, 64 px keys on touch, Delete = clear) and `ActionTile` (icon + label, button or
-`Link`); no `FigureTile` (`ListCard` covers it). 615/30 · mutants 11/11 · Edge 34/34 · frames
-`runs/change-19/evidence/frames/`. Archive `runs/change-19/`; rules `runs/change-19/evidence/developer-handover.md`.
-Also: `next` override floor raised to 15.5.28 (audit was red on main; `runs/change-19/output/known-issues.md` K-1).
-Owed: CR-DC-256 pins the MERGED sha and re-exports the two names; no consumer pin moved.
+## Latest: CR-DESIGN-SYSTEM-023 — `LinkedRecords` + `DocumentHeader linked` (kit 0.7.0)
+Additive: a one-line "Linked · Dispatches DSP-00131 7 Oct" list (tooltip card on mouse/keyboard, info button + bottom
+Sheet under `hover: none`, lock for a refused item) and one optional `linked` prop that renders BESIDE the header's `<dl>`
+inside the frame (axe rejects a group inside a `dl`). No `linked` ⇒ byte-identical (frozen copy). 671/32 · mutants 10/10 ·
+Edge 33/33. Archive `runs/change-21/`; rules `runs/change-21/evidence/developer-handover.md`.
+Owed: CR-DC-223 pins the MERGED sha, re-exports the names, passes `linked`; no consumer pin moved.
+
+## Previous: CR-DESIGN-SYSTEM-021 — `Keypad` + `ActionTile` (kit 0.6.0)
+Archive `runs/change-19/`. Owed: CR-DC-256 pins the MERGED sha; `next` override floor 15.5.28 (K-1).
 
 ## Previous: CR-DESIGN-SYSTEM-020 — ExportButton download link (kit 0.5.0)
 Optional `href` + `fileName`; archive `runs/change-18/`. Owed: CR-MANGAVERDE-069 pins the MERGED sha.
