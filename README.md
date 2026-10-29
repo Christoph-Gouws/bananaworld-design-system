@@ -124,6 +124,8 @@ exactly as before.
 
 ### Changelog
 
+- **0.9.0** — `BarChart`: horizontal bars of labelled values, amount and share printed, optional total, a dash when
+  empty, theme accent, readable at 390 px, read by screen readers as a table. New names only. CR-DESIGN-SYSTEM-025.
 - **0.8.0** — `TablePagination` accepts optional `labels` (with `DEFAULT_TABLE_PAGINATION_LABELS` and the
   `TablePaginationLabels` type) to translate every word, including the two screen-reader names. Without `labels` it
   renders byte-identically. CR-DESIGN-SYSTEM-024.
@@ -148,6 +150,28 @@ exactly as before.
   `pendingIndicator` prop on `Link`). Opt-in: an app that does not mount the provider renders every `Link` as before.
 - **0.2.0** — Opt-in packhouse theme (`./themes/packhouse.css`). DC and CRM unaffected: neither imports the file nor
   sets the attribute. `tokens.css` unchanged.
+
+## Bar chart
+
+```tsx
+<BarChart
+  label="Packout by class"
+  items={[
+    { label: "Classe 1", value: 412.5, valueText: "412,50 kg", percentText: "62,3%" },
+    { label: "Classe 2", value: 180, valueText: "180,00 kg", percentText: "27,2%" },
+    { label: "Ainda sem mapa", value: 69.5, valueText: "69,50 kg", percentText: "10,5%", tone: "warning" },
+  ]}
+  total={{ label: "Total embalado", valueText: "662,00 kg" }}
+  words={{ item: "Classe", amount: "Quantidade", share: "Parte", empty: "Sem valores" }}
+/>
+```
+
+One line per item: name, bar, amount · share. Pass `valueText`/`percentText` whenever a table on the same screen
+shows the same figures: the kit never re-rounds or reads a locale (defaults are `String(value)` and one decimal).
+`value` only sets the bar length; `total.value` is the base (default: the sum), so pass the same base your own
+percentages use. Nothing yet (base 0, or no items) shows dashes and no bars, even over caller text. A `warning` line
+must still say so in its label. The card heading is yours; `label` names the table for screen readers. Colours are
+the theme tokens (`bg-accent`, one `warning`), so the chart follows each app's theme. Renders on the server.
 
 ## Export button download link
 

@@ -3,15 +3,19 @@
 > This is a FILE, not a unit folder. It records what is currently in flight.
 > Updated 2026-10-29.
 
-## Current: CR-DESIGN-SYSTEM-024 — `TablePagination` `labels` (kit 0.8.0) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
+## Current: CR-DESIGN-SYSTEM-025 — shared `BarChart` (kit 0.9.0) — **BUILT, CLOSED OUT, PR OPEN**
 
 | Field | Value |
 |---|---|
-| Unit type | **Change Request**, archived to `runs/change-22/` |
-| Branch | `change/cr-design-system-024`, off `origin/main` @ `6a25c8d` |
+| Unit type | **Change Request**, archived to `runs/change-23/` |
+| Branch | `change/cr-design-system-025`, off `origin/main` @ `964160b` |
 | Layout · ship mode | **A** · **on-green** |
-| Build status | 692/36 green; typecheck clean; Edge 22/22 |
-| Remaining | Nothing in this repo. CR-MANGAVERDE-095 pins the merged sha |
+| Build status | 709/710 (one import-time timeout); typecheck clean; Edge 63/63 |
+| Remaining | Nothing in this repo. Packhouse EPIC-004-M-03 pins the merged sha |
+
+## Previous: CR-DESIGN-SYSTEM-024 — `TablePagination` `labels` (kit 0.8.0)
+
+Archived to `runs/change-22/`. Follow-up: CR-MANGAVERDE-095 pins the merged sha.
 
 ## Previous: CR-DESIGN-SYSTEM-022 — six review follow-ups (kit 0.7.1)
 

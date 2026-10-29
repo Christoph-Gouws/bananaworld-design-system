@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-025 — The shared bar chart: pick a look</title>
+<style>
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+body{margin:0;font-family:Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#fafaf9;color:#18181b;font-size:14px;line-height:1.5}
+.wrap{max-width:1280px;margin:0 auto;padding:18px 14px 48px}
+h1{font-size:22px;margin:0 0 6px;letter-spacing:-.015em}
+.lead{color:#52525b;margin:0 0 16px;max-width:72ch}
+.cols{display:flex;flex-direction:column;gap:28px}
+@media (min-width:900px){.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
+.opt{min-width:0}
+.opt>h2{font-size:20px;margin:0 0 4px;letter-spacing:-.01em}
+.opt>p{color:#52525b;margin:0 0 10px}
+.rec{display:inline-block;background:#d5f3ef;color:#0b5f58;font-size:12px;font-weight:700;border-radius:999px;padding:1px 10px;vertical-align:middle}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#71717a;margin:14px 0 6px}
+.card{background:#fff;border:1px solid #e7e5e4;border-radius:10px;padding:14px 16px;min-width:0;max-width:100%}
+.card h4{font-size:15px;margin:0 0 10px}
+.ch{display:flex;flex-direction:column;gap:8px;font-size:13px}
+.ch .k{font-weight:600;color:#3f3f46;min-width:0;overflow-wrap:anywhere}
+.ch .p{font-variant-numeric:tabular-nums;white-space:nowrap;color:#52525b;text-align:right}
+.ch .p b{color:#18181b}
+.ch .tr{display:block;height:16px;background:#efefee;border-radius:4px;overflow:hidden}
+.ch i{display:block;height:100%;min-width:2px;background:#0f766e;border-radius:4px}
+.ch .w .k{color:#7c2d12}.ch .w i{background:#ea580c}
+.ch .tot{border-top:1px solid #e7e5e4;padding-top:8px;margin-top:2px}
+.a .r{display:grid;grid-template-columns:minmax(0,9.5em) minmax(3rem,1fr) auto;gap:10px;align-items:center}
+.b{gap:10px}
+.b .r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 10px;align-items:baseline}
+.b .tr{grid-column:1 / -1;height:14px}
+.c .r{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr);gap:10px;align-items:center}
+.c .tip{display:flex;align-items:center;gap:8px;min-width:0;min-height:16px}
+.c .tip i{height:16px;flex:none}
+.c .p{text-align:left}
+.dark{background:#18181b;border-color:#3f3f46;color:#f4f4f5}
+.dark .ch .p{color:#a1a1aa}.dark .ch .p b{color:#fafafa}.dark .ch .k{color:#e4e4e7}
+.dark .ch .tr{background:#2e2e33}.dark .ch i{background:#2dd4bf}.dark .ch .w .k{color:#fdba74}.dark .ch .w i{background:#fb923c}.dark .ch .tot{border-color:#3f3f46}
+.foot{margin-top:28px;font-size:13px;color:#52525b;max-width:72ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>The shared bar chart — pick a look</h1>
+<p class="lead">One small bar chart for every app, starting with the packhouse end-of-shift screen (class split, size split, packaging groups). Each option shows the same figures: a normal day, a shift with nothing packed yet, and a dark look. Packhouse teal is shown; every other app gets its own colour.</p>
+
+<div class="cols">
+
+<section class="opt">
+<h2>Option A — Name, bar and figures on one line</h2>
+<p>As on the end-of-shift drawing you have seen. Compact; on a phone the bar gets shorter.</p>
+<h3>A normal day</h3>
+<div class="card"><h4>Size split</h4>
+  <div class="ch a">
+    <div class="r"><span class="k">XL</span><span class="tr"><i style="width:18.1%"></i></span><span class="p">120.00 · <b>18.1%</b></span></div>
+    <div class="r"><span class="k">L</span><span class="tr"><i style="width:39.4%"></i></span><span class="p">260.50 · <b>39.4%</b></span></div>
+    <div class="r"><span class="k">M</span><span class="tr"><i style="width:25.7%"></i></span><span class="p">170.00 · <b>25.7%</b></span></div>
+    <div class="r"><span class="k">S</span><span class="tr"><i style="width:10.6%"></i></span><span class="p">70.00 · <b>10.6%</b></span></div>
+    <div class="r w"><span class="k">Not mapped yet</span><span class="tr"><i style="width:6.3%"></i></span><span class="p">41.50 · <b>6.3%</b></span></div>
+    <div class="r tot"><span class="k">Total packed</span><span></span><span class="p"><b>662.00</b></span></div>
+  </div>
+</div>
+<h3>Nothing packed yet</h3>
+<div class="card"><h4>Class split</h4>
+  <div class="ch a">
+    <div class="r"><span class="k">Class 1</span><span class="tr"></span><span class="p">—</span></div>
+    <div class="r"><span class="k">Class 2</span><span class="tr"></span><span class="p">—</span></div>
+    <div class="r"><span class="k">Class 3 (Reject)</span><span class="tr"></span><span class="p">—</span></div>
+  </div>
+</div>
+<h3>Dark look</h3>
+<div class="card dark"><h4>Class split</h4>
+  <div class="ch a">
+    <div class="r"><span class="k">Class 1</span><span class="tr"><i style="width:62.3%"></i></span><span class="p">412.50 · <b>62.3%</b></span></div>
+    <div class="r"><span class="k">Class 2</span><span class="tr"><i style="width:29.9%"></i></span><span class="p">198.00 · <b>29.9%</b></span></div>
+    <div class="r"><span class="k">Class 3 (Reject)</span><span class="tr"><i style="width:7.8%"></i></span><span class="p">51.50 · <b>7.8%</b></span></div>
+  </div>
+</div>
+</section>
+
+<section class="opt">
+<h2>Option B — Name and figures above a full-width bar <span class="rec">Recommended</span></h2>
+<p>Long names never squeeze the bar; reads the same on a phone as on a desk. A little taller.</p>
+<h3>A normal day</h3>
+<div class="card"><h4>Size split</h4>
+  <div class="ch b">
+    <div class="r"><span class="k">XL</span><span class="p">120.00 · <b>18.1%</b></span><span class="tr"><i style="width:18.1%"></i></span></div>
+    <div class="r"><span class="k">L</span><span class="p">260.50 · <b>39.4%</b></span><span class="tr"><i style="width:39.4%"></i></span></div>
+    <div class="r"><span class="k">M</span><span class="p">170.00 · <b>25.7%</b></span><span class="tr"><i style="width:25.7%"></i></span></div>
+    <div class="r"><span class="k">S</span><span class="p">70.00 · <b>10.6%</b></span><span class="tr"><i style="width:10.6%"></i></span></div>
+    <div class="r w"><span class="k">Not mapped yet</span><span class="p">41.50 · <b>6.3%</b></span><span class="tr"><i style="width:6.3%"></i></span></div>
+    <div class="r tot"><span class="k">Total packed</span><span class="p"><b>662.00</b></span></div>
+  </div>
+</div>
+<h3>Nothing packed yet</h3>
+<div class="card"><h4>Class split</h4>
+  <div class="ch b">
+    <div class="r"><span class="k">Class 1</span><span class="p">—</span><span class="tr"></span></div>
+    <div class="r"><span class="k">Class 2</span><span class="p">—</span><span class="tr"></span></div>
+    <div class="r"><span class="k">Class 3 (Reject)</span><span class="p">—</span><span class="tr"></span></div>
+  </div>
+</div>
+<h3>Dark look</h3>
+<div class="card dark"><h4>Class split</h4>
+  <div class="ch b">
+    <div class="r"><span class="k">Class 1</span><span class="p">412.50 · <b>62.3%</b></span><span class="tr"><i style="width:62.3%"></i></span></div>
+    <div class="r"><span class="k">Class 2</span><span class="p">198.00 · <b>29.9%</b></span><span class="tr"><i style="width:29.9%"></i></span></div>
+    <div class="r"><span class="k">Class 3 (Reject)</span><span class="p">51.50 · <b>7.8%</b></span><span class="tr"><i style="width:7.8%"></i></span></div>
+  </div>
+</div>
+</section>
+
+<section class="opt">
+<h2>Option C — Figures at the tip of each bar</h2>
+<p>No grey groove; the figures ride at the end of each bar. Most chart-like, but the figures do not line up.</p>
+<h3>A normal day</h3>
+<div class="card"><h4>Size split</h4>
+  <div class="ch c">
+    <div class="r"><span class="k">XL</span><span class="tip"><i style="width:calc((100% - 8.5em) * .181)"></i><span class="p">120.00 · <b>18.1%</b></span></span></div>
+    <div class="r"><span class="k">L</span><span class="tip"><i style="width:calc((100% - 8.5em) * .394)"></i><span class="p">260.50 · <b>39.4%</b></span></span></div>
+    <div class="r"><span class="k">M</span><span class="tip"><i style="width:calc((100% - 8.5em) * .257)"></i><span class="p">170.00 · <b>25.7%</b></span></span></div>
+    <div class="r"><span class="k">S</span><span class="tip"><i style="width:calc((100% - 8.5em) * .106)"></i><span class="p">70.00 · <b>10.6%</b></span></span></div>
+    <div class="r w"><span class="k">Not mapped yet</span><span class="tip"><i style="width:calc((100% - 8.5em) * .063)"></i><span class="p">41.50 · <b>6.3%</b></span></span></div>
+    <div class="r tot"><span class="k">Total packed</span><span class="p"><b>662.00</b></span></div>
+  </div>
+</div>
+<h3>Nothing packed yet</h3>
+<div class="card"><h4>Class split</h4>
+  <div class="ch c">
+    <div class="r"><span class="k">Class 1</span><span class="tip"><span class="p">—</span></span></div>
+    <div class="r"><span class="k">Class 2</span><span class="tip"><span class="p">—</span></span></div>
+    <div class="r"><span class="k">Class 3 (Reject)</span><span class="tip"><span class="p">—</span></span></div>
+  </div>
+</div>
+<h3>Dark look</h3>
+<div class="card dark"><h4>Class split</h4>
+  <div class="ch c">
+    <div class="r"><span class="k">Class 1</span><span class="tip"><i style="width:calc((100% - 8.5em) * .623)"></i><span class="p">412.50 · <b>62.3%</b></span></span></div>
+    <div class="r"><span class="k">Class 2</span><span class="tip"><i style="width:calc((100% - 8.5em) * .299)"></i><span class="p">198.00 · <b>29.9%</b></span></span></div>
+    <div class="r"><span class="k">Class 3 (Reject)</span><span class="tip"><i style="width:calc((100% - 8.5em) * .078)"></i><span class="p">51.50 · <b>7.8%</b></span></span></div>
+  </div>
+</div>
+</section>
+
+</div>
+
+<p class="foot">In every option: the orange line is "Not mapped yet" — its name says so and the colour only backs it up. A screen reader reads each line as name, amount and share, and the total last. The screen hands the chart its own figures, so the chart always matches the packout table to the last decimal.</p>
+</div>
+</body>
+</html>

@@ -286,3 +286,14 @@ export {
   type LinkedRecordsSummary,
   type LinkedRecordsWords,
 } from "./LinkedRecords";
+// 🔴 BAR CHART (CR-DESIGN-SYSTEM-025, finding E4-F21, first used by the packhouse end-of-shift screen).
+//    Horizontal bars with amount and share printed, read by screen readers as a table. ADDITIVE: new
+//    names only — declared in the export inventory in the additive test.
+export {
+  BarChart,
+  type BarChartProps,
+  type BarChartItem,
+  type BarChartTotal,
+  type BarChartWords,
+  type BarChartTone,
+} from "./BarChart";
