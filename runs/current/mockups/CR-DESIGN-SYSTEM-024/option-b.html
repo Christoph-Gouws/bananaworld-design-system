@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-024 — Option B · Portuguese, one even shade</title>
+<style>
+  :root{
+    --color-bg:#fafaf9; --color-surface:#fff; --color-surface-muted:#f5f5f4;
+    --color-border:#e7e5e4; --color-fg:#18181b; --color-fg-muted:#52525b; --color-fg-subtle:#71717a;
+    --color-info-subtle:#dbeafe; --color-info-fg:#1e3a8a;
+    --radius-md:8px; --radius-lg:10px; --shadow-xs:0 1px 0 rgba(24,24,27,.04);
+  }
+  *{box-sizing:border-box}
+  html,body{overflow-x:hidden}
+  body{margin:0;background:var(--color-bg);color:var(--color-fg);
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .page{max-width:1000px;margin:0 auto;padding:28px 16px 64px}
+  h1{font-size:24px;line-height:1.25;margin:0 0 6px}
+  .sub{color:var(--color-fg-muted);margin:0 0 8px;font-size:15px}
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--color-fg-subtle);margin:28px 0 10px;font-weight:600}
+  .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:16px;
+    box-shadow:var(--shadow-xs);min-width:0}
+  .note{color:var(--color-fg-muted);font-size:13px;margin:10px 2px 0}
+  .pager{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .pager.top{justify-content:space-between;padding:0 2px 10px}
+  .pager.bottom{justify-content:flex-end;padding:10px 2px 0}
+  .status{color:var(--color-fg-muted);font-size:14px;font-variant-numeric:tabular-nums;margin:0}
+  .status b{color:var(--color-fg);font-weight:500}
+  .rightside{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+  .sizelabel{font-size:14px;color:var(--color-fg-muted);white-space:nowrap}
+  .sizefield{display:flex;align-items:center;gap:8px}
+  .trigger{height:36px;width:84px;display:inline-flex;align-items:center;justify-content:space-between;
+    border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);
+    box-shadow:var(--shadow-xs);padding:0 10px;font-variant-numeric:tabular-nums}
+  .arrows{display:flex;align-items:center;gap:6px}
+  .btn{height:32px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;font-size:13px;font-weight:500;
+    border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-xs)}
+  .btn.off{opacity:.5}
+  .tscroll{overflow-x:auto;border:1px solid var(--color-border);border-radius:var(--radius-lg)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead{background:var(--color-surface-muted)}
+  th{padding:9px 12px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--color-fg-muted);
+    border-bottom:1px solid var(--color-border);text-align:left;white-space:nowrap}
+  td{padding:8px 12px;border-bottom:1px solid var(--color-border);white-space:nowrap}
+  tr:last-child td{border-bottom:0}
+  .r{text-align:right;font-variant-numeric:tabular-nums}
+  .muted{color:var(--color-fg-subtle)}
+  .row{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:10px 0;border-top:1px solid var(--color-border)}
+  .row:first-child{border-top:0}
+  .cap{font-size:12px;color:var(--color-fg-subtle);min-width:150px}
+  .said{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;background:var(--color-info-subtle);color:var(--color-info-fg)}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Option B — Portuguese, one even shade</h1>
+  <p class="sub">The same words, but the whole sentence is one shade: the numbers are not picked out. English apps
+    keep their darker numbers, so the two languages look slightly different.</p>
+
+  <h2>A Manga Verde list, in Portuguese</h2>
+  <div class="card">
+    <div class="pager top">
+      <p class="status">A mostrar 1–25 de 312</p>
+      <div class="rightside">
+        <div class="sizefield"><span class="sizelabel">Linhas por página</span><span class="trigger">25 <span class="muted">▾</span></span></div>
+        <div class="arrows"><span class="btn off">‹ Anterior</span><span class="btn">Seguinte ›</span></div>
+      </div>
+    </div>
+    <div class="tscroll">
+      <table>
+        <thead><tr><th>Número</th><th>Fornecedor</th><th>Data</th><th class="r">Peso (kg)</th></tr></thead>
+        <tbody>
+          <tr><td>C-000312</td><td>Ana Machava</td><td>28/10/2026</td><td class="r">412,5</td></tr>
+          <tr><td>C-000311</td><td>José Cossa</td><td>28/10/2026</td><td class="r">180,0</td></tr>
+          <tr><td>C-000310</td><td>Rosa Nhantumbo</td><td>27/10/2026</td><td class="r">96,5</td></tr>
+          <tr><td class="muted">…</td><td class="muted">mais 22 linhas</td><td></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pager bottom">
+      <div class="arrows"><span class="btn off">‹ Anterior</span><span class="btn">Seguinte ›</span></div>
+    </div>
+  </div>
+
+  <h2>At the edges</h2>
+  <div class="card">
+    <div class="row"><span class="cap">Last page</span><p class="status">A mostrar 301–312 de 312</p></div>
+    <div class="row"><span class="cap">One row on the last page</span><p class="status">A mostrar 313–313 de 313</p></div>
+    <div class="row"><span class="cap">Empty list</span><p class="status">A mostrar 0 de 0</p></div>
+  </div>
+
+  <h2>Read aloud to a screen-reader user</h2>
+  <div class="card">
+    <div class="row"><span class="cap">Top bar</span><span class="said">Paginação da lista</span></div>
+    <div class="row"><span class="cap">Bottom bar</span><span class="said">Paginação da lista, fim da lista</span></div>
+    <div class="row"><span class="cap">After pressing Seguinte</span><span class="said">A mostrar 26–50 de 312</span></div>
+    <p class="note">Identical to option A — only the look on screen differs.</p>
+  </div>
+
+  <h2>English apps — unchanged</h2>
+  <div class="card">
+    <div class="pager top" style="padding-bottom:0">
+      <p class="status">Showing <b>1–25</b> of <b>312</b></p>
+      <div class="rightside">
+        <div class="sizefield"><span class="sizelabel">Rows per page</span><span class="trigger">25 <span class="muted">▾</span></span></div>
+        <div class="arrows"><span class="btn off">‹ Previous</span><span class="btn">Next ›</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

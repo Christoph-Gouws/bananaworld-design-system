@@ -1227,3 +1227,20 @@ Plan approved 2026-10-27, layout **A** for the waiting ring (just after the link
 
 ### Outcome
 Built as approved. `pnpm test` 680/34 (baseline 671/32), typecheck clean, audit exit 0, real Edge run ALL PASS (the same run FAILS 12 checks on the old `Link`). Gitleaks was NOT run locally (not installed); the nightly scan or a dispatch of `secret-scan.yml` is the check. No consumer pin bumped. Archive `runs/change-20/`.
+
+---
+
+## CR-DESIGN-SYSTEM-024 — `TablePagination` gets an optional `labels` prop so consumers can translate it (kit 0.8.0)
+
+### What was asked
+Owner, 2026-10-29: companion that CR-MANGAVERDE-095 is blocked on. The paging bar hard-codes English ("Showing … of …", "Rows per page", "Previous", "Next", and the two nav names). Add an optional `labels` prop (every key optional, English defaults exported as `DEFAULT_TABLE_PAGINATION_LABELS`), byte-identical render without it, keep the header-comment rules, export `TablePaginationLabels`, a Portuguese test, minor version bump and changelog.
+
+### What was decided at the plan gate
+Plan approved, layout **A** (Portuguese looks exactly like English, numbers slightly darker than the words), ship mode **on-green**. No clarify questions were asked or answered.
+
+### Decisions taken at build (within the approved plan)
+- D-1: `range` is a function, not a template. D-2: it also receives the kit's own `position` text so a translation keeps D-8. D-3: defaults are one frozen exported object; fallback per key with `??`. D-4: the arrow labels stay one text node each (React server markup unchanged). D-5: one `labels` object serves both bars.
+- Key names follow the owner's request (`range`, `listPaging`, `listPagingEnd`), not CR-MANGAVERDE-095's plan text; recorded in that build's hand-off.
+
+### Outcome
+Built as approved. `pnpm test` 692/36 (baseline 682/35), typecheck clean, audit only owner-ignored advisories, real Edge run 22/22. The plan's mutation battery was not run. No consumer pin bumped; CR-MANGAVERDE-095 pins the merged sha. Archive `runs/change-22/`.

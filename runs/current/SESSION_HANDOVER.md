@@ -1,11 +1,13 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-10-27, at the close of **CR-DESIGN-SYSTEM-022**.
+> Last updated: 2026-10-29, at the close of **CR-DESIGN-SYSTEM-024**.
 
-## Latest: CR-DESIGN-SYSTEM-022 — six review follow-ups (kit 0.7.1)
-Fixes: grid filter lists share `FILTER_MENU`; gitleaks allowlist by hash value (`.gitleaksignore` deleted); `Link`'s waiting ring leaves the flow unless the link is `display: inline` (layout A); `next`/`sharp` floors kept and
-written up; `ActionTile` name ratified as built. 682/35 · Edge ALL PASS (12 fail on old code). Archive `runs/change-20/`;
-rules `runs/change-20/evidence/developer-handover.md`. Owed: gitleaks scan check (K-1); no consumer pin moved.
+## Latest: CR-DESIGN-SYSTEM-024 — `TablePagination` `labels` (kit 0.8.0)
+Optional `labels` (previous, next, rowsPerPage, listPaging, listPagingEnd, `range`) + frozen `DEFAULT_TABLE_PAGINATION_LABELS`; absent ⇒ byte-identical (frozen-copy test). 692/36 · Edge 22/22. Archive `runs/change-22/`; rules
+`runs/change-22/evidence/developer-handover.md`. Owed: CR-MANGAVERDE-095 pins the MERGED sha and uses these key names; no consumer pin moved.
+
+## Previous: CR-DESIGN-SYSTEM-022 — six review follow-ups (kit 0.7.1)
+Archive `runs/change-20/`. Owed: gitleaks scan check (K-1).
 
 ## Previous: CR-DESIGN-SYSTEM-023 — `LinkedRecords` + `DocumentHeader linked` (kit 0.7.0)
 Archive `runs/change-21/`. Owed: CR-DC-223 pins the MERGED sha, re-exports the names, passes `linked`.

@@ -37,8 +37,12 @@
 //      every page change twice (D-19).
 //    · The picker renders in the top bar only. Two pickers would be two sources of truth for one
 //      number (D-20).
+//
+// CR-DESIGN-SYSTEM-024 — `labels` translates every word, visible and announced. Absent, the bar
+// renders byte-identically. Translated, the structure does not move: the same live region, the same
+// picker, the same positions. `range` receives the kit's own `position` text so a translation keeps D-8.
 
-import { type ReactElement } from "react";
+import { type ReactElement, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "../lib";
@@ -53,6 +57,43 @@ import { Button } from "./Button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./Select";
 
 export type TablePaginationPlacement = "top" | "bottom";
+
+/** Every word the bar shows or announces (CR-DESIGN-SYSTEM-024). */
+export interface TablePaginationLabels {
+  readonly previous: string;
+  readonly next: string;
+  /** The picker's caption AND its accessible name — one key, so the two cannot disagree. */
+  readonly rowsPerPage: string;
+  /** The top bar's navigation name. */
+  readonly listPaging: string;
+  /** The bottom bar's navigation name. */
+  readonly listPagingEnd: string;
+  /** The live-region sentence. Use `position`, not `from`–`to`, so D-8 survives translation. */
+  readonly range: (r: {
+    readonly from: number;
+    readonly to: number;
+    readonly total: number;
+    /** The kit's own position text: "1–25", "312–312", or "0" for an empty list (D-8). */
+    readonly position: string;
+  }) => ReactNode;
+}
+
+// Frozen: one shared object backs every bar in an app; a mutation would silently change every list.
+export const DEFAULT_TABLE_PAGINATION_LABELS: TablePaginationLabels = Object.freeze<TablePaginationLabels>({
+  previous: "Previous",
+  next: "Next",
+  rowsPerPage: "Rows per page",
+  listPaging: "List paging",
+  listPagingEnd: "List paging, end of list",
+  range: ({ position, total }) => (
+    <>
+      {"Showing "}
+      <span className="font-medium text-fg">{position}</span>
+      {" of "}
+      <span className="font-medium text-fg">{total}</span>
+    </>
+  ),
+});
 
 export interface TablePaginationProps {
   /** The current page, 1-based. Out-of-range values render clamped; nothing is called back. */
@@ -70,6 +111,11 @@ export interface TablePaginationProps {
   /** The offered page sizes. Defaults to TABLE_PAGE_SIZES (25/50/100/200). */
   readonly pageSizes?: readonly number[];
   readonly className?: string;
+  /**
+   * Translated words (CR-DESIGN-SYSTEM-024). Every key is optional; a missing key keeps today's
+   * English, and absent `labels` renders byte-identically. Pass the same object to both bars.
+   */
+  readonly labels?: Partial<TablePaginationLabels>;
 }
 
 export function TablePagination({
@@ -80,14 +126,22 @@ export function TablePagination({
   placement = "top",
   pageSizes = TABLE_PAGE_SIZES,
   className,
+  labels,
 }: TablePaginationProps): ReactElement {
+  // Per key with `??`, never a spread: `{ previous: undefined }` must not blank the button.
+  const previous = labels?.previous ?? DEFAULT_TABLE_PAGINATION_LABELS.previous;
+  const next = labels?.next ?? DEFAULT_TABLE_PAGINATION_LABELS.next;
+  const rowsPerPage = labels?.rowsPerPage ?? DEFAULT_TABLE_PAGINATION_LABELS.rowsPerPage;
+  const listPaging = labels?.listPaging ?? DEFAULT_TABLE_PAGINATION_LABELS.listPaging;
+  const listPagingEnd = labels?.listPagingEnd ?? DEFAULT_TABLE_PAGINATION_LABELS.listPagingEnd;
+  const rangeText = labels?.range ?? DEFAULT_TABLE_PAGINATION_LABELS.range;
   const range = tablePageRange({ page, pageSize }, totalCount);
   const isTop = placement === "top";
 
   // One callback, always a complete pair (D-5). Two callbacks would let a consumer land on page 9
   // with a size of 200 against a total of 312 — a state this bar would then have to render as
   // "showing nothing".
-  const goTo = (next: number): void => onChange({ page: next, pageSize: range.pageSize });
+  const goTo = (target: number): void => onChange({ page: target, pageSize: range.pageSize });
 
   const arrows = (
     <div className="flex items-center gap-1.5">
@@ -98,7 +152,8 @@ export function TablePagination({
         disabled={range.isFirst}
         onClick={() => goTo(range.page - 1)}
       >
-        <ChevronLeft className="h-3.5 w-3.5" /> Previous
+        <ChevronLeft className="h-3.5 w-3.5" />
+        {` ${previous}`}
       </Button>
       <Button
         type="button"
@@ -107,7 +162,8 @@ export function TablePagination({
         disabled={range.isLast}
         onClick={() => goTo(range.page + 1)}
       >
-        Next <ChevronRight className="h-3.5 w-3.5" />
+        {`${next} `}
+        <ChevronRight className="h-3.5 w-3.5" />
       </Button>
     </div>
   );
@@ -115,7 +171,7 @@ export function TablePagination({
   if (!isTop) {
     return (
       <nav
-        aria-label="List paging, end of list"
+        aria-label={listPagingEnd}
         className={cn("flex flex-wrap items-center justify-end gap-3 pt-2.5", className)}
       >
         {arrows}
@@ -125,7 +181,7 @@ export function TablePagination({
 
   return (
     <nav
-      aria-label="List paging"
+      aria-label={listPaging}
       className={cn("flex flex-wrap items-center justify-between gap-3 pb-2.5", className)}
     >
       {/* The range is TEXT A SCREEN READER READS, not an aria-label bolted onto a decoration: the
@@ -133,10 +189,12 @@ export function TablePagination({
           aria-live="polite") is what acknowledges a page change — pressing Next otherwise replaces
           the rows in silence. */}
       <p role="status" className="m-0 text-sm text-fg-muted tabular-nums">
-        {"Showing "}
-        <span className="font-medium text-fg">{positionLabel(range)}</span>
-        {" of "}
-        <span className="font-medium text-fg">{range.total}</span>
+        {rangeText({
+          from: range.from,
+          to: range.to,
+          total: range.total,
+          position: positionLabel(range),
+        })}
       </p>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -145,14 +203,14 @@ export function TablePagination({
             not ours. Radix ships no pagination primitive, so the picker is the only part of this bar
             with non-trivial screen-reader behaviour — and it is not hand-rolled. */}
         <label className="flex items-center gap-2">
-          <span className="whitespace-nowrap text-sm text-fg-muted">Rows per page</span>
+          <span className="whitespace-nowrap text-sm text-fg-muted">{rowsPerPage}</span>
           <Select
             value={String(range.pageSize)}
             // Changing the size returns to page 1 (D-6). Holding position would need stable row
             // identity, which a server re-query does not give.
-            onValueChange={(next) => onChange({ page: 1, pageSize: Number(next) })}
+            onValueChange={(size) => onChange({ page: 1, pageSize: Number(size) })}
           >
-            <SelectTrigger className="h-9 w-[5.25rem] tabular-nums" aria-label="Rows per page">
+            <SelectTrigger className="h-9 w-[5.25rem] tabular-nums" aria-label={rowsPerPage}>
               {/* Named rather than derived from the chosen item, so the trigger reads the size
                   actually in force even if a consumer passes one that is not on its own list. */}
               <SelectValue>{range.pageSize}</SelectValue>

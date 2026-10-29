@@ -63,6 +63,9 @@ export {
   TablePagination,
   type TablePaginationProps,
   type TablePaginationPlacement,
+  // CR-DESIGN-SYSTEM-024 — translatable words; additive.
+  DEFAULT_TABLE_PAGINATION_LABELS,
+  type TablePaginationLabels,
 } from "./TablePagination";
 export {
   SlideOver,
