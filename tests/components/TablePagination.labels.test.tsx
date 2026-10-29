@@ -109,7 +109,8 @@ describe("byte-identical when `labels` is absent (request item 2)", () => {
       }
     }
     expect(compared).toBe(CELLS.length * 3 * 2 * 2 * LABEL_SHAPES.length);
-  });
+    // ~8s on a CI runner (hundreds of full renders); the default 5s is too tight.
+  }, 60_000);
 
   it("the opened picker's listbox is identical too", async () => {
     const user = userEvent.setup();
