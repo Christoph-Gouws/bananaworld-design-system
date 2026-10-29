@@ -62,6 +62,8 @@ const ADDED_BY_011 = [
 // Names added by LATER changes, each listed under its own id so this inventory stays exact: the spec
 // below still fails on any export nobody declared. CR-DESIGN-SYSTEM-013 — "everything except" (§4.5).
 const ADDED_SINCE_011 = [
+  // CR-DESIGN-SYSTEM-024 — the paging bar's default words.
+  "DEFAULT_TABLE_PAGINATION_LABELS",
   // CR-DESIGN-SYSTEM-023 — the linked-records line.
   "LinkedRecords",
   "LinkedRecordsItem",

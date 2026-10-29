@@ -93,8 +93,40 @@ exactly as before.
 - The bar uses core Tailwind utilities only (no custom keyframes), but the app's Tailwind `content` must scan this
   package's `src/`.
 
+## Translating the paging bar
+
+`TablePagination` takes an optional `labels` prop. Every key is optional; a missing one stays English.
+
+```tsx
+<TablePagination
+  {...paging}
+  labels={{
+    previous: "Anterior",
+    next: "Seguinte",
+    rowsPerPage: "Linhas por página",
+    listPaging: "Paginação da lista",
+    listPagingEnd: "Paginação da lista, fim da lista",
+    range: ({ position, total }) => (
+      <>
+        {"A mostrar "}
+        <span className="font-medium text-fg">{position}</span>
+        {" de "}
+        <span className="font-medium text-fg">{total}</span>
+      </>
+    ),
+  }}
+/>
+```
+
+- Use `position`, not `from`–`to`: it keeps "312–312" literal and an empty list as "0" (D-8).
+- Pass the same `labels` to the top and bottom bar.
+- Never pass an empty string for a word; the kit does not police content.
+
 ### Changelog
 
+- **0.8.0** — `TablePagination` accepts optional `labels` (with `DEFAULT_TABLE_PAGINATION_LABELS` and the
+  `TablePaginationLabels` type) to translate every word, including the two screen-reader names. Without `labels` it
+  renders byte-identically. CR-DESIGN-SYSTEM-024.
 - **0.7.1** — `Link` inside a `NavigationBusyProvider`: the waiting ring no longer moves anything in a link laid out
   as a row (flex/grid), a block or a tile; it sits just after the link's words. Links in running text are unchanged.
   An inline `<a>` that wraps block children and has no display class still gets the in-flow ring: give it `block`.

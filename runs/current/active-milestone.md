@@ -1,17 +1,21 @@
 # Active unit — `bananaworld-design-system`
 
 > This is a FILE, not a unit folder. It records what is currently in flight.
-> Updated 2026-10-27.
+> Updated 2026-10-29.
 
-## Current: CR-DESIGN-SYSTEM-022 — six review follow-ups (kit 0.7.1) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
+## Current: CR-DESIGN-SYSTEM-024 — `TablePagination` `labels` (kit 0.8.0) — **BUILT, GREEN, CLOSED OUT, PR OPEN**
 
 | Field | Value |
 |---|---|
-| Unit type | **Change Request**, archived to `runs/change-20/` |
-| Branch | `change/cr-design-system-022`, off `origin/main` @ `5c14f37` |
+| Unit type | **Change Request**, archived to `runs/change-22/` |
+| Branch | `change/cr-design-system-024`, off `origin/main` @ `6a25c8d` |
 | Layout · ship mode | **A** · **on-green** |
-| Build status | 682/35 green; typecheck clean; audit exit 0; Edge ALL PASS |
-| Remaining | Nothing in this repo. Check a gitleaks scan; consumers pin the merged sha |
+| Build status | 692/36 green; typecheck clean; Edge 22/22 |
+| Remaining | Nothing in this repo. CR-MANGAVERDE-095 pins the merged sha |
+
+## Previous: CR-DESIGN-SYSTEM-022 — six review follow-ups (kit 0.7.1)
+
+Archived to `runs/change-20/`. Follow-up: check a gitleaks scan.
 
 ## Previous: CR-DESIGN-SYSTEM-023 — LinkedRecords + DocumentHeader `linked` (kit 0.7.0)
 

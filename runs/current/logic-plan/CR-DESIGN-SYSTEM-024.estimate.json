@@ -1,0 +1,15 @@
+{
+  "files": 4,
+  "lines": 76,
+  "steps": 2,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes optional TablePagination labels; Manga Verde reads them once CR-MANGAVERDE-095 pins the merged sha",
+    "DC, CRM, RMS, Org Admin pass no labels: English bar byte-identical, nothing until they re-pin",
+    "Apps own the translated words; the kit only places them at fixed spots",
+    "Kit hands its own position text (e.g. 312–312, 0) to the app so translations keep the rule"
+  ],
+  "migrationExpected": false
+}
