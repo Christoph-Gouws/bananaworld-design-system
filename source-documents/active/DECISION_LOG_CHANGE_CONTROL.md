@@ -1244,3 +1244,20 @@ Plan approved, layout **A** (Portuguese looks exactly like English, numbers slig
 
 ### Outcome
 Built as approved. `pnpm test` 692/36 (baseline 682/35), typecheck clean, audit only owner-ignored advisories, real Edge run 22/22. The plan's mutation battery was not run. No consumer pin bumped; CR-MANGAVERDE-095 pins the merged sha. Archive `runs/change-22/`.
+
+---
+
+## CR-DESIGN-SYSTEM-025 — a shared horizontal `BarChart` in the kit (kit 0.9.0)
+
+### What was asked
+Owner ruling 2026-10-29 (finding E4-F21, packhouse end-of-shift screen EPIC-004-M-03): the kit has no chart, and shared controls live in the kit. Add one small accessible bar chart: horizontal bars, value and percentage at the end, optional total, a dash when empty, theme-aware, readable at 390 px / tablet / desktop, a real table behind the picture, no new charting dependency. List page-local charts in the plan; change none.
+
+### What was decided at the plan gate
+Plan approved, layout **A** (name, bar and figures on one line), ship mode **on-green**. No clarify questions were asked or answered. Owner approval of the plan also confirms D-3: the screen hands the chart the exact figures it prints.
+
+### Decisions taken at build (within the approved plan)
+- D-1 plain HTML/CSS, no SVG, no dependency. D-2 one `role="table"` structure that is both picture and table; bar and separator `aria-hidden`. D-3 caller passes `valueText`/`percentText`; kit defaults only for quick English use. D-4 base = `total.value` else the sum; fill clamped; zero draws no fill; 2px minimum above zero. D-5 base 0 → dashes even over caller text (the one override). D-6 theme `bg-accent` plus one `warning` tone, tokens only. D-7 tablet via the `data-surface` selector, no viewport queries. D-9 `words` with per-key `??` fallback. D-10 name `BarChart`.
+- Build detail: look A uses a CSS subgrid so amounts and shares align across rows while each row keeps direct `rowheader`/`cell` children.
+
+### Outcome
+Built as approved. `pnpm test` 709 pass of 710 (the one red is a cold-import timeout in `table-controls.test.tsx`, passing with a longer timeout), typecheck clean, no dependency change, real Edge run 63/63 at three widths and three colour sets. The plan's DC + CRM re-check and mutation battery were not run. No consumer pin bumped; the packhouse pins the merged sha. Archive `runs/change-23/`.

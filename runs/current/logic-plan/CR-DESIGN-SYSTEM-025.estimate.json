@@ -1,0 +1,15 @@
+{
+  "files": 4,
+  "lines": 198,
+  "steps": 3,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes the new BarChart; the packhouse end-of-shift screen reads it after pinning the merged sha",
+    "Packhouse computes and formats every printed figure; the kit only prints them and draws bar lengths",
+    "App theme colour (packhouse teal, DC/CRM yellow) feeds the bars; no token file changes",
+    "DC, CRM, RMS, Org Admin, Manga Verde, Hub: nothing they render changes; chart only if they re-pin"
+  ],
+  "migrationExpected": false
+}

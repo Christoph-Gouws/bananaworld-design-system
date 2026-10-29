@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-025 — Option C — Figures at the tip of each bar</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#fafaf9;color:#18181b;font-size:14px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.015em}
+.lead{color:#52525b;margin:0 0 18px;max-width:70ch}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#71717a;margin:24px 0 8px}
+.grid{display:flex;flex-wrap:wrap;gap:14px}
+.card{background:#fff;border:1px solid #e7e5e4;border-radius:10px;padding:14px 16px;flex:1 1 320px;min-width:0;max-width:100%}
+.card h2{font-size:15px;margin:0 0 10px;display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+.card h2 span{font-size:12px;font-weight:400;color:#71717a}
+.phone{width:390px;max-width:100%;border:1px dashed #d6d3d1;border-radius:14px;padding:12px;background:#fafaf9}
+.ch{display:flex;flex-direction:column;gap:8px;font-size:13px}
+.ch .k{font-weight:600;color:#3f3f46;min-width:0;overflow-wrap:anywhere}
+.ch .p{font-variant-numeric:tabular-nums;white-space:nowrap;color:#52525b}
+.ch .p b{color:#18181b}
+.ch i{display:block;height:16px;min-width:2px;background:#0f766e;border-radius:4px;flex:none}
+.ch .w .k{color:#7c2d12}.ch .w i{background:#ea580c}
+.ch .tot{border-top:1px solid #e7e5e4;padding-top:8px;margin-top:2px}
+.c .r{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr);gap:10px;align-items:center}
+.c .tip{display:flex;align-items:center;gap:8px;min-width:0;min-height:16px}
+.dark{background:#18181b;border-color:#3f3f46;color:#f4f4f5}
+.dark h2 span,.dark .ch .p{color:#a1a1aa}.dark .ch .p b{color:#fafafa}.dark .ch .k{color:#e4e4e7}
+.dark .ch i{background:#2dd4bf}.dark .ch .w .k{color:#fdba74}.dark .ch .w i{background:#fb923c}.dark .ch .tot{border-color:#3f3f46}
+.note{font-size:12px;color:#71717a;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Option C — Figures at the tip of each bar</h1>
+<p class="lead">No grey groove behind the bars: each bar stops where its share ends and the amount and share sit right at its tip. The most "chart-like" look, but the figures do not line up in one column, so comparing them takes a second longer.</p>
+
+<h3>On a desk screen or tablet</h3>
+<div class="grid">
+  <div class="card"><h2>Class split<span>Same figures as the packout table</span></h2>
+    <div class="ch c">
+      <div class="r"><span class="k">Class 1</span><span class="tip"><i style="width:calc((100% - 8.5em) * .623)"></i><span class="p">412.50 · <b>62.3%</b></span></span></div>
+      <div class="r"><span class="k">Class 2</span><span class="tip"><i style="width:calc((100% - 8.5em) * .299)"></i><span class="p">198.00 · <b>29.9%</b></span></span></div>
+      <div class="r"><span class="k">Class 3 (Reject)</span><span class="tip"><i style="width:calc((100% - 8.5em) * .078)"></i><span class="p">51.50 · <b>7.8%</b></span></span></div>
+      <div class="r tot"><span class="k">Total packed</span><span class="p"><b>662.00</b></span></div>
+    </div>
+  </div>
+  <div class="card"><h2>Size split<span>Same figures as the packout table</span></h2>
+    <div class="ch c">
+      <div class="r"><span class="k">XL</span><span class="tip"><i style="width:calc((100% - 8.5em) * .181)"></i><span class="p">120.00 · <b>18.1%</b></span></span></div>
+      <div class="r"><span class="k">L</span><span class="tip"><i style="width:calc((100% - 8.5em) * .394)"></i><span class="p">260.50 · <b>39.4%</b></span></span></div>
+      <div class="r"><span class="k">M</span><span class="tip"><i style="width:calc((100% - 8.5em) * .257)"></i><span class="p">170.00 · <b>25.7%</b></span></span></div>
+      <div class="r"><span class="k">S</span><span class="tip"><i style="width:calc((100% - 8.5em) * .106)"></i><span class="p">70.00 · <b>10.6%</b></span></span></div>
+      <div class="r w"><span class="k">Not mapped yet</span><span class="tip"><i style="width:calc((100% - 8.5em) * .063)"></i><span class="p">41.50 · <b>6.3%</b></span></span></div>
+      <div class="r tot"><span class="k">Total packed</span><span class="p"><b>662.00</b></span></div>
+    </div>
+  </div>
+</div>
+
+<h3>On a phone (390 wide)</h3>
+<div class="phone">
+  <div class="card"><h2>Size split</h2>
+    <div class="ch c">
+      <div class="r"><span class="k">XL</span><span class="tip"><i style="width:calc((100% - 8.5em) * .181)"></i><span class="p">120.00 · <b>18.1%</b></span></span></div>
+      <div class="r"><span class="k">L</span><span class="tip"><i style="width:calc((100% - 8.5em) * .394)"></i><span class="p">260.50 · <b>39.4%</b></span></span></div>
+      <div class="r"><span class="k">M</span><span class="tip"><i style="width:calc((100% - 8.5em) * .257)"></i><span class="p">170.00 · <b>25.7%</b></span></span></div>
+      <div class="r"><span class="k">S</span><span class="tip"><i style="width:calc((100% - 8.5em) * .106)"></i><span class="p">70.00 · <b>10.6%</b></span></span></div>
+      <div class="r w"><span class="k">Not mapped yet</span><span class="tip"><i style="width:calc((100% - 8.5em) * .063)"></i><span class="p">41.50 · <b>6.3%</b></span></span></div>
+      <div class="r tot"><span class="k">Total packed</span><span class="p"><b>662.00</b></span></div>
+    </div>
+  </div>
+</div>
+
+<h3>Nothing packed yet · dark look</h3>
+<div class="grid">
+  <div class="card"><h2>Class split</h2>
+    <div class="ch c">
+      <div class="r"><span class="k">Class 1</span><span class="tip"><span class="p">—</span></span></div>
+      <div class="r"><span class="k">Class 2</span><span class="tip"><span class="p">—</span></span></div>
+      <div class="r"><span class="k">Class 3 (Reject)</span><span class="tip"><span class="p">—</span></span></div>
+    </div>
+  </div>
+  <div class="card dark"><h2>Class split<span>If an app turns on a dark look</span></h2>
+    <div class="ch c">
+      <div class="r"><span class="k">Class 1</span><span class="tip"><i style="width:calc((100% - 8.5em) * .623)"></i><span class="p">412.50 · <b>62.3%</b></span></span></div>
+      <div class="r"><span class="k">Class 2</span><span class="tip"><i style="width:calc((100% - 8.5em) * .299)"></i><span class="p">198.00 · <b>29.9%</b></span></span></div>
+      <div class="r"><span class="k">Class 3 (Reject)</span><span class="tip"><i style="width:calc((100% - 8.5em) * .078)"></i><span class="p">51.50 · <b>7.8%</b></span></span></div>
+    </div>
+  </div>
+</div>
+<p class="note">Bars use each app's own colour: packhouse teal shown here. The orange line is "Not mapped yet": its name says so, the colour only backs it up. A screen reader reads every line as name, amount, share.</p>
+</div>
+</body>
+</html>
