@@ -124,6 +124,9 @@ exactly as before.
 
 ### Changelog
 
+- **0.10.0** — `StatTile` / `StatTileRow`: a read-only headline figure (label + optional icon, one large value,
+  optional unit and sub-line, optional theme-colour top rule, optional link); a dash when the app passes `null`;
+  2-up on phone and tablet, up to 4-up on desk. New names only. CR-DESIGN-SYSTEM-026.
 - **0.9.0** — `BarChart`: horizontal bars of labelled values, amount and share printed, optional total, a dash when
   empty, theme accent, readable at 390 px, read by screen readers as a table. New names only. CR-DESIGN-SYSTEM-025.
 - **0.8.0** — `TablePagination` accepts optional `labels` (with `DEFAULT_TABLE_PAGINATION_LABELS` and the
@@ -173,6 +176,26 @@ percentages use. Nothing yet (base 0, or no items) shows dashes and no bars, eve
 must still say so in its label. The card heading is yours; `label` names the table for screen readers. Colours are
 the theme tokens (`bg-accent`, one `warning`), so the chart follows each app's theme. Renders on the server.
 
+## Headline figures
+
+```tsx
+<StatTileRow>
+  <StatTile accent icon={<Scale />} label="Cachos entrados" value="1 240" sub="12 caídos" />
+  <StatTile accent icon={<Package />} label="Paletes embaladas" value="156" unit="pal." sub="2 814,00 unidades de 18 kg" />
+  <StatTile accent label="Desperdício" value={null} words={{ empty: "Nada registado" }} />
+  <StatTile accent label="À espera" value="7" href="/waiting" />
+</StatTileRow>
+```
+
+Presentation only: the value is printed exactly as given (the kit never formats a number or reads a locale), so keep
+it short — it is never broken or truncated. `null` or `""` draws a dash (read as `words.empty`) and hides the unit;
+`"0"` prints 0, so the app decides "nothing recorded" versus a real zero by passing `null`. `icon` is an element
+(`icon={<Scale />}`), not a component type, so a server component can render it; it takes the label colour — pass
+`className="text-accent"` on the element for a coloured one. `href` makes the whole tile a link (a chevron shows it);
+pass no `href` when the viewer may not open the target. A warning belongs in the `sub` words, not colour alone.
+`StatTileRow` is 2-up on phone and tablet and, from `lg`, one column per tile up to four; the tile sets no grid
+itself. Tailwind `content` must scan the package `src/`. Renders on the server.
+
 ## Export button download link
 
 `ExportButton` has three shapes. No `href` (or `""`): the "coming soon" toast; needs a `ToastProvider`. `href` (+
@@ -214,11 +237,8 @@ const [crates, setCrates] = useState("");
   <ActionTile icon={UserPlus} label="New client" href="/clients/new" />
 </div>
 
-{/* A figure card is ListCard with your own text — there is no FigureTile. */}
-<ListCard density="card">
-  <div className="text-sm text-fg-muted">Crates on the floor</div>
-  <div className="text-3xl font-semibold tabular-nums">412</div>
-</ListCard>
+{/* A read-only figure is StatTile — see "Headline figures". */}
+<StatTile label="Crates on the floor" value="412" />
 ```
 
 `Keypad` is controlled (you own the string) and counts whole numbers only. A leading zero is dropped, a digit past

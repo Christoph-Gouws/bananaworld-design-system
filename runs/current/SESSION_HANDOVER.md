@@ -1,9 +1,12 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-10-29, at the close of **CR-DESIGN-SYSTEM-025**.
+> Last updated: 2026-10-30, at the close of **CR-DESIGN-SYSTEM-026**.
 
-## Latest: CR-DESIGN-SYSTEM-025 — shared `BarChart` (kit 0.9.0)
-New `src/components/BarChart.tsx`: horizontal bars (look A), one `role="table"` structure, caller-supplied `valueText`/`percentText`, optional total, dashes when empty, theme tokens only, no dependency. 709/710 (1 import timeout, passes with a longer one) · Edge 63/63. Archive `runs/change-23/`; rules `runs/change-23/evidence/developer-handover.md`. Owed: packhouse EPIC-004-M-03 pins the MERGED sha; mutation battery and DC+CRM re-check not run (`known-issues.md`).
+## Latest: CR-DESIGN-SYSTEM-026 — shared `StatTile` / `StatTileRow` (kit 0.10.0)
+New `src/components/StatTile.tsx` (look A): read-only headline figure, optional icon element, unit, sub-line, accent rule, `href` link; `null` = dash, `"0"` = 0 (the app decides); 2-up row, 4-up from `lg`; no client directive, no hook, no dependency. 729/729 · Edge 93/93. Archive `runs/change-24/`; rules `runs/change-24/evidence/developer-handover.md`. Owed: packhouse EPIC-004-M-03 pins the MERGED sha; mutation battery and DC+CRM re-check not run (`known-issues.md`).
+
+## Previous: CR-DESIGN-SYSTEM-025 — shared `BarChart` (kit 0.9.0)
+Horizontal bars, one `role="table"`, caller `valueText`/`percentText`. Archive `runs/change-23/`. Owed: packhouse pins the MERGED sha.
 
 ## Previous: CR-DESIGN-SYSTEM-024 — `TablePagination` `labels` (kit 0.8.0)
 Optional `labels` + frozen `DEFAULT_TABLE_PAGINATION_LABELS`. Archive `runs/change-22/`. Owed: CR-MANGAVERDE-095 pins the MERGED sha.
