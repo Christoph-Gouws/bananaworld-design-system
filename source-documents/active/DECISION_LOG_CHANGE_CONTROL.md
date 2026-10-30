@@ -1261,3 +1261,20 @@ Plan approved, layout **A** (name, bar and figures on one line), ship mode **on-
 
 ### Outcome
 Built as approved. `pnpm test` 709 pass of 710 (the one red is a cold-import timeout in `table-controls.test.tsx`, passing with a longer timeout), typecheck clean, no dependency change, real Edge run 63/63 at three widths and three colour sets. The plan's DC + CRM re-check and mutation battery were not run. No consumer pin bumped; the packhouse pins the merged sha. Archive `runs/change-23/`.
+
+---
+
+## CR-DESIGN-SYSTEM-026 — a shared headline figure tile `StatTile` in the kit (kit 0.10.0)
+
+### What was asked
+Owner ruling 2026-10-30 (companion of CR-DESIGN-SYSTEM-025; finding E4-F21, packhouse end-of-shift screen EPIC-004-M-03): the kit has `ActionTile` (a tap target) but no read-only figure tile. Add one `StatTile`: short label with optional icon, one large value, optional sub-line, optional accent top rule, optional link, a dash when nothing is recorded, a row of 2–4 that wraps at 390 px / tablet / desktop, light and dark ready, accessible, no logic, no new dependency. List page-local figure tiles in the plan; change none.
+
+### What was decided at the plan gate
+Plan approved, layout **A** (name on top, as on the end-of-shift drawing), ship mode **on-green**. No clarify questions were asked or answered. Approval also confirms that the app, not the kit, decides "nothing recorded" (passes `null`) versus a real zero.
+
+### Decisions taken at build (within the approved plan)
+- D-1 plain HTML + token classes, no dependency, no client directive or hook; icon is an element. D-2 label, value and unit are one `<p>`; decoration `aria-hidden`; read-only tile is a plain `div`. D-3 value printed as given; `null`/`""` dash with a spoken reason, unit hidden. D-4 `href` only (kit `Link`, chevron); no button variant. D-5 `StatTileRow`: 2-up, `lg` one column per tile up to four. D-6 optional 3 px accent rule as its own span so the focus ring cannot hide it. D-9 `words.empty` with `??` fallback. D-10 names `StatTile`, `StatTileRow`.
+- Build detail: `index.ts` is at the 300-line sensor limit, so its comment was folded and one export line added.
+
+### Outcome
+Built as approved. `pnpm vitest run` 729 pass of 729, typecheck clean, no dependency change, real Edge run 93/93 at three widths and three colour sets. The plan's DC + CRM re-check and mutation battery were not run. No consumer pin bumped; the packhouse pins the merged sha. Archive `runs/change-24/`.

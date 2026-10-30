@@ -268,8 +268,7 @@ export {
   type ChangeTableMore,
 } from "./ChangeTable";
 // 🔴 TABLET COUNTING (CR-DESIGN-SYSTEM-021, companion of Bananaworld-DC CR-DC-256). An on-screen whole-number
-//    pad and a large icon-and-label tile. ADDITIVE: new names only — declared in the export inventory in
-//    the additive test. A figure card is `ListCard` with your own text (README).
+//    pad and a large icon-and-label tile (a read-only figure is `StatTile`, CR-DESIGN-SYSTEM-026). ADDITIVE.
 export { Keypad, type KeypadProps } from "./Keypad";
 export { ActionTile, type ActionTileProps } from "./ActionTile";
 // 🔴 LINKED RECORDS (CR-DESIGN-SYSTEM-023, companion of Bananaworld-DC CR-DC-223). One line, grouped by type,
@@ -297,3 +296,4 @@ export {
   type BarChartWords,
   type BarChartTone,
 } from "./BarChart";
+export { StatTile, StatTileRow, type StatTileProps, type StatTileRowProps, type StatTileWords } from "./StatTile";

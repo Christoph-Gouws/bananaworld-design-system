@@ -62,6 +62,9 @@ const ADDED_BY_011 = [
 // Names added by LATER changes, each listed under its own id so this inventory stays exact: the spec
 // below still fails on any export nobody declared. CR-DESIGN-SYSTEM-013 — "everything except" (§4.5).
 const ADDED_SINCE_011 = [
+  // CR-DESIGN-SYSTEM-026 — the read-only headline figure tile and its row.
+  "StatTile",
+  "StatTileRow",
   // CR-DESIGN-SYSTEM-025 — the horizontal bar chart.
   "BarChart",
   // CR-DESIGN-SYSTEM-024 — the paging bar's default words.

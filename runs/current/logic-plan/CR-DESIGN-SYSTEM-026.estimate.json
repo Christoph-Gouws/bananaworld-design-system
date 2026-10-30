@@ -1,0 +1,16 @@
+{
+  "files": 4,
+  "lines": 168,
+  "steps": 3,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes StatTile + StatTileRow; packhouse end-of-shift screen reads them after pinning the merged sha",
+    "Packhouse formats every figure and decides 'nothing recorded' (dash) vs a real zero; kit only prints",
+    "App theme colour (packhouse teal, DC/CRM yellow) feeds the top rule; no token file changes",
+    "App decides the tap target and who may open it; the kit only draws a link or a plain tile",
+    "DC, CRM, RMS, Org Admin, Manga Verde, Hub: nothing they render changes; their own tiles stay"
+  ],
+  "migrationExpected": false
+}
