@@ -1,9 +1,12 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-10-30, at the close of **CR-DESIGN-SYSTEM-026**.
+> Last updated: 2026-11-07, at the close of **CR-DESIGN-SYSTEM-028**.
 
-## Latest: CR-DESIGN-SYSTEM-026 — shared `StatTile` / `StatTileRow` (kit 0.10.0)
-New `src/components/StatTile.tsx` (look A): read-only headline figure, optional icon element, unit, sub-line, accent rule, `href` link; `null` = dash, `"0"` = 0 (the app decides); 2-up row, 4-up from `lg`; no client directive, no hook, no dependency. 729/729 · Edge 93/93. Archive `runs/change-24/`; rules `runs/change-24/evidence/developer-handover.md`. Owed: packhouse EPIC-004-M-03 pins the MERGED sha; mutation battery and DC+CRM re-check not run (`known-issues.md`).
+## Latest: CR-DESIGN-SYSTEM-028 — shared `TruckDiagram` + `truckDiagramRows` (kit 0.11.0)
+New `src/components/TruckDiagram.tsx` + `truck-diagram-layout.ts` (look A): truck from above, two spaces wide, Cab top / Doors bottom, drop blocks with labelled dividers (last drop at the cab, first by the doors; the app decides, the kit never reorders), `taken` never shows a number or is a button, `standardPositions` has no default; no client directive, no hook, no dependency. 773/773 · Edge proof ALL PASS. Archive `runs/change-26/`; rules `runs/change-26/evidence/developer-handover.md`. Owed: packhouse EPIC-006-M-01 pins the MERGED sha; DC+CRM re-check and mutation battery not run (`known-issues.md`). Test here with `--pool=threads --maxWorkers=2 --testTimeout=60000`.
+
+## Previous: CR-DESIGN-SYSTEM-026 — shared `StatTile` / `StatTileRow` (kit 0.10.0)
+Read-only headline figure; `null` = dash, `"0"` = 0. Archive `runs/change-24/`. Owed: packhouse EPIC-004-M-03 pins the MERGED sha.
 
 ## Previous: CR-DESIGN-SYSTEM-025 — shared `BarChart` (kit 0.9.0)
 Horizontal bars, one `role="table"`, caller `valueText`/`percentText`. Archive `runs/change-23/`. Owed: packhouse pins the MERGED sha.

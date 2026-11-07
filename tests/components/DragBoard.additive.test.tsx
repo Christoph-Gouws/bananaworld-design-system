@@ -62,6 +62,9 @@ const ADDED_BY_011 = [
 // Names added by LATER changes, each listed under its own id so this inventory stays exact: the spec
 // below still fails on any export nobody declared. CR-DESIGN-SYSTEM-013 — "everything except" (§4.5).
 const ADDED_SINCE_011 = [
+  // CR-DESIGN-SYSTEM-028 — the truck loading picture and its pure layout.
+  "TruckDiagram",
+  "truckDiagramRows",
   // CR-DESIGN-SYSTEM-026 — the read-only headline figure tile and its row.
   "StatTile",
   "StatTileRow",

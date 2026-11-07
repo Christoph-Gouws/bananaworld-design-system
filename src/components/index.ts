@@ -267,8 +267,7 @@ export {
   type ChangeTableHeadings,
   type ChangeTableMore,
 } from "./ChangeTable";
-// 🔴 TABLET COUNTING (CR-DESIGN-SYSTEM-021, companion of Bananaworld-DC CR-DC-256). An on-screen whole-number
-//    pad and a large icon-and-label tile (a read-only figure is `StatTile`, CR-DESIGN-SYSTEM-026). ADDITIVE.
+// 🔴 TABLET COUNTING (CR-DESIGN-SYSTEM-021, Bananaworld-DC CR-DC-256): a whole-number pad and a large tile. ADDITIVE.
 export { Keypad, type KeypadProps } from "./Keypad";
 export { ActionTile, type ActionTileProps } from "./ActionTile";
 // 🔴 LINKED RECORDS (CR-DESIGN-SYSTEM-023, companion of Bananaworld-DC CR-DC-223). One line, grouped by type,
@@ -285,9 +284,8 @@ export {
   type LinkedRecordsSummary,
   type LinkedRecordsWords,
 } from "./LinkedRecords";
-// 🔴 BAR CHART (CR-DESIGN-SYSTEM-025, finding E4-F21, first used by the packhouse end-of-shift screen).
-//    Horizontal bars with amount and share printed, read by screen readers as a table. ADDITIVE: new
-//    names only — declared in the export inventory in the additive test.
+// 🔴 BAR CHART (CR-DESIGN-SYSTEM-025, finding E4-F21, packhouse end-of-shift screen). Horizontal bars,
+//    read by screen readers as a table. ADDITIVE: new names only (see the additive test inventory).
 export {
   BarChart,
   type BarChartProps,
@@ -297,3 +295,5 @@ export {
   type BarChartTone,
 } from "./BarChart";
 export { StatTile, StatTileRow, type StatTileProps, type StatTileRowProps, type StatTileWords } from "./StatTile";
+export { TruckDiagram, type TruckDiagramProps, type TruckDiagramWords } from "./TruckDiagram"; // CR-DESIGN-SYSTEM-028 (ADDITIVE)
+export { truckDiagramRows, type TruckDiagramCell, type TruckDiagramRow, type TruckDropEnd, type TruckSlot, type TruckSlotState } from "./truck-diagram-layout";

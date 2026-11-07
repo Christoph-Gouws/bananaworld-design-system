@@ -1,0 +1,17 @@
+{
+  "files": 5,
+  "lines": 400,
+  "steps": 3,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes TruckDiagram; packhouse loading screen (EPIC-006-M-01) reads it after pinning the merged sha",
+    "Kit writes the shared layout; packhouse delivery note PDF (M-02) draws the same numbering and drop blocks",
+    "Packhouse decides each space's state, number and drop; kit only draws blocks, never reorders them",
+    "Packhouse owns last-drop-at-the-cab placement (M-01 must add it); kit cannot enforce it",
+    "Kit reports which space was tapped; packhouse decides what a tap does and who may do it",
+    "DC, CRM, RMS, Org Admin, Manga Verde, Hub: nothing they render changes"
+  ],
+  "migrationExpected": false
+}

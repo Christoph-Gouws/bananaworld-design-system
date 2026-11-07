@@ -124,6 +124,9 @@ exactly as before.
 
 ### Changelog
 
+- **0.11.0** — `TruckDiagram` (+ `truckDiagramRows`, the same layout as plain data for a PDF): a truck from above,
+  two spaces wide, numbered from the cab, drop blocks with labelled dividers, a warning past the standard count.
+  New names only. CR-DESIGN-SYSTEM-028.
 - **0.10.0** — `StatTile` / `StatTileRow`: a read-only headline figure (label + optional icon, one large value,
   optional unit and sub-line, optional theme-colour top rule, optional link); a dash when the app passes `null`;
   2-up on phone and tablet, up to 4-up on desk. New names only. CR-DESIGN-SYSTEM-026.
@@ -195,6 +198,34 @@ it short — it is never broken or truncated. `null` or `""` draws a dash (read 
 pass no `href` when the viewer may not open the target. A warning belongs in the `sub` words, not colour alone.
 `StatTileRow` is 2-up on phone and tablet and, from `lg`, one column per tile up to four; the tile sets no grid
 itself. Tailwind `content` must scan the package `src/`. Renders on the server.
+
+## Truck loading picture
+
+```tsx
+<TruckDiagram
+  frontLabel="Cabine"
+  backLabel="Portas"
+  positions={30}
+  standardPositions={30}
+  slots={[
+    { position: 1, state: "taken", drop: 2 }, // another packhouse's space: never shows a number
+    { position: 7, state: "filled", label: "1INC2546-01", drop: 1 },
+    { position: 8, state: "selected", label: "1INC2546-02", drop: 1 },
+  ]}
+  onSlotTap={(position) => select(position)}
+  dropLabel={(d, end) => (end === "cab" ? `Entrega ${d} · descarregada por último` : end === "doors" ? `Entrega ${d} · descarregada primeiro` : `Entrega ${d}`)}
+  words={{ taken: "Ocupado", empty: "Vazio", selected: "Escolhido", position: "Posição" }}
+/>
+```
+
+Two spaces wide, position 1 at the cab (top), doors at the bottom. The app decides every state, label and `drop`;
+the kit only draws. `standardPositions` has no default (the 30 is the packhouse's): spaces past it get a warning
+style and words. A pallet is never hidden: the count is the larger of `positions` and the highest slot. `taken` never
+shows a label. On a back-loaded reefer the app puts the last drop at the cab and the first by the doors; the kit draws
+what it is given and never reorders. Fewer than two drops draw no lines; the odd space of a row shared by two drops
+carries its own drop tag. No `onSlotTap` means read-only (nothing focusable), which suits server rendering and print;
+a `taken` space is never a button. A React-PDF note cannot draw this component: map `truckDiagramRows` instead.
+Tailwind `content` must scan the package `src/`.
 
 ## Export button download link
 
