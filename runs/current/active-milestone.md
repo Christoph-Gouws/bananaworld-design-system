@@ -1,21 +1,19 @@
 # Active unit — `bananaworld-design-system`
 
 > This is a FILE, not a unit folder. It records what is currently in flight.
-> Updated 2026-10-30.
+> Updated 2026-11-07.
 
-## Current: CR-DESIGN-SYSTEM-026 — shared `StatTile` headline figure (kit 0.10.0) — **BUILT, CLOSED OUT, PR OPEN**
+## Current: CR-DESIGN-SYSTEM-028 — shared `TruckDiagram` truck loading picture (kit 0.11.0) — **BUILT, CLOSED OUT, PR OPEN**
 
 | Field | Value |
 |---|---|
-| Unit type | **Change Request**, archived to `runs/change-24/` |
-| Branch | `change/cr-design-system-026`, off `origin/main` @ `f92eab5` |
+| Unit type | **Change Request**, archived to `runs/change-26/` |
+| Branch | `change/cr-design-system-028`, off `origin/main` @ `0e9ed06` |
 | Layout · ship mode | **A** · **on-green** |
-| Build status | 729/729; typecheck clean; Edge 93/93 |
-| Remaining | Nothing in this repo. Packhouse EPIC-004-M-03 pins the merged sha |
+| Build status | 773/773; typecheck clean; Edge proof ALL PASS (360/390/768/1440 + print) |
+| Remaining | Nothing in this repo. Packhouse EPIC-006-M-01 pins the merged sha |
 
-## Previous: CR-DESIGN-SYSTEM-025 — shared `BarChart` (kit 0.9.0)
-
-Archived to `runs/change-23/`. Follow-up: packhouse EPIC-004-M-03 pins the merged sha.
+## Previous: CR-DESIGN-SYSTEM-026 — `StatTile` (kit 0.10.0), `runs/change-24/`; -025 `BarChart` (`change-23`)
 
 ## Previous units
 

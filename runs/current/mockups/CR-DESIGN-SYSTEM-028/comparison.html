@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-028 — The shared truck loading picture with drop blocks: pick a look</title>
+<style>
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+body{margin:0;font-family:Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#fafaf9;color:#18181b;font-size:14px;line-height:1.5}
+.wrap{max-width:1360px;margin:0 auto;padding:18px 14px 48px}
+h1{font-size:22px;margin:0 0 6px;letter-spacing:-.015em}
+.lead{color:#52525b;margin:0 0 14px;max-width:76ch}
+.cols{display:flex;flex-direction:column;gap:40px}
+@media (min-width:900px){.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}}
+.opt{min-width:0}
+.opt>h2{font-size:21px;margin:0 0 4px;letter-spacing:-.01em}
+.opt>p{color:#52525b;margin:0 0 10px}
+.rec{display:inline-block;background:#d5f3ef;color:#0b5f58;font-size:12px;font-weight:700;border-radius:999px;padding:1px 10px;vertical-align:middle}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#71717a;margin:18px 0 6px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px;padding:0;list-style:none}
+.legend li{display:flex;align-items:center;gap:6px;font-size:13px;color:#3f3f46}
+.legend .s{width:46px;min-height:30px}
+.ph{--acc:#0f766e;--accs:#d5f3ef}
+.dcy{--acc:#fac80a;--accs:#fef3c7}
+.shared{display:grid;gap:18px}
+@media (min-width:900px){.shared{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.shared>div{min-width:0}
+/* the picture */
+.trk{max-width:448px;margin:0 auto;min-width:0}
+ol.g{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.s{position:relative;min-height:48px;border-radius:8px;padding:5px 8px;display:flex;flex-direction:column;justify-content:center;gap:1px;min-width:0;background:#fff}
+.s .p{font-size:11px;font-weight:600;color:#71717a;line-height:1}
+.s b{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2;overflow-wrap:anywhere}
+.s .n{font-size:11.5px;color:#52525b;line-height:1.25;overflow-wrap:anywhere}
+.e{border:1.5px dashed #a1a1aa}
+.f{border:1.5px solid var(--acc);background:var(--accs)}
+.x{border:3px solid #18181b;padding:3.5px 26px 3.5px 6.5px}
+.ck{position:absolute;right:6px;top:6px;width:15px;height:15px;fill:none;stroke:#18181b;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.t{border:1.5px solid #e7e5e4;background:repeating-linear-gradient(45deg,#efefee 0 6px,#f5f5f4 6px 12px)}
+.t .n{color:#3f3f46;font-weight:600}
+.w{border-color:#ea580c}
+.e.w{background:#ffedd5}
+.warn{display:flex;align-items:center;gap:6px;margin:8px 0;padding:6px 10px;border-left:3px solid #ea580c;background:#ffedd5;color:#7c2d12;font-weight:700;font-size:13px;border-radius:4px}
+.wi{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cut{text-align:center;color:#71717a;font-size:12px;margin:4px 0}
+/* drop blocks: a bold rule with the block's words, never colour alone */
+.dv{display:flex;align-items:center;gap:8px;margin:10px 0 6px;font-weight:800;font-size:13px;color:#18181b;line-height:1.2;text-align:center}
+.dv::before,.dv::after{content:"";flex:1 1 12px;border-top:3px solid #18181b}
+.dv:first-child{margin-top:0}
+.chip{align-self:flex-start;font-size:10.5px;font-weight:700;border:1.5px solid #18181b;border-radius:4px;padding:0 4px;line-height:1.4;color:#18181b;background:#fff}
+/* Look A: truck outline */
+.A .cab{margin:0 22px;border:2px solid #d6d3d1;border-bottom:0;border-radius:30px 30px 6px 6px;background:#f5f5f4;text-align:center;padding:10px 8px 8px;font-weight:700;font-size:13px;color:#3f3f46}
+.A .body{border:2px solid #d6d3d1;border-radius:6px 6px 0 0;padding:8px;background:#fafaf9}
+.A .doors{border:2px solid #d6d3d1;border-top:4px double #a1a1aa;border-radius:0 0 6px 6px;background:#f5f5f4;text-align:center;padding:6px;font-weight:700;font-size:13px;color:#3f3f46}
+/* Look B: plain grid with row numbers */
+.B .bar{background:#f5f5f4;border:1px solid #d6d3d1;border-radius:8px;text-align:center;padding:8px;font-weight:700;font-size:13px;color:#3f3f46;margin:0 0 6px 28px}
+.B .bar.back{margin:6px 0 0 28px}
+.B ol.g{grid-template-columns:22px repeat(2,minmax(0,1fr))}
+.B .rn{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#71717a;background:#f5f5f4;border-radius:6px}
+.B .warn,.B .dv{margin-left:28px}
+/* Look C: lying on its side on wide screens */
+.lyingbox{overflow-x:auto;max-width:100%;border:1px solid #e7e5e4;border-radius:10px;background:#fff;padding:8px}
+.lying{display:flex;align-items:stretch;min-width:1180px}
+.lying .cab{writing-mode:vertical-rl;transform:rotate(180deg);border:2px solid #d6d3d1;border-left:0;border-radius:6px 30px 30px 6px;background:#f5f5f4;padding:8px 10px;font-weight:700;font-size:13px;color:#3f3f46;text-align:center;margin:18px 0}
+.lying .body{flex:1;display:flex;border:2px solid #d6d3d1;border-radius:6px 0 0 6px;padding:8px;background:#fafaf9;min-width:0}
+.lying .blk{min-width:0;display:flex;flex-direction:column}
+.lying .blk+.blk{border-left:3px solid #18181b;margin-left:8px;padding-left:8px}
+.lying .bh{font-weight:800;font-size:13px;margin:0 0 6px;white-space:nowrap}
+.lying ol.g{grid-template-columns:none;grid-template-rows:repeat(2,auto);grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);flex:1}
+.lying .s b{font-size:13px}
+.lying .doors{writing-mode:vertical-rl;border:2px solid #d6d3d1;border-left:4px double #a1a1aa;border-radius:0 6px 6px 0;background:#f5f5f4;padding:8px 6px;font-weight:700;font-size:13px;color:#3f3f46;text-align:center}
+/* printed, black and white */
+.pr{background:#fff;padding:10px;border:1px solid #e7e5e4;border-radius:4px}
+.pr .s{min-height:32px;background:none;padding:3px 7px}
+.pr .s .p,.pr .s .n{color:#000}
+.pr .e{border:1.5px dashed #000}
+.pr .f{border:2px solid #000;background:none}
+.pr .t{border:1.5px dotted #000;background:none}
+.pr .cab,.pr .doors,.pr .body,.pr .bar,.pr .rn{background:none;color:#000;border-color:#000}
+.pr .dv{color:#000}
+.pr .dv::before,.pr .dv::after{border-color:#000}
+.foot{margin-top:28px;font-size:13px;color:#52525b;max-width:76ch}
+.top{margin-bottom:22px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="ck" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
+  <symbol id="wa" viewBox="0 0 24 24"><path d="M12 3l10 18H2zM12 10v5M12 18v.01"/></symbol>
+</svg>
+<div class="wrap">
+<h1>The shared truck loading picture — now with drop blocks</h1>
+<p class="lead">Redrawn after your note of 7 November. Trucks are loaded from the back, so the <b>last drop sits at the cab</b> and the <b>first drop by the doors</b>. A bold labelled line now separates the drops. Cab is at the top, Doors at the bottom. All three options show the same shared truck: another packhouse's drop 2 at the cab end (taken, no pallet numbers), our drop 1 by the doors. Pallet numbers are made up.</p>
+
+<div class="top">
+<h3>The kinds of space (packhouse colours)</h3>
+<ul class="legend ph">
+  <li><span class="s e"></span> Empty</li>
+  <li><span class="s f"></span> A pallet on the truck</li>
+  <li><span class="s t"></span> Taken by another packhouse (no number)</li>
+  <li><span class="s f x"></span> Picked (first tap of a move)</li>
+  <li><span class="s e w"></span> Past a standard truck</li>
+</ul>
+<h3>The same in another app's colour (yellow)</h3>
+<ul class="legend dcy">
+  <li><span class="s e"></span> Empty</li>
+  <li><span class="s f"></span> On the truck</li>
+  <li><span class="s t"></span> Taken</li>
+  <li><span class="s f x"></span> Picked</li>
+</ul>
+
+<div class="shared">
+<div>
+<h3>In every option · three drops, two share a row</h3>
+<div class="trk A ph">
+<div class="cab">Cab</div>
+<div class="body">
+<div class="dv">Drop 3 · unloaded last</div>
+<ol class="g">
+<li class="s t"><span class="p">1</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">2</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">3</span><span class="n">Taken</span></li>
+<li class="s f"><span class="p">4</span><b>1INC2546-01</b><span class="chip">Drop 2</span></li>
+</ol>
+<div class="dv">Drop 2</div>
+<ol class="g" start="5">
+<li class="s f"><span class="p">5</span><b>1INC2546-02</b></li>
+<li class="s f"><span class="p">6</span><b>1INC2546-03</b></li>
+<li class="s f"><span class="p">7</span><b>1INC2546-04</b></li>
+<li class="s e"><span class="p">8</span><span class="chip">Drop 1</span></li>
+</ol>
+<div class="dv">Drop 1 · unloaded first</div>
+<ol class="g" start="9">
+<li class="s e"><span class="p">9</span></li>
+<li class="s e"><span class="p">10</span></li>
+</ol>
+</div>
+<div class="doors">Doors</div>
+</div>
+</div>
+<div>
+<h3>In every option · a load on its own (one drop, no lines)</h3>
+<div class="trk A ph">
+<div class="cab">Cab</div>
+<div class="body"><ol class="g">
+<li class="s f"><span class="p">1</span><b>1INC2601-01</b></li>
+<li class="s f"><span class="p">2</span><b>1INC2601-02</b></li>
+<li class="s f"><span class="p">3</span><b>1INC2601-03</b></li>
+<li class="s e"><span class="p">4</span></li>
+</ol></div>
+<p class="cut">… to the doors</p>
+</div>
+<p class="cut">When two drops share a row, the space that belongs to the other drop carries a small drop tag. The screen still decides every space and its drop; the picture only draws them.</p>
+</div>
+</div>
+</div>
+
+<div class="cols">
+
+<!-- ===================== OPTION A ===================== -->
+<section class="opt A ph">
+<h2>Option A — Truck outline, cab on top <span class="rec">Recommended</span></h2>
+<p>Looks like a truck from above. Each drop is a block with a bold labelled line. Each space shows its number small and the pallet number large. The same shape on every screen and on paper.</p>
+
+<h3>Phone · shared truck, 20 of 30 spaces used</h3>
+<div class="trk">
+<div class="cab">Cab</div>
+<div class="body">
+<div class="dv">Drop 2 · unloaded last</div>
+<ol class="g">
+<li class="s t"><span class="p">1</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">2</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">3</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">4</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">5</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">6</span><span class="n">Taken</span></li>
+</ol>
+<div class="dv">Drop 1 · unloaded first</div>
+<ol class="g" start="7">
+<li class="s f"><span class="p">7</span><b>1INC2546-01</b></li>
+<li class="s f"><span class="p">8</span><b>1INC2546-02</b></li>
+<li class="s f"><span class="p">9</span><b>1INC2546-03</b></li>
+<li class="s f"><span class="p">10</span><b>1INC2546-04</b></li>
+<li class="s f"><span class="p">11</span><b>1INC2546-05</b></li>
+<li class="s f x"><span class="p">12</span><b>1INC2546-06</b><span class="n">Picked</span><svg class="ck"><use href="#ck"/></svg></li>
+<li class="s f"><span class="p">13</span><b>1INC2546-07</b></li>
+<li class="s f"><span class="p">14</span><b>1INC2546-08</b></li>
+<li class="s f"><span class="p">15</span><b>1INC2546-09</b><span class="n">Picked from list · reprint label</span></li>
+<li class="s f"><span class="p">16</span><b>1INC2546-10</b></li>
+<li class="s f"><span class="p">17</span><b>1INC2546-11</b></li>
+<li class="s f"><span class="p">18</span><b>1INC2546-12</b></li>
+<li class="s f"><span class="p">19</span><b>1INC2546-13</b></li>
+<li class="s f"><span class="p">20</span><b>1INC2546-14</b></li>
+<li class="s e"><span class="p">21</span></li><li class="s e"><span class="p">22</span></li>
+<li class="s e"><span class="p">23</span></li><li class="s e"><span class="p">24</span></li>
+<li class="s e"><span class="p">25</span></li><li class="s e"><span class="p">26</span></li>
+<li class="s e"><span class="p">27</span></li><li class="s e"><span class="p">28</span></li>
+<li class="s e"><span class="p">29</span></li><li class="s e"><span class="p">30</span></li>
+</ol>
+</div>
+<div class="doors">Doors</div>
+</div>
+
+<h3>End of a 34-pallet load on its own · Portuguese</h3>
+<div class="trk">
+<p class="cut">… espaços 1 a 24 como acima …</p>
+<div class="body"><ol class="g" start="25">
+<li class="s f"><span class="p">25</span><b>1INC2601-25</b></li>
+<li class="s f"><span class="p">26</span><b>1INC2601-26</b></li>
+<li class="s f"><span class="p">27</span><b>1INC2601-27</b></li>
+<li class="s f"><span class="p">28</span><b>1INC2601-28</b></li>
+<li class="s f"><span class="p">29</span><b>1INC2601-29</b></li>
+<li class="s f"><span class="p">30</span><b>1INC2601-30</b></li>
+</ol>
+<p class="warn"><svg class="wi"><use href="#wa"/></svg>Mais do que um camião normal</p>
+<ol class="g" start="31">
+<li class="s f w"><span class="p">31</span><b>1INC2601-31</b></li>
+<li class="s f w"><span class="p">32</span><b>1INC2601-32</b></li>
+<li class="s e w"><span class="p">33</span></li>
+<li class="s e w"><span class="p">34</span></li>
+</ol></div>
+<div class="doors">Portas</div>
+</div>
+
+<h3>Printed · black and white (first rows)</h3>
+<div class="trk pr">
+<div class="cab">Cab</div>
+<div class="body">
+<div class="dv">Drop 2 · unloaded last</div>
+<ol class="g">
+<li class="s t"><span class="p">1</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">2</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">3</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">4</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">5</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">6</span><span class="n">Taken</span></li>
+</ol>
+<div class="dv">Drop 1 · unloaded first</div>
+<ol class="g" start="7">
+<li class="s f"><span class="p">7</span><b>1INC2546-01</b></li>
+<li class="s f"><span class="p">8</span><b>1INC2546-02</b></li>
+<li class="s f"><span class="p">9</span><b>1INC2546-03</b></li>
+<li class="s e"><span class="p">10</span></li>
+</ol></div>
+<p class="cut" style="color:#000">… to the doors</p>
+</div>
+</section>
+
+<!-- ===================== OPTION B ===================== -->
+<section class="opt B ph">
+<h2>Option B — Plain grid with row numbers</h2>
+<p>No truck outline. A row number runs down the left side, and the drop lines run across. Denser, but there are two sets of numbers to read.</p>
+
+<h3>Phone · shared truck, 20 of 30 spaces used</h3>
+<div class="trk">
+<div class="bar">Cab</div>
+<div class="dv">Drop 2 · unloaded last</div>
+<ol class="g">
+<span class="rn">1</span><li class="s t"><span class="p">1</span><span class="n">Taken</span></li><li class="s t"><span class="p">2</span><span class="n">Taken</span></li>
+<span class="rn">2</span><li class="s t"><span class="p">3</span><span class="n">Taken</span></li><li class="s t"><span class="p">4</span><span class="n">Taken</span></li>
+<span class="rn">3</span><li class="s t"><span class="p">5</span><span class="n">Taken</span></li><li class="s t"><span class="p">6</span><span class="n">Taken</span></li>
+</ol>
+<div class="dv">Drop 1 · unloaded first</div>
+<ol class="g" start="7">
+<span class="rn">4</span><li class="s f"><span class="p">7</span><b>1INC2546-01</b></li><li class="s f"><span class="p">8</span><b>1INC2546-02</b></li>
+<span class="rn">5</span><li class="s f"><span class="p">9</span><b>1INC2546-03</b></li><li class="s f"><span class="p">10</span><b>1INC2546-04</b></li>
+<span class="rn">6</span><li class="s f"><span class="p">11</span><b>1INC2546-05</b></li><li class="s f x"><span class="p">12</span><b>1INC2546-06</b><span class="n">Picked</span><svg class="ck"><use href="#ck"/></svg></li>
+<span class="rn">7</span><li class="s f"><span class="p">13</span><b>1INC2546-07</b></li><li class="s f"><span class="p">14</span><b>1INC2546-08</b></li>
+<span class="rn">8</span><li class="s f"><span class="p">15</span><b>1INC2546-09</b><span class="n">Picked from list · reprint label</span></li><li class="s f"><span class="p">16</span><b>1INC2546-10</b></li>
+<span class="rn">9</span><li class="s f"><span class="p">17</span><b>1INC2546-11</b></li><li class="s f"><span class="p">18</span><b>1INC2546-12</b></li>
+<span class="rn">10</span><li class="s f"><span class="p">19</span><b>1INC2546-13</b></li><li class="s f"><span class="p">20</span><b>1INC2546-14</b></li>
+<span class="rn">11</span><li class="s e"><span class="p">21</span></li><li class="s e"><span class="p">22</span></li>
+<span class="rn">12</span><li class="s e"><span class="p">23</span></li><li class="s e"><span class="p">24</span></li>
+<span class="rn">13</span><li class="s e"><span class="p">25</span></li><li class="s e"><span class="p">26</span></li>
+<span class="rn">14</span><li class="s e"><span class="p">27</span></li><li class="s e"><span class="p">28</span></li>
+<span class="rn">15</span><li class="s e"><span class="p">29</span></li><li class="s e"><span class="p">30</span></li>
+</ol>
+<div class="bar back">Doors</div>
+</div>
+
+<h3>End of a 34-pallet load on its own · Portuguese</h3>
+<div class="trk">
+<p class="cut">… filas 1 a 12 como acima …</p>
+<ol class="g" start="25">
+<span class="rn">13</span><li class="s f"><span class="p">25</span><b>1INC2601-25</b></li><li class="s f"><span class="p">26</span><b>1INC2601-26</b></li>
+<span class="rn">14</span><li class="s f"><span class="p">27</span><b>1INC2601-27</b></li><li class="s f"><span class="p">28</span><b>1INC2601-28</b></li>
+<span class="rn">15</span><li class="s f"><span class="p">29</span><b>1INC2601-29</b></li><li class="s f"><span class="p">30</span><b>1INC2601-30</b></li>
+</ol>
+<p class="warn"><svg class="wi"><use href="#wa"/></svg>Mais do que um camião normal</p>
+<ol class="g" start="31">
+<span class="rn">16</span><li class="s f w"><span class="p">31</span><b>1INC2601-31</b></li><li class="s f w"><span class="p">32</span><b>1INC2601-32</b></li>
+<span class="rn">17</span><li class="s e w"><span class="p">33</span></li><li class="s e w"><span class="p">34</span></li>
+</ol>
+<div class="bar back">Portas</div>
+</div>
+
+<h3>Printed · black and white (first rows)</h3>
+<div class="trk pr">
+<div class="bar">Cab</div>
+<div class="dv">Drop 2 · unloaded last</div>
+<ol class="g">
+<span class="rn">1</span><li class="s t"><span class="p">1</span><span class="n">Taken</span></li><li class="s t"><span class="p">2</span><span class="n">Taken</span></li>
+<span class="rn">2</span><li class="s t"><span class="p">3</span><span class="n">Taken</span></li><li class="s t"><span class="p">4</span><span class="n">Taken</span></li>
+<span class="rn">3</span><li class="s t"><span class="p">5</span><span class="n">Taken</span></li><li class="s t"><span class="p">6</span><span class="n">Taken</span></li>
+</ol>
+<div class="dv">Drop 1 · unloaded first</div>
+<ol class="g" start="7">
+<span class="rn">4</span><li class="s f"><span class="p">7</span><b>1INC2546-01</b></li><li class="s f"><span class="p">8</span><b>1INC2546-02</b></li>
+<span class="rn">5</span><li class="s f"><span class="p">9</span><b>1INC2546-03</b></li><li class="s e"><span class="p">10</span></li>
+</ol>
+<p class="cut" style="color:#000">… to the doors</p>
+</div>
+</section>
+
+<!-- ===================== OPTION C ===================== -->
+<section class="opt C ph">
+<h2>Option C — Standing on phones, lying on wide screens</h2>
+<p>Like A on a phone or tablet. On a desk screen the truck lies on its side, cab on the left, with the drop lines standing upright. Paper would follow the desk shape.</p>
+
+<h3>Phone · shared truck, 20 of 30 spaces used</h3>
+<div class="trk A">
+<div class="cab">Cab</div>
+<div class="body">
+<div class="dv">Drop 2 · unloaded last</div>
+<ol class="g">
+<li class="s t"><span class="p">1</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">2</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">3</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">4</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">5</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">6</span><span class="n">Taken</span></li>
+</ol>
+<div class="dv">Drop 1 · unloaded first</div>
+<ol class="g" start="7">
+<li class="s f"><span class="p">7</span><b>1INC2546-01</b></li>
+<li class="s f"><span class="p">8</span><b>1INC2546-02</b></li>
+<li class="s f"><span class="p">9</span><b>1INC2546-03</b></li>
+<li class="s f"><span class="p">10</span><b>1INC2546-04</b></li>
+<li class="s f"><span class="p">11</span><b>1INC2546-05</b></li>
+<li class="s f x"><span class="p">12</span><b>1INC2546-06</b><span class="n">Picked</span><svg class="ck"><use href="#ck"/></svg></li>
+<li class="s f"><span class="p">13</span><b>1INC2546-07</b></li>
+<li class="s f"><span class="p">14</span><b>1INC2546-08</b></li>
+<li class="s f"><span class="p">15</span><b>1INC2546-09</b><span class="n">Picked from list · reprint label</span></li>
+<li class="s f"><span class="p">16</span><b>1INC2546-10</b></li>
+<li class="s f"><span class="p">17</span><b>1INC2546-11</b></li>
+<li class="s f"><span class="p">18</span><b>1INC2546-12</b></li>
+<li class="s f"><span class="p">19</span><b>1INC2546-13</b></li>
+<li class="s f"><span class="p">20</span><b>1INC2546-14</b></li>
+<li class="s e"><span class="p">21</span></li><li class="s e"><span class="p">22</span></li>
+<li class="s e"><span class="p">23</span></li><li class="s e"><span class="p">24</span></li>
+<li class="s e"><span class="p">25</span></li><li class="s e"><span class="p">26</span></li>
+<li class="s e"><span class="p">27</span></li><li class="s e"><span class="p">28</span></li>
+<li class="s e"><span class="p">29</span></li><li class="s e"><span class="p">30</span></li>
+</ol>
+</div>
+<div class="doors">Doors</div>
+</div>
+
+<h3>Desk screen · lying on its side (slide the picture on a phone)</h3>
+<div class="lyingbox">
+<div class="lying">
+<div class="cab">Cab</div>
+<div class="body">
+<div class="blk" style="flex:3">
+<p class="bh">Drop 2 · unloaded last</p>
+<ol class="g">
+<li class="s t"><span class="p">1</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">2</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">3</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">4</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">5</span><span class="n">Taken</span></li>
+<li class="s t"><span class="p">6</span><span class="n">Taken</span></li>
+</ol>
+</div>
+<div class="blk" style="flex:12">
+<p class="bh">Drop 1 · unloaded first</p>
+<ol class="g" start="7">
+<li class="s f"><span class="p">7</span><b>2546-01</b></li>
+<li class="s f"><span class="p">8</span><b>2546-02</b></li>
+<li class="s f"><span class="p">9</span><b>2546-03</b></li>
+<li class="s f"><span class="p">10</span><b>2546-04</b></li>
+<li class="s f"><span class="p">11</span><b>2546-05</b></li>
+<li class="s f x"><span class="p">12</span><b>2546-06</b><svg class="ck"><use href="#ck"/></svg></li>
+<li class="s f"><span class="p">13</span><b>2546-07</b></li>
+<li class="s f"><span class="p">14</span><b>2546-08</b></li>
+<li class="s f"><span class="p">15</span><b>2546-09</b></li>
+<li class="s f"><span class="p">16</span><b>2546-10</b></li>
+<li class="s f"><span class="p">17</span><b>2546-11</b></li>
+<li class="s f"><span class="p">18</span><b>2546-12</b></li>
+<li class="s f"><span class="p">19</span><b>2546-13</b></li>
+<li class="s f"><span class="p">20</span><b>2546-14</b></li>
+<li class="s e"><span class="p">21</span></li><li class="s e"><span class="p">22</span></li>
+<li class="s e"><span class="p">23</span></li><li class="s e"><span class="p">24</span></li>
+<li class="s e"><span class="p">25</span></li><li class="s e"><span class="p">26</span></li>
+<li class="s e"><span class="p">27</span></li><li class="s e"><span class="p">28</span></li>
+<li class="s e"><span class="p">29</span></li><li class="s e"><span class="p">30</span></li>
+</ol>
+</div>
+</div>
+<div class="doors">Doors</div>
+</div>
+</div>
+<p class="cut">Wide screens show the number short here only for the drawing; the real picture shows the full pallet number.</p>
+
+<h3>End of a 34-pallet load on its own · Portuguese (phone)</h3>
+<div class="trk A">
+<p class="cut">… espaços 1 a 24 como acima …</p>
+<div class="body"><ol class="g" start="25">
+<li class="s f"><span class="p">25</span><b>1INC2601-25</b></li>
+<li class="s f"><span class="p">26</span><b>1INC2601-26</b></li>
+<li class="s f"><span class="p">27</span><b>1INC2601-27</b></li>
+<li class="s f"><span class="p">28</span><b>1INC2601-28</b></li>
+<li class="s f"><span class="p">29</span><b>1INC2601-29</b></li>
+<li class="s f"><span class="p">30</span><b>1INC2601-30</b></li>
+</ol>
+<p class="warn"><svg class="wi"><use href="#wa"/></svg>Mais do que um camião normal</p>
+<ol class="g" start="31">
+<li class="s f w"><span class="p">31</span><b>1INC2601-31</b></li>
+<li class="s f w"><span class="p">32</span><b>1INC2601-32</b></li>
+<li class="s e w"><span class="p">33</span></li>
+<li class="s e w"><span class="p">34</span></li>
+</ol></div>
+<div class="doors">Portas</div>
+</div>
+</section>
+
+</div>
+
+<p class="foot">In every option: space 1 is on the left behind the cab and space 2 on the right. The last drop is the block at the cab and the first drop the block by the doors; the screen says which space belongs to which drop, the picture only draws the blocks. A truck with one drop shows no drop lines. A taken space never shows another packhouse's pallet number and cannot be tapped. "Picked" is the first tap of a move: tap a pallet, then a free space. Every space is at least a fingertip high (48 px). The drop lines and the warning past a standard truck are written in words, not shown by colour alone, so they survive a black-and-white print. The picture never makes the page slide sideways.</p>
+</div>
+</body>
+</html>

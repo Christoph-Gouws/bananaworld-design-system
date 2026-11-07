@@ -1278,3 +1278,21 @@ Plan approved, layout **A** (name on top, as on the end-of-shift drawing), ship 
 
 ### Outcome
 Built as approved. `pnpm vitest run` 729 pass of 729, typecheck clean, no dependency change, real Edge run 93/93 at three widths and three colour sets. The plan's DC + CRM re-check and mutation battery were not run. No consumer pin bumped; the packhouse pins the merged sha. Archive `runs/change-24/`.
+
+---
+
+## CR-DESIGN-SYSTEM-028 — a shared truck loading picture `TruckDiagram` in the kit (kit 0.11.0)
+
+### What was asked
+Owner ruling 2026-11-07 (same pattern as CR-DESIGN-SYSTEM-025 and -026, DLC-DEC-221; packhouse EPIC-006-M-01 loading and M-02 delivery note, UX-THM-004): add `TruckDiagram` — two pallets wide, rows from the cab to the doors, `positions` that may exceed 30 (extra spaces in a warning style), slots with label, state empty/filled/taken/selected and note, `onSlotTap`, caller-supplied front and back labels; taken shows no pallet number; kit tokens only; 48 px targets; 360/390/768/1440 px; prints cleanly.
+
+### What was decided at the plan gate
+Plan REVISE (owner, 2026-11-07, packhouse mockup gate): reefers load from the back, so the last drop sits at the cab and the first by the doors; the picture draws drop blocks (optional `drop` per slot, labelled divider between blocks, Cab at the top, Doors at the bottom); the app decides each slot state and drop, the kit only draws. Revision 2 then APPROVED, layout **A** (truck outline), ship mode **on-green**. No clarify questions were asked or answered. Approval also confirms: one drop draws no lines; a row shared by two drops tags the odd space; space 1 on the left; the delivery note draws from the same `truckDiagramRows`.
+
+### Decisions taken at build (within the approved plan)
+- D-1 plain HTML, native buttons, token classes, no dependency, no client directive or hook. D-2 layout is the pure `truckDiagramRows`. D-5 `standardPositions` has no default (the 30 is the packhouse's). D-6 `taken` never carries a label and is never a button. D-13 drop blocks as above.
+- Owner diagnosis (build): slots past `positions` now fill their row (a slot at 35 draws 35 and 36); an odd `positions` is honoured. Two tests used wrong expectations (accessible name has no comma; floor test used too few positions) and were corrected.
+- Build detail: `index.ts` is at the 300-line sensor limit, so three comments were folded.
+
+### Outcome
+Built as approved. Full suite 773 pass of 773, typecheck clean, no dependency change, real Edge run ALL PASS at 360/390/768/1440 px, two colour sets and print. The plan's DC + CRM re-check and mutation battery were not run. No consumer pin bumped; the packhouse pins the merged sha. Archive `runs/change-26/`.
