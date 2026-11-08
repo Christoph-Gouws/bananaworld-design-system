@@ -1,9 +1,12 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-11-08, at the close of **CR-DESIGN-SYSTEM-029**.
+> Last updated: 2026-11-08, at the close of **CR-DESIGN-SYSTEM-030**.
 
-## Latest: CR-DESIGN-SYSTEM-029 — `TruckDiagram density="compact"` (kit 0.12.0)
-Optional `density`: below 640 px spaces are 40 px one-line rows (owner-approved exception to the 48 px floor), beating the tablet surface there; ≥ 640 px, print, DOM, names and `truckDiagramRows` unchanged; default strings untouched. 782/782 · Edge proof ALL PASS. Archive `runs/change-27/`; rules `runs/change-27/evidence/developer-handover.md`. Owed: packhouse EPIC-006-M-01 pins the MERGED sha, passes `density="compact"`, and tightens the rest of its phone screen; DC+CRM re-check and mutation battery not run (`known-issues.md`). Test with `--pool=threads --maxWorkers=2 --testTimeout=60000`.
+## Latest: CR-DESIGN-SYSTEM-030 — `PrintPreviewPanel` (kit 0.13.0)
+New body-only print panel for a Sheet or SlideOver: preview, Download, Print; caller supplies `load`/`print`/`download` (`Blob | null`, `null` = refused, nothing opens) and all five words. Print prints the returned blob in a keyed iframe; no PDF viewer → message, and Print saves via `print()`. Never opens a window or tab. `PrintPreview` untouched. 803/803 · Edge proof ALL PASS (60). Archive `runs/change-28/`; rules `runs/change-28/evidence/developer-handover.md`. Owed: packhouse EPIC-006-M-02 pins the MERGED sha, supplies EN+PT words, runs the real-printer check; DC+CRM re-check and mutation battery not run (`known-issues.md`). Test with `--pool=threads --maxWorkers=2 --testTimeout=60000`.
+
+## Previous: CR-DESIGN-SYSTEM-029 — `TruckDiagram density="compact"` (kit 0.12.0)
+40 px one-line rows below 640 px; archive `runs/change-27/`. Owed: packhouse EPIC-006-M-01 pins the MERGED sha.
 
 ## Previous: CR-DESIGN-SYSTEM-028 — shared `TruckDiagram` + `truckDiagramRows` (kit 0.11.0)
 Truck from above, drop blocks, `taken` never shows a number. Archive `runs/change-26/`.

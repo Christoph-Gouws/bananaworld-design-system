@@ -124,6 +124,8 @@ exactly as before.
 
 ### Changelog
 
+- **0.13.0** — `PrintPreviewPanel`: the body of a print screen for a Sheet or SlideOver (preview, Download, Print);
+  never opens a window or tab; caller-supplied words and files. `PrintPreview` unchanged. CR-DESIGN-SYSTEM-030.
 - **0.12.0** — `TruckDiagram` gets an optional `density="compact"`: slim one-line 40 px spaces below
   640 px (phones), beating the tablet surface there; tablet, desk, print, the DOM, names and
   `truckDiagramRows` unchanged; absent = today. CR-DESIGN-SYSTEM-029.
@@ -232,6 +234,32 @@ a `taken` space is never a button. A React-PDF note cannot draw this component: 
 48 px floor: wide targets, and a wrong tap is undone by tapping again) and it beats the tablet surface there; from
 640 px up and in print it looks exactly like the default. Absent = today.
 Tailwind `content` must scan the package `src/`.
+
+## Print panel
+
+```tsx
+<Sheet open={open} onOpenChange={setOpen}>
+  <SheetContent>
+    <SheetHeader><SheetTitle>{noteNumber}</SheetTitle></SheetHeader>
+    <SheetBody>
+      <PrintPreviewPanel
+        load={() => fetchPdf("preview")}        // Promise<Blob> typed application/pdf
+        print={() => recordAndFetch("print")}   // Promise<Blob | null>; null = refused, panel opens nothing
+        download={() => recordAndFetch("download")}
+        fileName="delivery-note-0042.pdf"
+        words={{ print: "Imprimir", download: "Descarregar", noViewer: "Este dispositivo não mostra PDF.", loading: "A carregar…", failed: "Não foi possível." }}
+      />
+    </SheetBody>
+  </SheetContent>
+</Sheet>
+```
+
+Body only: the host (Sheet or SlideOver) supplies the frame, focus trap and Escape. Print loads the returned file in the
+preview frame and calls `contentWindow.print()` on its load; no window or tab is ever opened. When
+`navigator.pdfViewerEnabled === false` the preview shows `words.noViewer` and Print saves the file instead (still via
+`print()`). `null` from `print()` / `download()` = refused: nothing opens or saves, and nothing is said (the caller
+explains). All five words come from the caller; there are no defaults. The kit makes no network call. A page that sets a
+Content-Security-Policy must allow `frame-src blob:`. The older `PrintPreview` (a Modal) is unchanged.
 
 ## Export button download link
 
