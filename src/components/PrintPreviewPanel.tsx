@@ -81,6 +81,7 @@ function usePreview(latest: Latest) {
   const [previewFailed, setPreviewFailed] = useState(false);
 
   useEffect(() => {
+    let cancelled = false; // per effect run: a load from an earlier mount must never set state
     alive.current = true;
     const hasViewer = navigator.pdfViewerEnabled !== false; // undefined (older browsers) = has one
     setViewer(hasViewer);
@@ -88,11 +89,12 @@ function usePreview(latest: Latest) {
       Promise.resolve()
         .then(() => latest.current.load())
         .then((blob) => {
-          if (alive.current && !printed.current) setFrameUrl(URL.createObjectURL(blob));
+          if (!cancelled && !printed.current) setFrameUrl(URL.createObjectURL(blob));
         })
-        .catch(() => alive.current && setPreviewFailed(true));
+        .catch(() => !cancelled && setPreviewFailed(true));
     }
     return () => {
+      cancelled = true;
       alive.current = false;
     };
   }, [latest]);
@@ -126,7 +128,7 @@ function usePrintPanel(props: PrintPreviewPanelProps) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const printRef = useRef<HTMLButtonElement>(null);
   const inflight = useRef(false); // synchronous double-tap guard: each call may write a record
-  const armed = useRef(false); // true between a Print press and the frame load that prints
+  const armed = useRef<string | null>(null); // the final file's URL, until its frame loads and prints
   const save = useSaver(rootRef, latest);
   const [busy, setBusy] = useState<Action | null>(null);
   const [failed, setFailed] = useState(false);
@@ -141,8 +143,9 @@ function usePrintPanel(props: PrintPreviewPanelProps) {
       if (!alive.current || blob === null) return;
       if (action === "print" && viewer) {
         printed.current = true;
-        armed.current = true;
-        setFrameUrl(URL.createObjectURL(blob));
+        const url = URL.createObjectURL(blob);
+        armed.current = url;
+        setFrameUrl(url);
       } else {
         save(blob);
       }
@@ -155,8 +158,9 @@ function usePrintPanel(props: PrintPreviewPanelProps) {
   };
 
   const onFrameLoad = () => {
-    if (!armed.current) return; // the preview's own load never prints
-    armed.current = false;
+    // Only the frame showing the armed final file prints; the preview's own load never does.
+    if (armed.current === null || frameRef.current?.getAttribute("src") !== armed.current) return;
+    armed.current = null;
     if (!printFrame(frameRef.current, printRef.current)) setFailed(true);
   };
 

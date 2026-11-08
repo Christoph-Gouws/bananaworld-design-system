@@ -254,6 +254,9 @@ Tailwind `content` must scan the package `src/`.
 </Sheet>
 ```
 
+The same body works in a `SlideOver` (`SlideOverContent` > `SlideOverBody` > `<PrintPreviewPanel … />`, with
+`SlideOverTitle` and `SlideOverDescription` in the header).
+
 Body only: the host (Sheet or SlideOver) supplies the frame, focus trap and Escape. Print loads the returned file in the
 preview frame and calls `contentWindow.print()` on its load; no window or tab is ever opened. When
 `navigator.pdfViewerEnabled === false` the preview shows `words.noViewer` and Print saves the file instead (still via

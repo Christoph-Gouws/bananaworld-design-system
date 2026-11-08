@@ -57,7 +57,8 @@ export {
   type TableColumnWidth,
 } from "./Table";
 // The paging bar for a long list (CR-DESIGN-SYSTEM-004). It sits BESIDE the Table block above — the
-// table is not forked, not wrapped, and gains no prop. Additive: no name here begins `TablePage`.
+// table is not forked, not wrapped, and gains no prop. Additive: no name here begins `TablePage`
+// today, so nothing is shadowed and nothing moves.
 export {
   TablePagination,
   type TablePaginationProps,
@@ -148,12 +149,9 @@ export {
   type TableControls,
   type UseTableControlsConfig,
 } from "./DataTableToolbar";
-// ⚠ THE FILTER TYPES ARE EXPORTED FROM CR-DESIGN-SYSTEM-003 (decision D-9). Their absence has already
-//   cost a consumer: Bananaworld-CRM's AvailabilityView pins the shape with `as const` and says so in
-//   place, because "FilterDef is internal to the design system's table-controls module and is not
-//   re-exported from its barrel". A consumer writing a reconciler that must read BOTH stored shapes has
-//   to be able to NAME MultiSelectFilterValue, or it will re-declare it locally and drift.
-//   Additive: adds names, moves none. SortDir/SortState/SortAccessor are deliberately NOT exported.
+// ⚠ THE FILTER TYPES ARE EXPORTED FROM CR-DESIGN-SYSTEM-003 (decision D-9): their absence cost a consumer
+//   (CRM AvailabilityView, `as const`), and a reconciler reading BOTH stored shapes must NAME
+//   MultiSelectFilterValue. Additive: SortDir/SortState/SortAccessor are deliberately NOT exported.
 export type {
   FilterDef,
   SelectFilterDef,
@@ -178,7 +176,8 @@ export {
 //    importing from its own `@/components/ui`, whose barrel re-exports this package exactly as it
 //    already re-exports every other shared primitive here.
 // ⚠ `DocumentDateSlotState` IS EXPORTED THOUGH DC'S BARREL DOES NOT RE-EXPORT IT TODAY (decision D-7).
-//   DC's `use-document-date.ts` reaches it by deep path; after DC adopts, that path is gone. Additive.
+//   DC's `use-document-date.ts` reaches it by deep path into DC's own tree; after DC adopts, that path
+//   is gone and its follow-up needs somewhere to point. Additive, and it costs nothing.
 export {
   DocumentHeader,
   DOCUMENT_HEADER_SLOTS,
@@ -252,7 +251,8 @@ export {
 } from "./DateRangeChrome";
 // 🔴 "WHO DID WHAT, WHEN, AND WHAT CHANGED" (CR-DESIGN-SYSTEM-014, raised by Bananaworld-DC CR-DC-222).
 //    A timeline on a rail and a Field · Before · After table — pure presentation, every word handed in.
-//    ADDITIVE: no name here begins `Activity` or `Change` — asserted by the export inventory (additive test).
+//    ADDITIVE: no name here begins `Activity` or `Change` today — asserted by the export inventory in
+//    `tests/components/DragBoard.additive.test.tsx` and in `tests/components/ActivityTimeline.test.tsx`.
 export {
   ActivityTimeline,
   ActivityTimelineItem,
@@ -273,7 +273,8 @@ export { Keypad, type KeypadProps } from "./Keypad";
 export { ActionTile, type ActionTileProps } from "./ActionTile";
 // 🔴 LINKED RECORDS (CR-DESIGN-SYSTEM-023, companion of Bananaworld-DC CR-DC-223). One line, grouped by type,
 //    with a summary card (tooltip on mouse/keyboard, bottom sheet on touch). Presentation only — the app
-//    hands in its own link node. ADDITIVE: new names only. `DocumentHeader` gains an optional `linked`.
+//    hands in its own link node. ADDITIVE: new names only — declared in the export inventory in the
+//    additive test. `DocumentHeader` gains one optional `linked` prop to carry it.
 export {
   LinkedRecords,
   LinkedRecordsItem,
@@ -284,7 +285,8 @@ export {
   type LinkedRecordsSummary,
   type LinkedRecordsWords,
 } from "./LinkedRecords";
-// 🔴 BAR CHART (CR-DESIGN-SYSTEM-025, packhouse end-of-shift screen). Read as a table. ADDITIVE: new names only.
+// 🔴 BAR CHART (CR-DESIGN-SYSTEM-025, finding E4-F21, packhouse end-of-shift screen). Horizontal bars,
+//    read by screen readers as a table. ADDITIVE: new names only (see the additive test inventory).
 export {
   BarChart,
   type BarChartProps,

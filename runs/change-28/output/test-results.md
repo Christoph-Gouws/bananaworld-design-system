@@ -2,12 +2,14 @@
 
 | Check | Result |
 |---|---|
-| `pnpm exec vitest run --pool=threads --maxWorkers=2 --testTimeout=60000` (full suite) | **803 pass / 803**, 41 files (baseline 782; 21 new specs in `tests/components/PrintPreviewPanel.test.tsx`; one declared line added to the export inventory in `DragBoard.additive.test.tsx`; every other test unedited) |
+| `pnpm exec vitest run --pool=threads --maxWorkers=2 --testTimeout=60000` (full suite) | **806 pass / 806**, 41 files (baseline 782; 24 new specs in `tests/components/PrintPreviewPanel.test.tsx`; one declared line added to the export inventory in `DragBoard.additive.test.tsx`; every other test unedited) |
 | `pnpm typecheck` | clean |
 | `prettier --check --print-width 100` on the new component and its spec | clean |
 | Real Edge proof `node runs/change-28/evidence/browser-proof/proof.mjs` | **ALL PASS** (60 checks) |
 | Quality sensors (LF files, 4 changed) | 0 open findings (two function-size findings fixed by splitting; barrel brought back under 300 lines by folding comment text) |
 | `git diff d8309b5 -- src/components/PrintPreview.tsx` | empty |
+| Mutation battery `node runs/change-28/output/mutation-battery.mjs` (plan 5.6, 11 mutants) | **11 of 11 KILLED**, each by a named spec (M10 first survived; the load-once spec now asserts the fresh inline `load` is never called) |
+| Review fixes F3/F4 (armed = the final file's URL; per-effect `cancelled` flag), F5 (specs: download rejection, Print disabled while Download in flight, unarmed frame load), F7 (README SlideOver), F8 (barrel restored; one comment folded) | done |
 | `pnpm audit --prod --audit-level=high` | 2 high / 2 moderate, existing; 2 ignored; no dependency changed |
 
 Note: happy-dom prints `Failed to fetch from "blob:…"` to stderr when a frame is given a blob URL; it does not fail any spec.
@@ -23,7 +25,7 @@ Note: happy-dom prints `Failed to fetch from "blob:…"` to stderr when a frame 
 | AC-6 | Words (print, download, noViewer, loading, failed) supplied by the caller; none hard-coded | MET (guard spec; PT words in the browser proof) |
 | AC-7 | Works at 360, 390, 768 and 1440 px, no sideways scroll, kit tokens only | MET (Edge: Sheet and SlideOver, both surfaces, two colour sets; hex-colour guard spec) |
 | AC-8 | Stories and tests in the kit | MET (README "Print panel" + browser fixture page, the kit having no Storybook, plan D-11; 21 specs) |
-| AC-9 | DC and CRM render checks pass unchanged | MET by construction: no existing file, prop, default or class string changed; neither app imports the new name; full DC + CRM re-check not run, see `known-issues.md` |
+| AC-9 | DC and CRM render checks pass unchanged | **NOT RUN - WAIVED BY OWNER** (owner, desktop chat, 2026-11-08: "Waive it."). Not passed, not run. Grounds checked at head 040d085: src changes are PrintPreviewPanel.tsx and index.ts only; DC, CRM, Org Admin and packhouse main contain no reference to PrintPreviewPanel and none has a star re-export of the kit. Waived for CR-DESIGN-SYSTEM-030 only |
 
 ## Manual verification
 Steps: run the proof command from the package root (Edge installed). Expected: every line PASS. Actual: ALL PASS. Frames in `runs/change-28/evidence/frames/`. Not checked here: paper from a real printer and the print dialog on a real PDF (packhouse Gate D / QA-UAT-002).

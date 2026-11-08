@@ -105,11 +105,11 @@ describe("preview", () => {
     await ready();
     expect(frame()?.getAttribute("title")).toBe("delivery-note-0042.pdf");
     expect(frame()?.getAttribute("src")).toBe("blob:test/1");
-    view.rerender(
-      <PrintPreviewPanel {...props} load={vi.fn(async () => pdf("x"))} print={async () => null} />,
-    );
+    const newLoad = vi.fn(async () => pdf("x"));
+    view.rerender(<PrintPreviewPanel {...props} load={newLoad} print={async () => null} />);
     await flush();
     expect(props.load).toHaveBeenCalledTimes(1);
+    expect(newLoad).not.toHaveBeenCalled(); // a parent's fresh inline arrow never refetches
   });
 
   it("the preview's own load never prints", async () => {
@@ -245,6 +245,39 @@ describe("busy and double taps", () => {
     const html = renderToString(<PrintPreviewPanel {...baseProps()} />);
     expect(html).toContain(WORDS.loading);
     expect(html.match(/disabled=""/g)).toHaveLength(2);
+  });
+});
+
+describe("download failure and in-flight states", () => {
+  it("a download() rejection shows the failed word and saves nothing", async () => {
+    const download = vi.fn<() => Promise<Blob | null>>().mockRejectedValue(new Error("x"));
+    setup({ download });
+    await ready();
+    fireEvent.click(downloadBtn());
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toBe(WORDS.failed));
+    expect(saved).toHaveLength(0);
+    expect((downloadBtn() as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("Print is disabled while Download is in flight, and Download shows the progress", async () => {
+    let release!: (b: Blob) => void;
+    const download = vi.fn(() => new Promise<Blob | null>((r) => (release = r)));
+    const { props } = setup({ download });
+    await ready();
+    fireEvent.click(downloadBtn());
+    await waitFor(() => expect((printBtn() as HTMLButtonElement).disabled).toBe(true));
+    fireEvent.click(printBtn());
+    expect(props.print).not.toHaveBeenCalled();
+    await act(async () => release(pdf("f")));
+    expect((printBtn() as HTMLButtonElement).disabled).toBe(false);
+    expect(saved).toHaveLength(1);
+  });
+
+  it("a frame load that is not the armed final file never prints", async () => {
+    setup();
+    await ready();
+    fireEvent.load(frame()!);
+    expect(printCalls).toBe(0);
   });
 });
 
