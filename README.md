@@ -124,6 +124,9 @@ exactly as before.
 
 ### Changelog
 
+- **0.12.0** — `TruckDiagram` gets an optional `density="compact"`: slim one-line 40 px spaces below
+  640 px (phones), beating the tablet surface there; tablet, desk, print, the DOM, names and
+  `truckDiagramRows` unchanged; absent = today. CR-DESIGN-SYSTEM-029.
 - **0.11.0** — `TruckDiagram` (+ `truckDiagramRows`, the same layout as plain data for a PDF): a truck from above,
   two spaces wide, numbered from the cab, drop blocks with labelled dividers, a warning past the standard count.
   New names only. CR-DESIGN-SYSTEM-028.
@@ -225,6 +228,9 @@ shows a label. On a back-loaded reefer the app puts the last drop at the cab and
 what it is given and never reorders. Fewer than two drops draw no lines; the odd space of a row shared by two drops
 carries its own drop tag. No `onSlotTap` means read-only (nothing focusable), which suits server rendering and print;
 a `taken` space is never a button. A React-PDF note cannot draw this component: map `truckDiagramRows` instead.
+`density="compact"` is for phones: below 640 px each space is a slim 40 px row (an owner-approved exception to the
+48 px floor: wide targets, and a wrong tap is undone by tapping again) and it beats the tablet surface there; from
+640 px up and in print it looks exactly like the default. Absent = today.
 Tailwind `content` must scan the package `src/`.
 
 ## Export button download link

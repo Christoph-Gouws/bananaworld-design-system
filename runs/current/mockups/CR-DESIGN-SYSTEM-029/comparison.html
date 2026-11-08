@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-029 — A shorter truck picture on phones: pick a look and a size</title>
+<style>
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+body{margin:0;font-family:Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#fafaf9;color:#18181b;font-size:14px;line-height:1.5}
+.wrap{max-width:1320px;margin:0 auto;padding:18px 14px 48px}
+h1{font-size:22px;margin:0 0 6px;letter-spacing:-.015em}
+.lead{color:#52525b;margin:0 0 14px;max-width:76ch}
+.cols{display:flex;flex-direction:column;gap:44px}
+@media (min-width:1180px){.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}}
+.opt{min-width:0}
+.opt>h2{font-size:21px;margin:0 0 4px;letter-spacing:-.01em}
+.opt>p{color:#52525b;margin:0 0 10px}
+.rec{display:inline-block;background:#d5f3ef;color:#0b5f58;font-size:12px;font-weight:700;border-radius:999px;padding:1px 10px;vertical-align:middle}
+.facts{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.facts li{background:#f4f4f5;border-radius:999px;padding:1px 10px;font-size:12.5px;font-weight:600;color:#3f3f46}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#71717a;margin:18px 0 6px}
+.ref{max-width:420px;margin:0 0 30px}
+/* the picture (packhouse teal) */
+.trk{max-width:390px;margin:0 auto;min-width:0;--acc:#0f766e;--accs:#d5f3ef}
+.end{margin:0;border:2px solid #18181b;padding:4px 16px;text-align:center;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.cab{border-radius:24px 24px 0 0}
+.doors{border-radius:0 0 6px 6px}
+.body{border-left:2px solid #18181b;border-right:2px solid #18181b;padding:8px}
+.dv{display:flex;align-items:center;gap:8px;margin:0;padding:4px 0;font-weight:800;font-size:13px;line-height:1.3;text-align:center}
+.dv::before,.dv::after{content:"";flex:1 1 16px;border-top:3px solid #18181b}
+.warn{display:flex;align-items:center;gap:6px;margin:0;padding:4px 0;color:#9a3412;font-weight:600;font-size:13px}
+.wi{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cut{text-align:center;color:#71717a;font-size:12px;margin:2px 0 4px}
+ol.g{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:8px;row-gap:4px}
+.s{position:relative;min-width:0;border-radius:6px;border:2px solid;padding:2px 8px;display:flex;background:#fff}
+.s b{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2;overflow-wrap:anywhere}
+.s .p{font-size:12px;font-variant-numeric:tabular-nums;line-height:1.2}
+.s .n{font-size:12px;line-height:1.2}
+.s .tk{font-size:14px;font-weight:600;line-height:1.2}
+.e{border-style:dashed;border-color:#a1a1aa;color:#52525b}
+.f{border-color:var(--acc);background:var(--accs)}
+.x{border-color:#18181b;padding-right:28px}
+.t{border-style:dotted;border-color:#a1a1aa;color:#3f3f46;background:repeating-linear-gradient(45deg,#e4e4e7 0 6px,#f4f4f5 6px 12px)}
+.w{border-color:#ea580c}
+.e.w{background:#ffedd5}
+.ck{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:none;stroke:#18181b;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+/* Looks A and C: one line */
+.A .s,.C .s{flex-direction:row;flex-wrap:wrap;align-items:center;align-content:center;column-gap:6px;min-height:40px}
+.C .s{min-height:36px;padding-top:1px;padding-bottom:1px}
+.A .s .n,.C .s .n{flex-basis:100%}
+/* Look B: two short lines, centred, like the mockup */
+.B .s{flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:40px}
+.B .x{padding-left:28px}
+/* Today, for reference */
+.today .s{flex-direction:column;align-items:flex-start;justify-content:center;min-height:56px;padding:4px 8px}
+.today ol.g{row-gap:8px}
+.today .end,.today .dv{padding-top:8px;padding-bottom:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>A shorter truck picture on phones</h1>
+<p class="lead">The packhouse loading screen on a phone. The same truck in every option: our load (drop 2) at the cab with space 3 picked by hand and space 12 chosen to move, six empty spaces, and the other packhouse's drop 1 by the doors, shown as taken with no pallet numbers. Tablets, desk screens and printouts stay exactly as today.</p>
+
+<h3>For reference — today on the packhouse phone (first rows)</h3>
+<div class="ref">
+<div class="trk today">
+<p class="end cab">Cab</p>
+<div class="body">
+<p class="dv">Drop 2 · unloaded last</p>
+<ol class="g">
+<li><div class="s f"><span class="p"><span class="sr">Position </span>1</span><b>1N2602-01</b></div></li>
+<li><div class="s f"><span class="p"><span class="sr">Position </span>2</span><b>1N2602-02</b></div></li>
+<li><div class="s f"><span class="p"><span class="sr">Position </span>3</span><b>1N2602-03</b><span class="n">picked</span></div></li>
+<li><div class="s f"><span class="p"><span class="sr">Position </span>4</span><b>1N2602-04</b></div></li>
+</ol>
+<p class="cut">… 26 more spaces, each this tall …</p>
+</div>
+</div>
+</div>
+
+<div class="cols">
+
+<!-- ───────────── Option A ───────────── -->
+<section class="opt">
+<h2>Option A — One line <span class="rec">Recommended</span></h2>
+<p>Each space is one slim line: the space number, then the pallet number. A hand-picked pallet adds a short second line.</p>
+<ul class="facts"><li>Space 40 tall (today 56)</li><li>Truck about 780 tall (today about 1,110)</li></ul>
+<div class="trk A">
+<p class="end cab">Cab</p>
+<div class="body">
+<p class="dv">Drop 2 · unloaded last</p>
+<ol class="g">
+<li><div class="s f"><span class="p">1</span><b>1N2602-01</b></div></li>
+<li><div class="s f"><span class="p">2</span><b>1N2602-02</b></div></li>
+<li><div class="s f"><span class="p">3</span><b>1N2602-03</b><span class="n">picked</span></div></li>
+<li><div class="s f"><span class="p">4</span><b>1N2602-04</b></div></li>
+<li><div class="s f"><span class="p">5</span><b>1N2602-05</b></div></li>
+<li><div class="s f"><span class="p">6</span><b>1N2602-06</b></div></li>
+<li><div class="s f"><span class="p">7</span><b>1N2602-07</b></div></li>
+<li><div class="s f"><span class="p">8</span><b>1N2602-08</b></div></li>
+<li><div class="s f"><span class="p">9</span><b>1N2602-09</b></div></li>
+<li><div class="s f"><span class="p">10</span><b>1N2602-10</b></div></li>
+<li><div class="s f"><span class="p">11</span><b>1N2602-11</b></div></li>
+<li><div class="s f x"><span class="p">12</span><b>1N2602-12</b><span class="sr">Selected</span><svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div></li>
+<li><div class="s f"><span class="p">13</span><b>1N2602-13</b></div></li>
+<li><div class="s f"><span class="p">14</span><b>1N2602-14</b></div></li>
+<li><div class="s f"><span class="p">15</span><b>1N2602-15</b></div></li>
+<li><div class="s f"><span class="p">16</span><b>1N2602-16</b></div></li>
+<li><div class="s f"><span class="p">17</span><b>1N2602-17</b></div></li>
+<li><div class="s f"><span class="p">18</span><b>1N2602-18</b></div></li>
+<li><div class="s e"><span class="p">19</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">20</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">21</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">22</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">23</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">24</span><span class="sr">Empty</span></div></li>
+</ol>
+<p class="dv">Drop 1 · unloaded first</p>
+<ol class="g" start="25">
+<li><div class="s t"><span class="p">25</span><span class="tk">Taken</span></div></li>
+<li><div class="s t"><span class="p">26</span><span class="tk">Taken</span></div></li>
+<li><div class="s t"><span class="p">27</span><span class="tk">Taken</span></div></li>
+<li><div class="s t"><span class="p">28</span><span class="tk">Taken</span></div></li>
+<li><div class="s t"><span class="p">29</span><span class="tk">Taken</span></div></li>
+<li><div class="s t"><span class="p">30</span><span class="tk">Taken</span></div></li>
+</ol>
+</div>
+<p class="end doors">Doors</p>
+</div>
+<h3>Past 30 — a load on its own</h3>
+<div class="trk A"><div class="body" style="border:2px solid #18181b;border-radius:6px">
+<p class="cut">… spaces 1–28 …</p>
+<ol class="g" start="29">
+<li><div class="s f"><span class="p">29</span><b>1N2602-29</b></div></li>
+<li><div class="s f"><span class="p">30</span><b>1N2602-30</b></div></li>
+</ol>
+<p class="warn"><svg class="wi" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>More than a standard truck</p>
+<ol class="g" start="31">
+<li><div class="s f w"><span class="p">31</span><b>1N2602-31</b></div></li>
+<li><div class="s e w"><span class="p">32</span><span class="sr">Empty</span></div></li>
+</ol>
+</div></div>
+</section>
+
+<!-- ───────────── Option B ───────────── -->
+<section class="opt">
+<h2>Option B — Two short lines, like your mockup</h2>
+<p>The pallet number on top, the space number underneath, centred. Closest to the mockup's look, at the same height as A.</p>
+<ul class="facts"><li>Space 40 tall (today 56)</li><li>Truck about 780 tall (today about 1,110)</li></ul>
+<div class="trk B">
+<p class="end cab">Cab</p>
+<div class="body">
+<p class="dv">Drop 2 · unloaded last</p>
+<ol class="g">
+<li><div class="s f"><b>1N2602-01</b><span class="p">Position 1</span></div></li>
+<li><div class="s f"><b>1N2602-02</b><span class="p">Position 2</span></div></li>
+<li><div class="s f"><b>1N2602-03</b><span class="p">Position 3 · picked</span></div></li>
+<li><div class="s f"><b>1N2602-04</b><span class="p">Position 4</span></div></li>
+<li><div class="s f"><b>1N2602-05</b><span class="p">Position 5</span></div></li>
+<li><div class="s f"><b>1N2602-06</b><span class="p">Position 6</span></div></li>
+<li><div class="s f"><b>1N2602-07</b><span class="p">Position 7</span></div></li>
+<li><div class="s f"><b>1N2602-08</b><span class="p">Position 8</span></div></li>
+<li><div class="s f"><b>1N2602-09</b><span class="p">Position 9</span></div></li>
+<li><div class="s f"><b>1N2602-10</b><span class="p">Position 10</span></div></li>
+<li><div class="s f"><b>1N2602-11</b><span class="p">Position 11</span></div></li>
+<li><div class="s f x"><b>1N2602-12</b><span class="p">Position 12</span><span class="sr">Selected</span><svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div></li>
+<li><div class="s f"><b>1N2602-13</b><span class="p">Position 13</span></div></li>
+<li><div class="s f"><b>1N2602-14</b><span class="p">Position 14</span></div></li>
+<li><div class="s f"><b>1N2602-15</b><span class="p">Position 15</span></div></li>
+<li><div class="s f"><b>1N2602-16</b><span class="p">Position 16</span></div></li>
+<li><div class="s f"><b>1N2602-17</b><span class="p">Position 17</span></div></li>
+<li><div class="s f"><b>1N2602-18</b><span class="p">Position 18</span></div></li>
+<li><div class="s e"><span class="p">Position 19</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">Position 20</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">Position 21</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">Position 22</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">Position 23</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">Position 24</span><span class="sr">Empty</span></div></li>
+</ol>
+<p class="dv">Drop 1 · unloaded first</p>
+<ol class="g" start="25">
+<li><div class="s t"><span class="tk">Taken</span><span class="p">Position 25</span></div></li>
+<li><div class="s t"><span class="tk">Taken</span><span class="p">Position 26</span></div></li>
+<li><div class="s t"><span class="tk">Taken</span><span class="p">Position 27</span></div></li>
+<li><div class="s t"><span class="tk">Taken</span><span class="p">Position 28</span></div></li>
+<li><div class="s t"><span class="tk">Taken</span><span class="p">Position 29</span></div></li>
+<li><div class="s t"><span class="tk">Taken</span><span class="p">Position 30</span></div></li>
+</ol>
+</div>
+<p class="end doors">Doors</p>
+</div>
+<h3>Past 30 — a load on its own</h3>
+<div class="trk B"><div class="body" style="border:2px solid #18181b;border-radius:6px">
+<p class="cut">… spaces 1–28 …</p>
+<ol class="g" start="29">
+<li><div class="s f"><b>1N2602-29</b><span class="p">Position 29</span></div></li>
+<li><div class="s f"><b>1N2602-30</b><span class="p">Position 30</span></div></li>
+</ol>
+<p class="warn"><svg class="wi" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>More than a standard truck</p>
+<ol class="g" start="31">
+<li><div class="s f w"><b>1N2602-31</b><span class="p">Position 31</span></div></li>
+<li><div class="s e w"><span class="p">Position 32</span><span class="sr">Empty</span></div></li>
+</ol>
+</div></div>
+</section>
+
+<!-- ───────────── Option C ───────────── -->
+<section class="opt">
+<h2>Option C — One line, smallest</h2>
+<p>Exactly like A, but each space is 36 tall: the shortest truck, closest to the mockup's length, and the smallest to hit with a finger.</p>
+<ul class="facts"><li>Space 36 tall (today 56)</li><li>Truck about 720 tall (today about 1,110)</li></ul>
+<div class="trk C">
+<p class="end cab">Cab</p>
+<div class="body">
+<p class="dv">Drop 2 · unloaded last</p>
+<ol class="g">
+<li><div class="s f"><span class="p">1</span><b>1N2602-01</b></div></li>
+<li><div class="s f"><span class="p">2</span><b>1N2602-02</b></div></li>
+<li><div class="s f"><span class="p">3</span><b>1N2602-03</b><span class="n">picked</span></div></li>
+<li><div class="s f"><span class="p">4</span><b>1N2602-04</b></div></li>
+<li><div class="s f"><span class="p">5</span><b>1N2602-05</b></div></li>
+<li><div class="s f"><span class="p">6</span><b>1N2602-06</b></div></li>
+<li><div class="s f"><span class="p">7</span><b>1N2602-07</b></div></li>
+<li><div class="s f"><span class="p">8</span><b>1N2602-08</b></div></li>
+<li><div class="s f"><span class="p">9</span><b>1N2602-09</b></div></li>
+<li><div class="s f"><span class="p">10</span><b>1N2602-10</b></div></li>
+<li><div class="s f"><span class="p">11</span><b>1N2602-11</b></div></li>
+<li><div class="s f x"><span class="p">12</span><b>1N2602-12</b><span class="sr">Selected</span><svg class="ck" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></div></li>
+<li><div class="s f"><span class="p">13</span><b>1N2602-13</b></div></li>
+<li><div class="s f"><span class="p">14</span><b>1N2602-14</b></div></li>
+<li><div class="s f"><span class="p">15</span><b>1N2602-15</b></div></li>
+<li><div class="s f"><span class="p">16</span><b>1N2602-16</b></div></li>
+<li><div class="s f"><span class="p">17</span><b>1N2602-17</b></div></li>
+<li><div class="s f"><span class="p">18</span><b>1N2602-18</b></div></li>
+<li><div class="s e"><span class="p">19</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">20</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">21</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">22</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">23</span><span class="sr">Empty</span></div></li>
+<li><div class="s e"><span class="p">24</span><span class="sr">Empty</span></div></li>
+</ol>
+<p class="dv">Drop 1 · unloaded first</p>
+<ol class="g" start="25">
+<li><div class="s t"><span class="p">25</span><span class="tk">Taken</span></div></li>
+<li><div class="s t"><span class="p">26</span><span class="tk">Taken</span></div></li>
+<li><div class="s t"><span class="p">27</span><span class="tk">Taken</span></div></li>
+<li><div class="s t"><span class="p">28</span><span class="tk">Taken</span></div></li>
+<li><div class="s t"><span class="p">29</span><span class="tk">Taken</span></div></li>
+<li><div class="s t"><span class="p">30</span><span class="tk">Taken</span></div></li>
+</ol>
+</div>
+<p class="end doors">Doors</p>
+</div>
+<h3>Past 30 — a load on its own</h3>
+<div class="trk C"><div class="body" style="border:2px solid #18181b;border-radius:6px">
+<p class="cut">… spaces 1–28 …</p>
+<ol class="g" start="29">
+<li><div class="s f"><span class="p">29</span><b>1N2602-29</b></div></li>
+<li><div class="s f"><span class="p">30</span><b>1N2602-30</b></div></li>
+</ol>
+<p class="warn"><svg class="wi" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>More than a standard truck</p>
+<ol class="g" start="31">
+<li><div class="s f w"><span class="p">31</span><b>1N2602-31</b></div></li>
+<li><div class="s e w"><span class="p">32</span><span class="sr">Empty</span></div></li>
+</ol>
+</div></div>
+</section>
+
+</div>
+</div>
+</body>
+</html>
