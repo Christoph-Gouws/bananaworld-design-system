@@ -237,3 +237,83 @@ describe("TruckDiagram axe", () => {
     expect(await violations(container)).toEqual([]);
   });
 });
+
+// CR-DESIGN-SYSTEM-029 — compact density (phones). happy-dom applies no CSS, so these pin the
+// class strings and the unchanged DOM; the real-browser proof is in the change evidence.
+describe("TruckDiagram compact", () => {
+  const cellsOf = (c: HTMLElement) => [...c.querySelectorAll("li > *")];
+  const shared = { ...props, positions: 30, slots: SHARED, onSlotTap: () => undefined };
+
+  it("compact spaces are 40 px below 640 px and keep the tablet 56 px only from sm up", () => {
+    const { container } = render(<TruckDiagram {...shared} density="compact" />);
+    for (const c of cellsOf(container)) {
+      expect(c.className).toContain("max-sm:min-h-10");
+      expect(c.className).toContain("sm:[[data-surface=tablet]_&]:min-h-14");
+      expect(c.className.split(/\s+/)).not.toContain("[[data-surface=tablet]_&]:min-h-14");
+      expect(c.className).toContain("max-sm:flex-row");
+    }
+  });
+
+  it("default and density=default keep the shipped strings and the same markup", () => {
+    const none = renderToString(<TruckDiagram {...shared} />);
+    expect(renderToString(<TruckDiagram {...shared} density="default" />)).toBe(none);
+    const unknown = "x" as "default";
+    expect(renderToString(<TruckDiagram {...shared} density={unknown} />)).toBe(none);
+    expect(none).not.toContain("max-sm:");
+  });
+
+  it("has the same accessible names, buttons, list starts and groups as default", () => {
+    const read = (d?: "compact") => {
+      const { container } = render(<TruckDiagram {...shared} density={d} />);
+      const out = {
+        names: cellsOf(container).map((e) => text(e)),
+        buttons: container.querySelectorAll("button").length,
+        starts: [...container.querySelectorAll("ol")].map((o) => o.getAttribute("start")),
+        groups: [...container.querySelectorAll("[role=group]")].map((g) =>
+          g.getAttribute("aria-label"),
+        ),
+      };
+      cleanup();
+      return out;
+    };
+    expect(read("compact")).toEqual(read());
+  });
+
+  it("taken shows no pallet number; warning, drop dividers, Cab and Doors stay", () => {
+    const slots: TruckSlot[] = [
+      { position: 1, state: "taken", label: "SECRET", drop: 2 },
+      ...range(2, 12, (p) => filled(p, 1)),
+    ];
+    const { container } = render(
+      <TruckDiagram
+        {...props}
+        density="compact"
+        positions={34}
+        standardPositions={30}
+        slots={slots}
+      />,
+    );
+    const t = text(container);
+    expect(t).not.toContain("SECRET");
+    for (const word of ["More than a standard truck", "Drop 2", "Drop 1", "Cab", "Doors"]) {
+      expect(t).toContain(word);
+    }
+  });
+
+  it("density is never a DOM attribute", () => {
+    const { container } = render(
+      <TruckDiagram {...props} density="compact" positions={2} slots={[]} />,
+    );
+    expect(container.firstElementChild!.hasAttribute("density")).toBe(false);
+  });
+
+  it.each([
+    ["read-only", { slots: SHARED, positions: 30 }],
+    ["interactive", { slots: SHARED, positions: 30, onSlotTap: () => undefined }],
+    ["three drops", { slots: [filled(1, 3), filled(4, 2), filled(8, 1)], positions: 10 }],
+    ["over standard", { slots: SHARED, positions: 34, standardPositions: 30 }],
+  ])("compact %s has no axe violations", async (_name, extra) => {
+    const { container } = render(<TruckDiagram {...props} {...extra} density="compact" />);
+    expect(await violations(container)).toEqual([]);
+  });
+});

@@ -25,6 +25,10 @@ import {
  *  - `standardPositions` has no default: the 30 is the packhouse's business value, not the kit's.
  *  - The state is never colour alone: border style, a check icon and words say it too. Tokens only.
  *  - The delivery-note PDF cannot draw this component; it maps `truckDiagramRows` instead.
+ *  - CR-DESIGN-SYSTEM-029: `density="compact"` draws slim one-line spaces (40 px, an owner-approved
+ *    exception to the 48 px picture floor) below 640 px only, and beats the tablet surface there.
+ *    From 640 px up, and in print, it is the default look. Same DOM, names and `truckDiagramRows`.
+ *    The default strings are the shipped strings, untouched.
  */
 export interface TruckDiagramWords {
   readonly diagram: string;
@@ -50,6 +54,8 @@ export interface TruckDiagramProps extends Omit<HTMLAttributes<HTMLDivElement>, 
   readonly words?: Partial<TruckDiagramWords>;
   /** Divider and tag words; the tag is called with `end = null`. */
   readonly dropLabel?: (drop: number, end: TruckDropEnd | null) => string;
+  /** "compact": slim one-line spaces below 640 px (phones). Absent = today, on every surface. */
+  readonly density?: "default" | "compact";
 }
 
 const DEFAULT_WORDS: TruckDiagramWords = {
@@ -82,6 +88,18 @@ const WARNING =
 const SPACE =
   "relative flex h-full min-h-12 min-w-0 w-full flex-col items-start justify-center gap-0.5 rounded-md border-2 px-2 py-1 text-left " +
   "[[data-surface=tablet]_&]:min-h-14 print:min-h-8";
+// Compact (CR-DESIGN-SYSTEM-029): phone width only. The tablet-surface height moves behind `sm:`
+// so it cannot out-rank the 40 px below 640 px; from `sm` up this computes the default look.
+const SPACE_COMPACT =
+  "relative flex h-full min-h-12 min-w-0 w-full flex-col items-start justify-center gap-0.5 rounded-md border-2 px-2 py-1 text-left " +
+  "max-sm:min-h-10 max-sm:flex-row max-sm:flex-wrap max-sm:items-center max-sm:gap-x-2 max-sm:gap-y-0 " +
+  "sm:[[data-surface=tablet]_&]:min-h-14 print:min-h-8";
+const LIST_COMPACT = `${LIST} max-sm:gap-y-1`;
+const DIVIDER_COMPACT = `${DIVIDER} max-sm:py-1`;
+const WARNING_COMPACT = `${WARNING} max-sm:py-1`;
+const END_BLOCK_COMPACT = `${END_BLOCK} max-sm:py-1`;
+const CHECK = "absolute right-1 top-1 h-4 w-4";
+const CHECK_COMPACT = `${CHECK} max-sm:top-1/2 max-sm:-translate-y-1/2`;
 const TAPPABLE =
   "touch-manipulation select-none transition-colors duration-fast focus-visible:outline-none focus-visible:shadow-focus";
 const HATCH =
@@ -97,10 +115,12 @@ function SpaceBody({
   cell,
   words,
   dropLabel,
+  compact,
 }: {
   cell: TruckDiagramCell;
   words: TruckDiagramWords;
   dropLabel: NonNullable<TruckDiagramProps["dropLabel"]>;
+  compact: boolean;
 }) {
   const { position, state, label, note, drop, showDrop } = cell;
   const text =
@@ -123,7 +143,7 @@ function SpaceBody({
       {text}{" "}
       {state === "selected" ? (
         <>
-          <Check aria-hidden="true" className="absolute right-1 top-1 h-4 w-4" />
+          <Check aria-hidden="true" className={compact ? CHECK_COMPACT : CHECK} />
           <span className="sr-only">{words.selected}</span>{" "}
         </>
       ) : null}
@@ -143,12 +163,14 @@ function Section({
   words,
   dropLabel,
   onSlotTap,
+  compact,
 }: {
   rows: readonly TruckDiagramRow[];
   warn: boolean;
   words: TruckDiagramWords;
   dropLabel: NonNullable<TruckDiagramProps["dropLabel"]>;
   onSlotTap: TruckDiagramProps["onSlotTap"];
+  compact: boolean;
 }) {
   const first = rows[0]!;
   const heading =
@@ -157,12 +179,13 @@ function Section({
     row.cells.map((cell) => {
       if (!cell) return null;
       const classes = cn(
-        SPACE,
+        compact ? SPACE_COMPACT : SPACE,
+        compact && cell.state === "selected" && "max-sm:pr-6",
         STATE_CLASS[cell.state],
         cell.overStandard && cell.state !== "selected" && "border-warning",
         cell.overStandard && cell.state === "empty" && "bg-warning-subtle",
       );
-      const body = <SpaceBody cell={cell} words={words} dropLabel={dropLabel} />;
+      const body = <SpaceBody cell={cell} words={words} dropLabel={dropLabel} compact={compact} />;
       const tappable = onSlotTap !== undefined && cell.state !== "taken";
       return (
         <li key={cell.position}>
@@ -184,12 +207,12 @@ function Section({
   const list = (
     <>
       {warn ? (
-        <p className={WARNING}>
+        <p className={compact ? WARNING_COMPACT : WARNING}>
           <TriangleAlert aria-hidden="true" className="h-4 w-4 shrink-0" />
           {words.overStandard}
         </p>
       ) : null}
-      <ol start={first.cells[0].position} className={LIST}>
+      <ol start={first.cells[0].position} className={compact ? LIST_COMPACT : LIST}>
         {items}
       </ol>
     </>
@@ -198,7 +221,7 @@ function Section({
     list
   ) : (
     <>
-      <p className={DIVIDER}>
+      <p className={compact ? DIVIDER_COMPACT : DIVIDER}>
         <span aria-hidden="true" className={RULE} />
         <span className="text-center">{heading}</span>
         <span aria-hidden="true" className={RULE} />
@@ -231,6 +254,7 @@ export const TruckDiagram = forwardRef<HTMLDivElement, TruckDiagramProps>(functi
     standardPositions,
     words,
     dropLabel = defaultDropLabel,
+    density,
     className,
     ...rest
   },
@@ -245,9 +269,11 @@ export const TruckDiagram = forwardRef<HTMLDivElement, TruckDiagramProps>(functi
     overStandard: words?.overStandard ?? DEFAULT_WORDS.overStandard,
   };
   const rows = truckDiagramRows(positions, slots, standardPositions);
+  const compact = density === "compact";
+  const endBlock = compact ? END_BLOCK_COMPACT : END_BLOCK;
   return (
     <div ref={ref} role="group" aria-label={w.diagram} {...rest} className={cn(ROOT, className)}>
-      <p className={cn(END_BLOCK, "rounded-t-3xl")}>{frontLabel}</p>
+      <p className={cn(endBlock, "rounded-t-3xl")}>{frontLabel}</p>
       <div className={BODY}>
         {sections(rows).map((section) => (
           <Section
@@ -257,10 +283,11 @@ export const TruckDiagram = forwardRef<HTMLDivElement, TruckDiagramProps>(functi
             words={w}
             dropLabel={dropLabel}
             onSlotTap={onSlotTap}
+            compact={compact}
           />
         ))}
       </div>
-      <p className={cn(END_BLOCK, "rounded-b-md")}>{backLabel}</p>
+      <p className={cn(endBlock, "rounded-b-md")}>{backLabel}</p>
     </div>
   );
 });

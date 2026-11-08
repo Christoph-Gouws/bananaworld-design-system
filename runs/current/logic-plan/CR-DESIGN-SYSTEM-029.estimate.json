@@ -1,0 +1,14 @@
+{
+  "files": 3,
+  "lines": 55,
+  "steps": 2,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes the compact option; packhouse loading screen reads it after pinning the merged version",
+    "Packhouse phone runs in tablet mode; compact overrides that height on phone-width screens only",
+    "DC, CRM and other apps: nothing they show changes"
+  ],
+  "migrationExpected": false
+}

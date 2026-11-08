@@ -1296,3 +1296,20 @@ Plan REVISE (owner, 2026-11-07, packhouse mockup gate): reefers load from the ba
 
 ### Outcome
 Built as approved. Full suite 773 pass of 773, typecheck clean, no dependency change, real Edge run ALL PASS at 360/390/768/1440 px, two colour sets and print. The plan's DC + CRM re-check and mutation battery were not run. No consumer pin bumped; the packhouse pins the merged sha. Archive `runs/change-26/`.
+
+---
+
+## CR-DESIGN-SYSTEM-029 — `TruckDiagram` compact size for phones (kit 0.12.0)
+
+### What was asked
+Owner ruling 2026-11-08 (packhouse EPIC-006-M-01 fidelity review; follow-up to CR-DESIGN-SYSTEM-028): the built loading screen on a 390 px phone is about 2.5 times the mockup's length because each space is drawn about 48 px (56 px on the packhouse tablet surface). Add an optional `density`; compact draws slim rows with the pallet number and space on one or two short lines, keeps drop dividers, Cab/Doors, "taken" without a number and the past-30 warning; propose a tap size and how it squares with the 48 px floor; names and prints unchanged.
+
+### What was decided at the plan gate
+Plan APPROVED, layout **A** (one line: space number then pallet number), ship mode **on-green**. No clarify questions were asked or answered. The plan's recommended tap size of 40 px stands (the owner approved the plan without choosing 44 or 36): an owner-approved, explicit exception to the 48 px picture floor for `density="compact"` below 640 px only, not a change to the floor. Compact applies below 640 px only and beats the tablet surface there; tablets, desk and print are unchanged.
+
+### Decisions taken at build (within the approved plan)
+- D-1 optional inline `density?: "default" | "compact"`, no new export; the default class strings are untouched. D-2 same DOM and accessible names; CSS-only one-line layout. D-3 the tablet `min-h-14` moves behind `sm:` in the compact string so 40 px wins on the packhouse phone. D-5 `truckDiagramRows` and the PDF untouched.
+- Build detail: compact strings extend the default constants with `max-sm:` overrides rather than being separate complete strings; same result, simpler diff.
+
+### Outcome
+Built as approved. Full suite 782 pass of 782 (9 new), typecheck clean, no dependency change, real Edge run ALL PASS at 360 and 390 px under both surfaces and two colour sets, and pixel-identical to default at 768, 1440 and A4 print. The plan's DC + CRM re-check, frozen fixtures and mutation battery were not run (neither app imports `TruckDiagram`). No consumer pin bumped; the packhouse pins the merged sha. Archive `runs/change-27/`.

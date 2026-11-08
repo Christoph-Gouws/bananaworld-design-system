@@ -1,9 +1,12 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-11-07, at the close of **CR-DESIGN-SYSTEM-028**.
+> Last updated: 2026-11-08, at the close of **CR-DESIGN-SYSTEM-029**.
 
-## Latest: CR-DESIGN-SYSTEM-028 — shared `TruckDiagram` + `truckDiagramRows` (kit 0.11.0)
-New `src/components/TruckDiagram.tsx` + `truck-diagram-layout.ts` (look A): truck from above, two spaces wide, Cab top / Doors bottom, drop blocks with labelled dividers (last drop at the cab, first by the doors; the app decides, the kit never reorders), `taken` never shows a number or is a button, `standardPositions` has no default; no client directive, no hook, no dependency. 773/773 · Edge proof ALL PASS. Archive `runs/change-26/`; rules `runs/change-26/evidence/developer-handover.md`. Owed: packhouse EPIC-006-M-01 pins the MERGED sha; DC+CRM re-check and mutation battery not run (`known-issues.md`). Test here with `--pool=threads --maxWorkers=2 --testTimeout=60000`.
+## Latest: CR-DESIGN-SYSTEM-029 — `TruckDiagram density="compact"` (kit 0.12.0)
+Optional `density`: below 640 px spaces are 40 px one-line rows (owner-approved exception to the 48 px floor), beating the tablet surface there; ≥ 640 px, print, DOM, names and `truckDiagramRows` unchanged; default strings untouched. 782/782 · Edge proof ALL PASS. Archive `runs/change-27/`; rules `runs/change-27/evidence/developer-handover.md`. Owed: packhouse EPIC-006-M-01 pins the MERGED sha, passes `density="compact"`, and tightens the rest of its phone screen; DC+CRM re-check and mutation battery not run (`known-issues.md`). Test with `--pool=threads --maxWorkers=2 --testTimeout=60000`.
+
+## Previous: CR-DESIGN-SYSTEM-028 — shared `TruckDiagram` + `truckDiagramRows` (kit 0.11.0)
+Truck from above, drop blocks, `taken` never shows a number. Archive `runs/change-26/`.
 
 ## Previous: CR-DESIGN-SYSTEM-026 — shared `StatTile` / `StatTileRow` (kit 0.10.0)
 Read-only headline figure; `null` = dash, `"0"` = 0. Archive `runs/change-24/`. Owed: packhouse EPIC-004-M-03 pins the MERGED sha.
