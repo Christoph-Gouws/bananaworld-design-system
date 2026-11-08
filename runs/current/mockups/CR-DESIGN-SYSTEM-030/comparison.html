@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CR-DESIGN-SYSTEM-030 — Printing inside the slide-out: pick a layout</title>
+<style>
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+body{margin:0;font-family:Inter,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:#fafaf9;color:#18181b;font-size:14px;line-height:1.5}
+.wrap{max-width:1320px;margin:0 auto;padding:18px 14px 48px}
+h1{font-size:22px;margin:0 0 6px;letter-spacing:-.015em}
+.lead{color:#52525b;margin:0 0 18px;max-width:76ch}
+.cols{display:flex;flex-direction:column;gap:44px}
+@media (min-width:1180px){.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}}
+.opt{min-width:0}
+.opt>h2{font-size:21px;margin:0 0 4px;letter-spacing:-.01em}
+.opt>p{color:#52525b;margin:0 0 12px}
+.rec{display:inline-block;background:#d5f3ef;color:#0b5f58;font-size:12px;font-weight:700;border-radius:999px;padding:1px 10px;vertical-align:middle}
+h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#71717a;margin:18px 0 6px}
+.fr{width:100%;border:1px solid #e7e5e4;background:#fff;border-radius:12px 12px 0 0;overflow:hidden;box-shadow:0 2px 8px rgba(24,24,27,.08)}
+.ph{max-width:390px}
+.of{max-width:448px;border-radius:0}
+.fh{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;border-bottom:1px solid #e7e5e4;font-weight:600;font-size:16px}
+.fh i{font-style:normal;color:#52525b;font-size:18px;line-height:1}
+.pn{display:flex;flex-direction:column;gap:12px;padding:16px;min-width:0}
+.pv{border:1px solid #e7e5e4;border-radius:6px;background:#efefee;overflow:hidden;padding:12px;min-width:0}
+.ph .pv{height:330px}
+.of .pv{height:400px}
+.doc{background:#fff;border:1px solid #d6d3d1;padding:14px;height:100%;font-size:12px;overflow:hidden;min-width:0}
+.doc b{display:block;font-size:14px}
+.doc small{display:block;color:#52525b;margin-bottom:8px;font-size:12px}
+.r{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #e7e5e4;padding:4px 0}
+.r span:last-child{font-variant-numeric:tabular-nums}
+.ac{display:flex;gap:8px;min-width:0}
+.b{font:inherit;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:6px;white-space:nowrap}
+.pri{background:#0f766e;color:#fff;border:1px solid #0f766e}
+.sec{background:#fff;color:#18181b;border:1px solid #e7e5e4}
+.ter{background:transparent;color:#18181b;border:1px solid transparent}
+.ph .b{height:56px;font-size:16px;padding:0 20px;flex:1 1 0;min-width:0}
+.of .b{height:36px;font-size:14px;padding:0 12px}
+.of .ac{justify-content:flex-end}
+.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nv{display:flex;gap:10px;align-items:flex-start;padding:18px;color:#3f3f46;background:#f5f5f4;height:auto!important}
+.nv .i{margin-top:2px}
+.ms{display:flex;align-items:center;justify-content:center;text-align:center;color:#52525b;padding:18px;background:#efefee;height:150px!important}
+.err{margin:0;color:#7f1d1d;font-weight:500;font-size:14px}
+.C .ac{flex-direction:column}
+.C .b{width:100%;flex:0 0 auto}
+.C.of-c .b{height:36px}
+.same{margin-top:44px;max-width:760px}
+.same>h2{font-size:18px;margin:0 0 4px}
+.same>p{color:#52525b;margin:0 0 6px}
+.two{display:flex;flex-direction:column;gap:14px}
+@media (min-width:760px){.two{flex-direction:row}.two>div{flex:1 1 0;min-width:0}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="p" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></symbol>
+<symbol id="d" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></symbol>
+<symbol id="w" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+</defs></svg>
+<div class="wrap">
+<h1>Printing inside the slide-out: pick a layout</h1>
+<p class="lead">The same delivery note in every option. It opens inside the app's slide-out, and nothing opens in a new window or tab. The note here is a stand-in. The words and buttons are examples, and each app supplies its own English and Portuguese words.</p>
+
+<div class="cols">
+
+<!-- ───────────── Option A ───────────── -->
+<section class="opt">
+<h2>Option A — Note first, buttons underneath <span class="rec">Recommended</span></h2>
+<p>You read the note, then act. The two buttons sit side by side at the bottom, where a thumb reaches them on a phone.</p>
+<h3>Floor phone or tablet</h3>
+<div class="fr ph"><div class="fh">Delivery note PH-00147<i>×</i></div><div class="pn A">
+<div class="pv"><div class="doc"><b>DELIVERY NOTE</b><small>PH-00147 · 14 Nov 2026 · Drop 1</small><div class="r"><span>Pallet 1N2602-01</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-02</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-03</span><span>40 crates</span></div><div class="r"><span>Crates sent</span><span>124</span></div></div></div>
+<div class="ac"><button class="b sec"><svg class="i"><use href="#d"/></svg>Download</button><button class="b pri"><svg class="i"><use href="#p"/></svg>Print</button></div>
+</div></div>
+<h3>Office computer</h3>
+<div class="fr of"><div class="fh">Delivery note PH-00147<i>×</i></div><div class="pn A">
+<div class="pv"><div class="doc"><b>DELIVERY NOTE</b><small>PH-00147 · 14 Nov 2026 · Drop 1</small><div class="r"><span>Pallet 1N2602-01</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-02</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-03</span><span>40 crates</span></div><div class="r"><span>Crates sent</span><span>124</span></div></div></div>
+<div class="ac"><button class="b sec"><svg class="i"><use href="#d"/></svg>Download</button><button class="b pri"><svg class="i"><use href="#p"/></svg>Print</button></div>
+</div></div>
+<h3>A tablet that cannot show the note (Portuguese example)</h3>
+<div class="fr ph"><div class="fh">Guia de entrega PH-00147<i>×</i></div><div class="pn A">
+<div class="pv nv"><svg class="i"><use href="#w"/></svg><span>Este aparelho não consegue mostrar a guia aqui. Prima Imprimir para a guardar e abra-a para imprimir.</span></div>
+<div class="ac"><button class="b sec"><svg class="i"><use href="#d"/></svg>Transferir</button><button class="b pri"><svg class="i"><use href="#p"/></svg>Imprimir</button></div>
+</div></div>
+</section>
+
+<!-- ───────────── Option B ───────────── -->
+<section class="opt">
+<h2>Option B — Buttons on top, note underneath</h2>
+<p>The buttons come first, directly under the title, and the note fills the rest. Good if people mostly print without reading.</p>
+<h3>Floor phone or tablet</h3>
+<div class="fr ph"><div class="fh">Delivery note PH-00147<i>×</i></div><div class="pn B">
+<div class="ac"><button class="b sec"><svg class="i"><use href="#d"/></svg>Download</button><button class="b pri"><svg class="i"><use href="#p"/></svg>Print</button></div>
+<div class="pv"><div class="doc"><b>DELIVERY NOTE</b><small>PH-00147 · 14 Nov 2026 · Drop 1</small><div class="r"><span>Pallet 1N2602-01</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-02</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-03</span><span>40 crates</span></div><div class="r"><span>Crates sent</span><span>124</span></div></div></div>
+</div></div>
+<h3>Office computer</h3>
+<div class="fr of"><div class="fh">Delivery note PH-00147<i>×</i></div><div class="pn B">
+<div class="ac"><button class="b sec"><svg class="i"><use href="#d"/></svg>Download</button><button class="b pri"><svg class="i"><use href="#p"/></svg>Print</button></div>
+<div class="pv"><div class="doc"><b>DELIVERY NOTE</b><small>PH-00147 · 14 Nov 2026 · Drop 1</small><div class="r"><span>Pallet 1N2602-01</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-02</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-03</span><span>40 crates</span></div><div class="r"><span>Crates sent</span><span>124</span></div></div></div>
+</div></div>
+<h3>A tablet that cannot show the note (Portuguese example)</h3>
+<div class="fr ph"><div class="fh">Guia de entrega PH-00147<i>×</i></div><div class="pn B">
+<div class="ac"><button class="b sec"><svg class="i"><use href="#d"/></svg>Transferir</button><button class="b pri"><svg class="i"><use href="#p"/></svg>Imprimir</button></div>
+<div class="pv nv"><svg class="i"><use href="#w"/></svg><span>Este aparelho não consegue mostrar a guia aqui. Prima Imprimir para a guardar e abra-a para imprimir.</span></div>
+</div></div>
+</section>
+
+<!-- ───────────── Option C ───────────── -->
+<section class="opt">
+<h2>Option C — One big Print, Download as a small line</h2>
+<p>Print is a full-width button with Download as a quiet line under it. Hardest to miss, but it takes the most height on a phone.</p>
+<h3>Floor phone or tablet</h3>
+<div class="fr ph"><div class="fh">Delivery note PH-00147<i>×</i></div><div class="pn C">
+<div class="pv"><div class="doc"><b>DELIVERY NOTE</b><small>PH-00147 · 14 Nov 2026 · Drop 1</small><div class="r"><span>Pallet 1N2602-01</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-02</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-03</span><span>40 crates</span></div><div class="r"><span>Crates sent</span><span>124</span></div></div></div>
+<div class="ac"><button class="b pri"><svg class="i"><use href="#p"/></svg>Print</button><button class="b ter"><svg class="i"><use href="#d"/></svg>Download</button></div>
+</div></div>
+<h3>Office computer</h3>
+<div class="fr of"><div class="fh">Delivery note PH-00147<i>×</i></div><div class="pn C">
+<div class="pv"><div class="doc"><b>DELIVERY NOTE</b><small>PH-00147 · 14 Nov 2026 · Drop 1</small><div class="r"><span>Pallet 1N2602-01</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-02</span><span>42 crates</span></div><div class="r"><span>Pallet 1N2602-03</span><span>40 crates</span></div><div class="r"><span>Crates sent</span><span>124</span></div></div></div>
+<div class="ac"><button class="b pri"><svg class="i"><use href="#p"/></svg>Print</button><button class="b ter"><svg class="i"><use href="#d"/></svg>Download</button></div>
+</div></div>
+<h3>A tablet that cannot show the note (Portuguese example)</h3>
+<div class="fr ph"><div class="fh">Guia de entrega PH-00147<i>×</i></div><div class="pn C">
+<div class="pv nv"><svg class="i"><use href="#w"/></svg><span>Este aparelho não consegue mostrar a guia aqui. Prima Imprimir para a guardar e abra-a para imprimir.</span></div>
+<div class="ac"><button class="b pri"><svg class="i"><use href="#p"/></svg>Imprimir</button><button class="b ter"><svg class="i"><use href="#d"/></svg>Transferir</button></div>
+</div></div>
+</section>
+
+</div>
+
+<section class="same">
+<h2>The same in every option</h2>
+<p>While the note loads, and when something goes wrong. If the note is refused because it is out of date, nothing opens, and the app explains why in its own words.</p>
+<div class="two">
+<div><h3>Loading</h3><div class="fr ph"><div class="pn"><div class="pv ms">Loading the note…</div></div></div></div>
+<div><h3>Could not get the file</h3><div class="fr ph"><div class="pn"><div class="pv ms">Could not load the note. Close this and try again.</div></div></div></div>
+</div>
+</section>
+</div>
+</body>
+</html>

@@ -136,6 +136,11 @@ export {
 } from "./NavigationBusy";
 export { ExportButton, type ExportButtonProps, type ExportFormat } from "./ExportButton";
 export { PrintPreview, type PrintPreviewProps } from "./PrintPreview";
+export {
+  PrintPreviewPanel,
+  type PrintPreviewPanelProps,
+  type PrintPreviewPanelWords,
+} from "./PrintPreviewPanel";
 export { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "./Tooltip";
 export {
   DataTableToolbar,
@@ -144,13 +149,9 @@ export {
   type TableControls,
   type UseTableControlsConfig,
 } from "./DataTableToolbar";
-// ⚠ THE FILTER TYPES ARE EXPORTED FROM CR-DESIGN-SYSTEM-003 (decision D-9). Their absence has already
-//   cost a consumer: Bananaworld-CRM's AvailabilityView pins the shape with `as const` and says so in
-//   place, because "FilterDef is internal to the design system's table-controls module and is not
-//   re-exported from its barrel". A consumer writing a reconciler that must read BOTH stored shapes has
-//   to be able to NAME MultiSelectFilterValue, or it will re-declare it locally and drift.
-//   Additive: adds names, moves none. SortDir/SortState/SortAccessor are deliberately NOT exported —
-//   they are not what that change was about.
+// ⚠ THE FILTER TYPES ARE EXPORTED FROM CR-DESIGN-SYSTEM-003 (decision D-9): their absence cost a consumer
+//   (CRM AvailabilityView, `as const`), and a reconciler reading BOTH stored shapes must NAME
+//   MultiSelectFilterValue. Additive: SortDir/SortState/SortAccessor are deliberately NOT exported.
 export type {
   FilterDef,
   SelectFilterDef,

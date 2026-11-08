@@ -1313,3 +1313,18 @@ Plan APPROVED, layout **A** (one line: space number then pallet number), ship mo
 
 ### Outcome
 Built as approved. Full suite 782 pass of 782 (9 new), typecheck clean, no dependency change, real Edge run ALL PASS at 360 and 390 px under both surfaces and two colour sets, and pixel-identical to default at 768, 1440 and A4 print. The plan's DC + CRM re-check, frozen fixtures and mutation battery were not run (neither app imports `TruckDiagram`). No consumer pin bumped; the packhouse pins the merged sha. Archive `runs/change-27/`.
+
+## CR-DESIGN-SYSTEM-030 — `PrintPreviewPanel`, a print panel for a slide-out (kit 0.13.0)
+
+### What was asked
+Owner ruling 2026-11-08, for packhouse EPIC-006-M-02 (delivery note on the floor tablet and office computer) and M-03 (Farm Crate Note): the existing `PrintPreview` is a Modal, has two fixed DC formats, fixed English words, no Download, and its `pdfUrl` path opens a new tab; the packhouse may not use pop-ups or new tabs. Add one additive export, body only, hosted by each app's own Sheet or SlideOver: `load()` returns the preview, `print()` / `download()` return `Blob | null` (null = refused, nothing opens), `fileName`, and five caller-supplied words. Print loads the final blob in an iframe and calls `contentWindow.print()`; with no PDF viewer the preview says so and Print acts as Download. No window or tab, 360 to 1440 px, kit tokens only; `PrintPreview` and DC call sites untouched.
+
+### What was decided at the plan gate
+Plan APPROVED, layout **A** (the note first, the two buttons underneath), ship mode **on-green**. No clarify questions were asked or answered. Plan decisions D-1 to D-11 stand: one new file and nothing shared with `PrintPreview`; exactly the proposed props; one `load()` per mount; no viewer means strictly `pdfViewerEnabled === false`; no-viewer Print still calls `print()`; a synchronous in-flight guard; frame keyed on its URL so Back is one step; no Radix control replaced.
+
+### Decisions taken at build (within the approved plan)
+- Split into small hooks and helpers (`usePreview`, `useSaver`, `printFrame`, `ActionButton`) to keep every function under 50 lines (sensor RC-04). The barrel needed six comment lines folded to stay under 300 (the three-name export wraps to five lines).
+- The "stories" are the README section and the browser fixture page; the kit has no Storybook (plan D-11).
+
+### Outcome
+Built as approved. Full suite 803 of 803 (21 new), typecheck clean, no dependency change, real Edge run ALL PASS (60 checks) in a real Sheet and SlideOver at 360, 390, 768 and 1440 px. `PrintPreview.tsx` byte-identical. The plan's DC + CRM re-check (5.5, review finding F1) was NOT RUN - WAIVED BY OWNER IN WRITING (owner, desktop chat, 2026-11-08: "Waive it."), for CR-DESIGN-SYSTEM-030 only; grounds checked at head 040d085: src changes are `PrintPreviewPanel.tsx` and `index.ts` only, and DC, CRM, Org Admin and packhouse main contain no reference to `PrintPreviewPanel` and no star re-export of the kit. Recorded as not run, never as passed. The 5.6 mutation battery was run after review: 11 of 11 mutants killed by named specs. Review fixes F3/F4/F5/F7/F8 applied (suite now 806). Paper from a real printer is unproven here and left to packhouse Gate D. No consumer pin bumped. Archive `runs/change-28/`.

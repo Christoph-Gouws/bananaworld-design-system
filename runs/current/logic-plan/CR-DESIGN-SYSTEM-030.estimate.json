@@ -1,0 +1,15 @@
+{
+  "files": 4,
+  "lines": 181,
+  "steps": 2,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes the print panel; packhouse reads it after pinning the merged version",
+    "Packhouse decides if a print is allowed and explains a refusal; the panel just opens nothing",
+    "Packhouse records the print when Print or Download is pressed; the panel asks once per press",
+    "DC and CRM keep their existing print screen, untouched"
+  ],
+  "migrationExpected": false
+}

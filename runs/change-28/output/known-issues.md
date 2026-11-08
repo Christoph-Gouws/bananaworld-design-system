@@ -1,0 +1,9 @@
+# Known issues — CR-DESIGN-SYSTEM-030
+
+- **Not run — WAIVED BY OWNER (2026-11-08, desktop chat, "Waive it."):** plan §5.5 / finding F1 DC + CRM re-check, for CR-DESIGN-SYSTEM-030 only. The §5.6 mutation battery WAS run (11 of 11 killed). Substitutes: `git diff d8309b5 -- src/components/PrintPreview.tsx` is empty; the only other `src/` change is one export in the barrel; the export-inventory spec holds "added exactly this"; the full kit suite passes (803) with only the one declared inventory line edited; neither DC nor CRM imports the new name. The plan's §6 grep of DC found `PrintPreview` only in its gallery and barrel, both untouched.
+- **Paper is unproven here (R1):** the print dialog on a real PDF and a real printer are the packhouse's Gate D / QA-UAT-002 check. In Edge the proof counted one `print()` on an HTML-typed blob and, on a real PDF blob, only that nothing throws and no window opens.
+- **R2:** if a real office browser prints blank, add a short delay inside the frame's `onLoad` (a one-line kit change). **R3/R4:** Safari and iPad not tested; a save after an `await` has no fresh gesture, so Safari may ask.
+- **Edge shows its own downloads panel** (`edge://downloads-hub/`) on a save. That is browser chrome, not an app tab; the proof ignores it.
+- **Owed by packhouse EPIC-006-M-02 / M-03:** pin the MERGED sha (never a branch sha), host the panel in the floor `Sheet` and office `SlideOver`, supply EN + PT words, return `application/pdf` blobs, explain a refusal in its own host (`null` says nothing), and run the real-printer check. A page with a Content-Security-Policy must allow `frame-src blob:`.
+- **Seams S1–S7** from the plan stand; `governance/CROSS_SYSTEM_CHANGE_REGISTER.md` still does not exist.
+- **Standing, carried:** no cross-system register; no CR-008 decision-log entry; 4 inert `ignoreGhsas`; OQ-8; the `.snap` CRLF artefact (not staged); the gitleaks scan check (K-1); the CR-025/026/028/029 re-checks and batteries.
