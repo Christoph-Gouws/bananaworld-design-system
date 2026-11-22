@@ -1,0 +1,16 @@
+{
+  "files": 11,
+  "lines": 920,
+  "steps": 4,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes the frame; packhouse reads it in Run 2 after pinning the merged commit",
+    "App decides which screens are hidden; the frame only obeys",
+    "App supplies waiting counts and runs sign-out and language change; frame calls back",
+    "Frame owns the page area (one main, 24 px padding, no width cap); app pages drop theirs",
+    "Two new Radix packages reach each app's install only when it moves its pin"
+  ],
+  "migrationExpected": false
+}

@@ -1,9 +1,12 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-11-08, at the close of **CR-DESIGN-SYSTEM-030**.
+> Last updated: 2026-11-22, at the close of **CR-DESIGN-SYSTEM-032**.
 
-## Latest: CR-DESIGN-SYSTEM-030 — `PrintPreviewPanel` (kit 0.13.0)
-New body-only print panel for a Sheet or SlideOver: preview, Download, Print; caller supplies `load`/`print`/`download` (`Blob | null`, `null` = refused, nothing opens) and all five words. Print prints the returned blob in a keyed iframe; no PDF viewer → message, and Print saves via `print()`. Never opens a window or tab. `PrintPreview` untouched. 803/803 · Edge proof ALL PASS (60). Archive `runs/change-28/`; rules `runs/change-28/evidence/developer-handover.md`. Owed: packhouse EPIC-006-M-02 pins the MERGED sha, supplies EN+PT words, runs the real-printer check; DC+CRM re-check and mutation battery not run (`known-issues.md`). Test with `--pool=threads --maxWorkers=2 --testTimeout=60000`.
+## Latest: CR-DESIGN-SYSTEM-032 — shared office app frame `AppShell` + `UserMenu` + `PageHeader` (kit 0.14.0)
+Accordion side menu with count badges, 64 px rail with hover/keyboard flyouts (remembered), foot slot, fixed header, name menu, slide-out under 1024 px, one scrolling `<main>`. Three exports only; inner parts private. Radix Accordion + NavigationMenu (pinned 1.2.14, one `react-dismissable-layer`). 850/850 · mutations 11/11 · Edge proof ALL PASS (30). Archive `runs/change-30/`; rules `runs/change-30/evidence/developer-handover.md`. Owed: packhouse Run 2 pins the MERGED sha, supplies EN+PT words; DC+CRM re-check not run (`known-issues.md` K-1). Never prettier `index.ts` (300-line sensor line).
+
+## Previous: CR-DESIGN-SYSTEM-030 — `PrintPreviewPanel` (kit 0.13.0)
+Print panel body for a Sheet/SlideOver; caller supplies `load`/`print`/`download` and words. Archive `runs/change-28/`. Owed: packhouse EPIC-006-M-02 pins the MERGED sha. Test with `--pool=threads --maxWorkers=2 --testTimeout=60000`.
 
 ## Previous: CR-DESIGN-SYSTEM-029 — `TruckDiagram density="compact"` (kit 0.12.0)
 40 px one-line rows below 640 px; archive `runs/change-27/`. Owed: packhouse EPIC-006-M-01 pins the MERGED sha.

@@ -56,9 +56,8 @@ export {
   type TableWrap,
   type TableColumnWidth,
 } from "./Table";
-// The paging bar for a long list (CR-DESIGN-SYSTEM-004). It sits BESIDE the Table block above — the
-// table is not forked, not wrapped, and gains no prop. Additive: no name here begins `TablePage`
-// today, so nothing is shadowed and nothing moves.
+// The paging bar for a long list (CR-DESIGN-SYSTEM-004), BESIDE the Table block above: the table is
+// not forked, wrapped or given a prop. Additive: no name here begins `TablePage`.
 export {
   TablePagination,
   type TablePaginationProps,
@@ -190,15 +189,10 @@ export {
 } from "./DocumentHeader";
 // 🔴 THE GRID CONTROLS (CR-DESIGN-SYSTEM-008). They sit BESIDE the `Table` block above — the table is
 //    not forked, not wrapped, and gains no prop; `TableHead`, `TableRow`, `TableCell` and
-//    `DataTableToolbar` keep their signatures byte for byte, so a consumer that moves its pin and
-//    adopts none of this sees no change at all. That is asserted in this package's own suite
-//    (`tests/components/Grid.additive.test.tsx`) rather than hoped for: no session can read a sibling
-//    consumer to find out what it broke, so the change has to be incapable of breaking one.
-//
-// ⚠ THE CONTROLS LIVE ON THE TABLE, AND THAT IS THE WHOLE DESIGN. Sorting is the header; grouping is
-//   a header dragged into the strip; filtering is the row under the headers; column choice is the
-//   header's own menu. The rejected alternative — a "Customise" panel of column tokens beside the
-//   grid — is the thing these exist instead of. Do not add one here later.
+//    `DataTableToolbar` keep their signatures byte for byte (asserted in `Grid.additive.test.tsx`).
+// ⚠ THE CONTROLS LIVE ON THE TABLE, AND THAT IS THE WHOLE DESIGN: sorting is the header, grouping a
+//   header dragged into the strip, filtering the row under the headers, column choice the header's
+//   own menu. The rejected "Customise" panel of column tokens is what these exist instead of.
 export {
   GridHeadCell,
   type GridHeadCellProps,
@@ -298,3 +292,8 @@ export {
 export { StatTile, StatTileRow, type StatTileProps, type StatTileRowProps, type StatTileWords } from "./StatTile";
 export { TruckDiagram, type TruckDiagramProps, type TruckDiagramWords } from "./TruckDiagram"; // CR-DESIGN-SYSTEM-028 (ADDITIVE)
 export { truckDiagramRows, type TruckDiagramCell, type TruckDiagramRow, type TruckDropEnd, type TruckSlot, type TruckSlotState } from "./truck-diagram-layout";
+// CR-DESIGN-SYSTEM-032 — the shared office app frame: menu + rail + header + page area (ADDITIVE; inner parts stay private).
+export { AppShell, type AppShellProps, type AppShellWords } from "./AppShell";
+export { UserMenu, type UserMenuProps, type UserMenuLanguage } from "./UserMenu";
+export { PageHeader, type PageHeaderProps } from "./PageHeader";
+export type { AppMenuGroup, AppMenuItem, AppMenuFootItem } from "./app-menu";

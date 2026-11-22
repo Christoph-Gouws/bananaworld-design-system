@@ -5,6 +5,34 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-032 — the shared office app frame (`AppShell`, `UserMenu`, `PageHeader`)
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Date | 2026-11-22 |
+| Raised by | Owner, Run 1 of `office-shell-redesign` (Run 2 is the packhouse adopting it). Mockup picked 2026-11-22 (frames 1–6) |
+| Approved layout · ship mode | **A** · **on-green** |
+
+**Asked.** One frame component family in the kit, modelled on the DC's working menu: grouped accordion side menu (icon on the heading only, one open at a time, current heading marked even closed, optional counts, empty headings hidden); a 64 px rail with hover and keyboard flyouts, remembered per device; a foot slot; a fixed header with breadcrumb, tools and a name menu (name, roles, 2-step mark, My settings, language, Sign out); the page area the only scroller at full width with 24 px padding; a slide-out menu under 1024 px; a `PageHeader`; `EmptyState` reused. No app changes.
+
+**Decided at the plan gate.** Plan approved, layout A, ship on-green. Owner confirmation recorded with the plan: three presentation differences from the mockup — light-orange count pills with dark text (AA contrast), the current heading shown dark and bold with a coloured icon (readable in the DC's yellow), and the menu starting open when nothing is remembered. Menu width is the kit token (240 px) rather than the mockup's 248 px.
+
+**Clarify questions and answers.** None recorded in the owner responses; none were needed.
+
+**Decided during the build.**
+- D-1 three exports only (`AppShell`, `UserMenu`, `PageHeader` + types); the inner parts stay private so no export is frozen. One extra private file, `SideColumn.tsx`, was split out of `AppShell` to keep functions under the 50-line sensor.
+- D-4/D-7 Radix Accordion (open menu) and Radix NavigationMenu (rail flyouts, opened on hover and on keyboard focus; arrow keys move between rail headings, Tab enters the flyout). Hand-rolled controls were refused.
+- D-5 (changed in build) the accessible name of a counted item or heading is its visible words, "Loads 2", not "Loads — 2": axe `label-content-name-mismatch` (WCAG 2.5.3) failed on the dashed form in a real browser. The same fix: the `UserMenu` trigger name is "<name> · <triggerLabel>" and its initials are generated content.
+- D-9 the slide-out scrim is `bg-fg opacity-40`, not `bg-fg/40`: an alpha modifier on a CSS-variable colour needs the consumer's Tailwind config to support it.
+- Dependencies: `@radix-ui/react-navigation-menu` is pinned to 1.2.14 (not the latest 1.4.1) because that version shares `react-dismissable-layer` with the other Radix packages, and a `pnpm.overrides` floor (with its note) keeps this repo's lock to one copy.
+
+**The contract this creates for consumers.** The packhouse (Run 2) pins the MERGED sha, maps its menu to `AppMenuGroup[]`, passes its router's pathname, supplies every word in EN and PT, removes its own `<main>`, width cap and outer padding, and keeps its server-side route checks. DC, CRM, RMS and Org Admin see nothing until each moves its own pin.
+
+**Outcome.** 850 tests / 44 files (baseline 803); typecheck clean; mutation battery 11/11; real Edge proof ALL PASS, frames `runs/change-30/evidence/frames/`; version 0.14.0. No consumer pin bumped. Evidence: `runs/change-30/`.
+
+---
+
 ## CR-DESIGN-SYSTEM-018 — a navigation busy signal: a top bar and a spinner on the clicked link
 
 | Field | Value |
