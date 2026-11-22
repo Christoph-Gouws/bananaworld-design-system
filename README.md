@@ -124,6 +124,10 @@ exactly as before.
 
 ### Changelog
 
+- **0.14.0** — `AppShell`, `UserMenu`, `PageHeader`: the shared office app frame (grouped accordion side menu with
+  count badges, 64 px icon rail with hover/keyboard flyouts remembered per device, fixed header with breadcrumb,
+  tools and a name menu, slide-out menu under 1024 px, one scrolling page area at full width). New names only; two
+  new dependencies (`@radix-ui/react-accordion`, `@radix-ui/react-navigation-menu`). CR-DESIGN-SYSTEM-032.
 - **0.13.0** — `PrintPreviewPanel`: the body of a print screen for a Sheet or SlideOver (preview, Download, Print);
   never opens a window or tab; caller-supplied words and files. `PrintPreview` unchanged. CR-DESIGN-SYSTEM-030.
 - **0.12.0** — `TruckDiagram` gets an optional `density="compact"`: slim one-line 40 px spaces below
@@ -315,6 +319,45 @@ keyboard types `0`–`9`, `Backspace` deletes the last digit and `Delete` clears
 never decides whether a count is allowed — that is your rule. `words` translates Clear / Delete last digit / empty.
 `ActionTile` is a `<button>`, or the kit `Link` when `href` is given (`href` + `disabled` is a disabled button). Its
 accessible name is its visible text (label, count, hint).
+
+## App frame
+
+`AppShell` (with `UserMenu` and `PageHeader`) is the office layout: side menu, icon rail, header, one scrolling page.
+The app passes its own menu, words and colours (tokens); the kit reads no router and decides no permission.
+
+```tsx
+<AppShell
+  brand={{ name: "Packhouse", mark: <Logo /> }}
+  menu={groups}                       // AppMenuGroup[]: { id, label, icon, items: [{ id, label, href, count?, hidden?, exact? }] }
+  footItems={[{ id: "help", label: "Help", href: "/help", icon: <CircleHelp />, hidden: !helpOn }]}
+  pathname={usePathname()}            // the app's router; current screen and open heading follow it
+  breadcrumb={<Crumbs />}
+  compactTitle={<h2>…</h2>}           // optional: shown instead of the breadcrumb under 1024 px
+  tools={<TraceBox />}
+  user={<UserMenu name="…" initials="AS" triggerLabel="Account menu" rolesLine="…" secondStep="2-step sign-in on"
+          settings={{ href: "/settings", label: "My settings" }}
+          language={{ label: "Language", value, options, onChange }} signOut={{ label: "Sign out", onSelect }} />}
+  words={{ menu, openMenu, closeMenu, collapseMenu, expandMenu }}   // every word is required; there is no English default
+>
+  <PageHeader title="Loads" description="…" actions={<Button>New</Button>} />
+  {empty ? <EmptyState heading="…" /> : <Page />}
+</AppShell>
+```
+
+- **One `<main>`.** `AppShell` owns it (`overflow-auto p-6`, no max-width). Pages must not render a second `<main>`,
+  a width cap or their own outer padding. The header and menu never move.
+- **`hidden` is the app's word.** Hidden items are never drawn or counted; a heading left with no visible item is not
+  shown. Keep the server-side route checks: the menu is presentation only.
+- **Counts.** An item's `count` shows when above 0; a heading shows its own `count` if given, else the sum of its
+  visible items. The accessible name reads "Loads 2" (the visible words).
+- **Memory.** Open or rail is kept in `localStorage` under `storageKey` (default `bw.app-shell.menu`), read after mount;
+  nothing remembered means open, so a rail user may see the open menu for one frame at first load.
+- **Narrow.** Under 1024 px (`lg`) the menu button in the header opens the same menu in a left slide-out; choosing a
+  screen, Esc or a tap outside closes it and focus returns to the button.
+- **Colours** come from the token classes only. The count pill uses the `warning` tokens.
+- **Dependencies.** `@radix-ui/react-accordion` and `@radix-ui/react-navigation-menu` (1.2.14, which shares
+  `react-dismissable-layer` with the other Radix packages; keep your own lock to one copy).
+- **Consumers move their own pin to the MERGED sha**, never a branch sha.
 
 ## Local development
 
