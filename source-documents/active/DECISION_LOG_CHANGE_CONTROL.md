@@ -1356,3 +1356,19 @@ Plan APPROVED, layout **A** (the note first, the two buttons underneath), ship m
 
 ### Outcome
 Built as approved. Full suite 803 of 803 (21 new), typecheck clean, no dependency change, real Edge run ALL PASS (60 checks) in a real Sheet and SlideOver at 360, 390, 768 and 1440 px. `PrintPreview.tsx` byte-identical. The plan's DC + CRM re-check (5.5, review finding F1) was NOT RUN - WAIVED BY OWNER IN WRITING (owner, desktop chat, 2026-11-08: "Waive it."), for CR-DESIGN-SYSTEM-030 only; grounds checked at head 040d085: src changes are `PrintPreviewPanel.tsx` and `index.ts` only, and DC, CRM, Org Admin and packhouse main contain no reference to `PrintPreviewPanel` and no star re-export of the kit. Recorded as not run, never as passed. The 5.6 mutation battery was run after review: 11 of 11 mutants killed by named specs. Review fixes F3/F4/F5/F7/F8 applied (suite now 806). Paper from a real printer is unproven here and left to packhouse Gate D. No consumer pin bumped. Archive `runs/change-28/`.
+
+## CR-DESIGN-SYSTEM-034 — `AppShell` top items: a menu slot above the first heading (kit 0.15.0)
+
+### What was asked
+For CR-BANANAWORLD-PH-016 (the packhouse landing dashboard, seam S1 of that change's plan): the owner-approved mockup (2026-11-23) draws a Dashboard link above the six headings. Add an optional `topItems` to `AppShell`, drawn above the first heading in the open menu, as an icon with its label as tooltip and accessible name in the 64 px rail (no flyout), and first in the slide-out under 1024 px; current-marked with `isMenuItemCurrent` (`exact` honoured) in the kit's existing item "on" style; keyboard reachable in all three modes; absent means exactly today's output. No app changes in this run.
+
+### What was decided at the plan gate
+Plan APPROVED, layout **A** (Dashboard directly above the headings, no divider), ship mode **on-green**. No clarify questions were asked or answered. Plan decisions D-1 to D-8 stand: a new type-only `AppMenuTopItem` (a foot item plus `exact`) rather than adding `exact` to `AppMenuFootItem`; one pure `visibleTopItems` helper; `TopLinks` in the open menu and slide-out; `RailTopLink` as a `NavigationMenu.Link` inside the List (no Trigger, no Content, so no flyout); top items take no part in `currentGroupId`; absent, `[]` or all hidden renders nothing (no empty `<ul>`).
+
+### Decisions taken at build (within the approved plan)
+- The slide-out filters its own top items with `visibleTopItems` (one extra call) so `AppShell()` stays at the 50-line sensor limit; the 5-line open/rail memory moved into a private `useMenuMode` hook (behaviour and effect order unchanged, proven by the frozen-HTML specs).
+- `index.ts` stays 299 lines (one name added to an existing line; never run prettier on it).
+- Frozen baseline: HTML captured at `f5ec58c` before any component edit (`tests/components/fixtures/app-shell-034-frozen.ts`); React 19 ids (`_r_5_`) are numbered in order of appearance on both sides. The server-render state uses no links because the shared `next/link` stand-in has no server snapshot.
+
+### Outcome
+Built as approved. Full suite 870 pass of 870 (baseline 850, +20), typecheck clean, no dependency change, `pnpm audit --prod --audit-level=high` unchanged from main. Callers that pass no `topItems` (absent, `[]`, only hidden) render the f5ec58c HTML byte for byte in the open menu, rail, slide-out and server render (12 frozen specs). Mutation battery 13 of 13 killed. Real Edge run ALL PASS (42 checks) in packhouse teal and the DC's yellow, with 9 frames. The plan's DC + CRM render check (5.5) was NOT RUN; recorded in `known-issues.md` K-1, not claimed. No consumer pin bumped; CR-BANANAWORLD-PH-016 pins the merged sha. Archive `runs/change-32/`.

@@ -12,10 +12,12 @@ import {
   DEFAULT_MENU_STORAGE_KEY,
   readMenuMode,
   visibleMenuGroups,
+  visibleTopItems,
   writeMenuMode,
   type AppMenuFootItem,
   type AppMenuGroup,
   type AppMenuMode,
+  type AppMenuTopItem,
 } from "./app-menu";
 
 /**
@@ -40,6 +42,8 @@ export interface AppShellProps {
   readonly menu: readonly AppMenuGroup[];
   /** Pinned at the bottom of the menu (the packhouse puts Help here). */
   readonly footItems?: readonly AppMenuFootItem[];
+  /** Drawn above the first heading in every mode (the packhouse puts Dashboard here). Absent = nothing drawn. */
+  readonly topItems?: readonly AppMenuTopItem[];
   /** The current path. The app passes its router's pathname; the kit reads no router. */
   readonly pathname: string;
   readonly breadcrumb?: ReactNode;
@@ -83,6 +87,7 @@ function SlideOutMenu(props: {
           brand={shell.brand}
           groups={props.groups}
           footItems={props.footItems}
+          topItems={visibleTopItems(shell.topItems)}
           pathname={shell.pathname}
           menuLabel={shell.words.menu}
           onNavigate={props.close}
@@ -97,21 +102,26 @@ function SlideOutMenu(props: {
   );
 }
 
-export function AppShell(props: AppShellProps) {
-  const { words, pathname } = props;
-  const storageKey = props.storageKey ?? DEFAULT_MENU_STORAGE_KEY;
-  // Open on the server and on first paint; the remembered choice is read after mount.
+/** Open or rail. Open on the server and on first paint; the remembered choice is read after mount. */
+function useMenuMode(storageKey: string): [AppMenuMode, (next: AppMenuMode) => void] {
   const [mode, setMode] = useState<AppMenuMode>("open");
-  const [slideOut, setSlideOut] = useState(false);
   useEffect(() => setMode(readMenuMode(storageKey)), [storageKey]);
-  useEffect(() => setSlideOut(false), [pathname]);
-
-  const groups = visibleMenuGroups(props.menu);
-  const footItems = (props.footItems ?? []).filter((item) => item.hidden !== true);
   function choose(next: AppMenuMode) {
     setMode(next);
     writeMenuMode(storageKey, next);
   }
+  return [mode, choose];
+}
+
+export function AppShell(props: AppShellProps) {
+  const { words, pathname } = props;
+  const [mode, choose] = useMenuMode(props.storageKey ?? DEFAULT_MENU_STORAGE_KEY);
+  const [slideOut, setSlideOut] = useState(false);
+  useEffect(() => setSlideOut(false), [pathname]);
+
+  const groups = visibleMenuGroups(props.menu);
+  const footItems = (props.footItems ?? []).filter((item) => item.hidden !== true);
+  const topItems = visibleTopItems(props.topItems);
 
   return (
     <TooltipProvider>
@@ -121,6 +131,7 @@ export function AppShell(props: AppShellProps) {
             brand={props.brand}
             groups={groups}
             footItems={footItems}
+            topItems={topItems}
             pathname={pathname}
             mode={mode}
             words={words}

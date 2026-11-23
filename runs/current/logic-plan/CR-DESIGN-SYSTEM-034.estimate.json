@@ -1,0 +1,14 @@
+{
+  "files": 8,
+  "lines": 125,
+  "steps": 2,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes the top-item slot; packhouse (PH-016) reads it after pinning the merged sha",
+    "App decides who sees a top item (hidden); kit only obeys",
+    "DC, CRM, RMS, Org Admin see nothing until they move their own pin"
+  ],
+  "migrationExpected": false
+}

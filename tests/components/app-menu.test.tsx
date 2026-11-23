@@ -6,6 +6,7 @@ import {
   nameWithCount,
   readMenuMode,
   visibleMenuGroups,
+  visibleTopItems,
   writeMenuMode,
   type AppMenuGroup,
 } from "../../src/components/app-menu";
@@ -95,5 +96,25 @@ describe("menu mode memory", () => {
     });
     expect(readMenuMode("k")).toBe("open");
     expect(() => writeMenuMode("k", "rail")).not.toThrow();
+  });
+});
+
+// CR-DESIGN-SYSTEM-034 — items above the first heading.
+describe("top items", () => {
+  const dash = { id: "dash", label: "Dashboard", href: "/dashboard", icon: null };
+
+  it("visibleTopItems drops hidden items and turns absent into []", () => {
+    expect(visibleTopItems(undefined)).toEqual([]);
+    expect(visibleTopItems([])).toEqual([]);
+    expect(visibleTopItems([dash, { ...dash, id: "h", hidden: true }])).toEqual([dash]);
+    expect(visibleTopItems([{ ...dash, hidden: true }])).toEqual([]);
+  });
+
+  it("is current by isMenuItemCurrent: exact only on equality, otherwise sub-paths count too", () => {
+    const exact = { ...dash, exact: true };
+    expect(isMenuItemCurrent(exact, "/dashboard")).toBe(true);
+    expect(isMenuItemCurrent(exact, "/dashboard/x")).toBe(false);
+    expect(isMenuItemCurrent(dash, "/dashboard/x")).toBe(true);
+    expect(isMenuItemCurrent(dash, "/dashboards")).toBe(false);
   });
 });

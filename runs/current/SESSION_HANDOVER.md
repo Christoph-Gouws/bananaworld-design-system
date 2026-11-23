@@ -1,9 +1,12 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-11-22, at the close of **CR-DESIGN-SYSTEM-032**.
+> Last updated: 2026-11-23, at the close of **CR-DESIGN-SYSTEM-034**.
 
-## Latest: CR-DESIGN-SYSTEM-032 — shared office app frame `AppShell` + `UserMenu` + `PageHeader` (kit 0.14.0)
-Accordion side menu with count badges, 64 px rail with hover/keyboard flyouts (remembered), foot slot, fixed header, name menu, slide-out under 1024 px, one scrolling `<main>`. Three exports only; inner parts private. Radix Accordion + NavigationMenu (pinned 1.2.14, one `react-dismissable-layer`). 850/850 · mutations 11/11 · Edge proof ALL PASS (30). Archive `runs/change-30/`; rules `runs/change-30/evidence/developer-handover.md`. Owed: packhouse Run 2 pins the MERGED sha, supplies EN+PT words; DC+CRM re-check not run (`known-issues.md` K-1). Never prettier `index.ts` (300-line sensor line).
+## Latest: CR-DESIGN-SYSTEM-034 — `AppShell` `topItems`, a menu slot above the first heading (kit 0.15.0)
+Optional `topItems?: readonly AppMenuTopItem[]` (foot item shape + `exact`): item row in the open menu and slide-out, icon + tooltip in the 64 px rail (a `NavigationMenu.Link` in the List, no flyout). Absent = f5ec58c HTML byte for byte (frozen-HTML specs). 870/870 · mutations 13/13 · Edge proof ALL PASS (42). Archive `runs/change-32/`; rules `runs/change-32/evidence/developer-handover.md`. Owed: CR-BANANAWORLD-PH-016 pins the MERGED sha and passes `topItems` with `exact: true`; DC+CRM re-check not run (`known-issues.md` K-1). Never prettier `index.ts` (299 lines).
+
+## Previous: CR-DESIGN-SYSTEM-032 — shared office app frame `AppShell` + `UserMenu` + `PageHeader` (kit 0.14.0)
+Archive `runs/change-30/`; rules `runs/change-30/evidence/developer-handover.md`. Owed: packhouse pins the MERGED sha, supplies EN+PT words.
 
 ## Previous: CR-DESIGN-SYSTEM-030 — `PrintPreviewPanel` (kit 0.13.0)
 Print panel body for a Sheet/SlideOver; caller supplies `load`/`print`/`download` and words. Archive `runs/change-28/`. Owed: packhouse EPIC-006-M-02 pins the MERGED sha. Test with `--pool=threads --maxWorkers=2 --testTimeout=60000`.

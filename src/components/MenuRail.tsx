@@ -12,6 +12,8 @@ import {
   nameWithCount,
   type AppMenuFootItem,
   type AppMenuGroup,
+  type AppMenuTopItem,
+  isMenuItemCurrent,
 } from "./app-menu";
 import { MenuItems } from "./SideMenu";
 
@@ -89,6 +91,39 @@ function RailGroup(props: {
   );
 }
 
+/**
+ * CR-DESIGN-SYSTEM-034 — a top item in the rail: an icon link INSIDE the NavigationMenu list (so
+ * Tab and the arrow keys treat it like a heading icon), with no Trigger and no Content, so no flyout.
+ */
+function RailTopLink({ item, pathname }: { item: AppMenuTopItem; pathname: string }) {
+  const current = isMenuItemCurrent(item, pathname);
+  return (
+    <NavigationMenu.Item>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <NavigationMenu.Link asChild active={current}>
+            <Link
+              href={item.href}
+              aria-label={item.label}
+              className={cn(
+                "relative flex h-10 w-10 items-center justify-center rounded-md text-fg-muted no-underline",
+                "hover:bg-surface-muted hover:text-fg focus-visible:outline-none focus-visible:shadow-focus",
+                current &&
+                  "bg-accent-subtle text-accent shadow-[inset_3px_0_0_var(--color-accent)]",
+              )}
+            >
+              <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center">
+                {item.icon}
+              </span>
+            </Link>
+          </NavigationMenu.Link>
+        </TooltipTrigger>
+        <TooltipContent side="right">{item.label}</TooltipContent>
+      </Tooltip>
+    </NavigationMenu.Item>
+  );
+}
+
 function RailFoot({ items, pathname }: { items: readonly AppMenuFootItem[]; pathname: string }) {
   return (
     <ul className="flex shrink-0 flex-col items-center gap-1 border-t border-border p-2">
@@ -138,6 +173,8 @@ export interface MenuRailProps {
   readonly brandMark: ReactNode;
   readonly groups: readonly AppMenuGroup[];
   readonly footItems: readonly AppMenuFootItem[];
+  /** Already filtered through `visibleTopItems`. */
+  readonly topItems: readonly AppMenuTopItem[];
   readonly pathname: string;
   readonly menuLabel: string;
   readonly expandLabel: string;
@@ -163,6 +200,9 @@ export function MenuRail(props: MenuRailProps) {
         className="min-h-0 flex-1 overflow-y-auto"
       >
         <NavigationMenu.List className="flex flex-col items-center gap-1 p-2">
+          {props.topItems.map((item) => (
+            <RailTopLink key={item.id} item={item} pathname={pathname} />
+          ))}
           {groups.map((group) => (
             <RailGroup
               key={group.id}
