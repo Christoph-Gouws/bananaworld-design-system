@@ -296,4 +296,4 @@ export { truckDiagramRows, type TruckDiagramCell, type TruckDiagramRow, type Tru
 export { AppShell, type AppShellProps, type AppShellWords } from "./AppShell";
 export { UserMenu, type UserMenuProps, type UserMenuLanguage } from "./UserMenu";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
-export type { AppMenuGroup, AppMenuItem, AppMenuFootItem } from "./app-menu";
+export type { AppMenuGroup, AppMenuItem, AppMenuFootItem, AppMenuTopItem } from "./app-menu";

@@ -1,0 +1,93 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Option A — Dashboard above the headings, as drawn (CR-DESIGN-SYSTEM-034)</title><style>
+*{box-sizing:border-box}html,body{margin:0;overflow-x:hidden}body{font:14px/1.45 "Segoe UI",system-ui,sans-serif;color:#1c1917;background:#ecebe8}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+.intro{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:14px 18px;margin-bottom:18px}.intro h1{margin:0 0 6px;font-size:20px}.intro p{margin:4px 0}
+figure{margin:0 0 26px}figcaption{font-size:15px;margin:0 0 8px}figcaption b{color:#0f5f58}.note{color:#57534e;margin:6px 0 0;font-size:13px}
+.screen{border:1px solid #d6d3d1;border-radius:10px;overflow:hidden;background:#fafaf9;display:grid;grid-template-columns:200px minmax(0,1fr);min-height:330px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.screen.rail{grid-template-columns:64px minmax(0,1fr)}
+.side{background:#fff;border-right:1px solid #e7e5e4;display:flex;flex-direction:column;min-width:0;position:relative}
+.brand{height:48px;display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid #e7e5e4;font-weight:600;font-size:13px}
+.brand .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{width:26px;height:26px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#57534e;font-size:13px;flex:none}
+.scroll{padding:6px;flex:1;display:flex;flex-direction:column;gap:2px}
+.row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:6px;color:#57534e;font-size:13px;min-width:0}
+.row .ic{width:18px;text-align:center;flex:none}.row .lb{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .chev{margin-left:auto;color:#a8a29e;flex:none}
+.row.on,.sub.on{background:#d5f0ec;color:#1c1917;font-weight:600;box-shadow:inset 3px 0 0 #0f766e}
+.row.cur{color:#1c1917;font-weight:600}.row.cur .ic{color:#0f766e}
+.sub{padding:6px 10px 6px 38px;font-size:13px;color:#57534e;border-radius:6px;display:flex;align-items:center}
+.pill{margin-left:auto;background:#ffedd5;color:#7c2d12;border-radius:999px;font-size:11px;font-weight:600;padding:0 6px;flex:none}.pill+.chev{margin-left:6px}
+.sep{height:1px;background:#e7e5e4;margin:4px 6px 6px}
+.foot{border-top:1px solid #e7e5e4;padding:6px}
+.col{min-width:0;display:flex;flex-direction:column}
+.top{height:48px;background:#fff;border-bottom:1px solid #e7e5e4;display:flex;align-items:center;gap:8px;padding:0 14px;font-weight:600;min-width:0}
+.top .crumb{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{width:26px;height:26px;border-radius:50%;background:#0f766e;color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.content{padding:16px;min-width:0}.content h3{margin:0;font-size:18px}.content p{margin:4px 0 12px;color:#57534e}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}.tile{background:#fff;border:1px solid #e7e5e4;border-radius:10px;height:64px}
+.rtop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0;border-bottom:1px solid #e7e5e4}
+.rlist{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0;flex:1}
+.ri{width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#57534e;position:relative;font-size:15px}
+.ri.on{background:#d5f0ec;color:#0f766e;box-shadow:inset 3px 0 0 #0f766e}.ri.cur{background:#d5f0ec;color:#0f766e}
+.ri.focus{box-shadow:inset 3px 0 0 #0f766e,0 0 0 2px #fff,0 0 0 4px #0f766e}
+.ri .dot{position:absolute;right:6px;top:6px;width:8px;height:8px;border-radius:50%;background:#ea580c}
+.rsep{width:36px;height:1px;background:#e7e5e4;margin:2px 0}
+.rfoot{border-top:1px solid #e7e5e4;padding:8px 0;display:flex;justify-content:center}
+.tip{position:absolute;left:46px;top:12px;background:#1c1917;color:#fff;font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;white-space:nowrap;z-index:2}
+.tip:before{content:"";position:absolute;left:-4px;top:8px;border:4px solid transparent;border-left:0;border-right-color:#1c1917}
+.phone{max-width:360px;height:540px;border:1px solid #d6d3d1;border-radius:18px;overflow:hidden;position:relative;background:#fafaf9;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.phone .top{height:48px}.phone .scrim{position:absolute;inset:0;background:rgba(28,25,23,.4)}
+.phone .panel{position:absolute;top:0;bottom:0;left:0;width:240px;max-width:85%;background:#fff;display:flex;flex-direction:column;box-shadow:4px 0 16px rgba(0,0,0,.18)}
+</style></head><body><div class="wrap">
+
+<div class="intro"><h1>Option A — Dashboard above the headings, as you drew it</h1>
+<p>The menu gains a place for links above the headings. The packhouse will put Dashboard there. It sits directly above the first heading, with no line in between, exactly as in the design you approved on 23/11/2026.</p>
+<p>When you are on the Dashboard it lights up the same way as any screen you are on. Names and figures are made up.</p></div>
+
+<figure><figcaption><b>Frame 1</b> — Full menu, on the Dashboard</figcaption>
+<div class="screen"><aside class="side"><div class="brand"><span>🍌</span><span class="nm">Bananaworld Packhouse</span><span class="btn">⇤</span></div>
+<div class="scroll"><div class="row on"><span class="ic">⌂</span><span class="lb">Dashboard</span></div>
+<div class="row"><span class="ic">▤</span><span class="lb">Packhouse</span><span class="chev">⌄</span></div>
+<div class="row"><span class="ic">▢</span><span class="lb">Orders</span><span class="chev">⌄</span></div>
+<div class="row"><span class="ic">⛟</span><span class="lb">Loads</span><span class="pill">2</span><span class="chev">⌄</span></div>
+<div class="row"><span class="ic">▥</span><span class="lb">Reports</span><span class="chev">⌄</span></div>
+<div class="row"><span class="ic">⚙</span><span class="lb">Packhouse setup</span><span class="chev">⌄</span></div></div>
+<div class="foot"><div class="row"><span class="ic">?</span><span class="lb">Help</span></div></div></aside>
+<div class="col"><header class="top"><span class="crumb">Dashboard</span><span class="av">MC</span></header>
+<div class="content"><h3>Good morning, Maria</h3><p>Today at a glance.</p><div class="tiles"><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div></div></div></div></div>
+<p class="note">Dashboard is a plain link with its icon: no arrow, because nothing folds out under it.</p></figure>
+
+<figure><figcaption><b>Frame 2</b> — Full menu, on another screen (Loads › Waiting)</figcaption>
+<div class="screen"><aside class="side"><div class="brand"><span>🍌</span><span class="nm">Bananaworld Packhouse</span><span class="btn">⇤</span></div>
+<div class="scroll"><div class="row"><span class="ic">⌂</span><span class="lb">Dashboard</span></div>
+<div class="row"><span class="ic">▤</span><span class="lb">Packhouse</span><span class="chev">⌄</span></div>
+<div class="row"><span class="ic">▢</span><span class="lb">Orders</span><span class="chev">⌄</span></div>
+<div class="row cur"><span class="ic">⛟</span><span class="lb">Loads</span><span class="pill">2</span><span class="chev">⌃</span></div>
+<div class="sub on">Waiting<span class="pill">2</span></div><div class="sub">All loads</div>
+<div class="row"><span class="ic">▥</span><span class="lb">Reports</span><span class="chev">⌄</span></div></div>
+<div class="foot"><div class="row"><span class="ic">?</span><span class="lb">Help</span></div></div></aside>
+<div class="col"><header class="top"><span class="crumb">Loads › Waiting</span><span class="av">MC</span></header>
+<div class="content"><h3>Waiting loads</h3><p>Two loads are waiting.</p><div class="tiles"><div class="tile"></div><div class="tile"></div></div></div></div></div>
+<p class="note">Only the screen you are on lights up. Dashboard goes back to plain.</p></figure>
+
+<figure><figcaption><b>Frame 3</b> — Slim icon menu, pointing at (or tabbing to) Dashboard</figcaption>
+<div class="screen rail"><aside class="side"><div class="rtop"><span>🍌</span><span class="btn">⇥</span></div>
+<div class="rlist"><div class="ri on focus">⌂<span class="tip">Dashboard</span></div><div class="ri">▤</div><div class="ri">▢</div><div class="ri">⛟<span class="dot"></span></div><div class="ri">▥</div><div class="ri">⚙</div></div>
+<div class="rfoot"><div class="ri">?</div></div></aside>
+<div class="col"><header class="top"><span class="crumb">Dashboard</span><span class="av">MC</span></header>
+<div class="content"><h3>Good morning, Maria</h3><p>Today at a glance.</p><div class="tiles"><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div></div></div></div></div>
+<p class="note">Dashboard is the first icon. Its name shows beside it. No extra panel opens, because it goes straight to the page. The arrow keys move on to the headings below.</p></figure>
+
+<figure><figcaption><b>Frame 4</b> — Phone or tablet, slide-out menu open</figcaption>
+<div class="phone"><header class="top"><span class="btn">☰</span><span class="crumb">Dashboard</span><span class="av">MC</span></header>
+<div class="content"><h3>Good morning, Maria</h3><div class="tiles"><div class="tile"></div><div class="tile"></div></div></div>
+<div class="scrim"></div><div class="panel"><div class="brand"><span>🍌</span><span class="nm">Bananaworld Packhouse</span><span class="btn">✕</span></div>
+<div class="scroll"><div class="row on"><span class="ic">⌂</span><span class="lb">Dashboard</span></div>
+<div class="row"><span class="ic">▤</span><span class="lb">Packhouse</span><span class="chev">⌄</span></div>
+<div class="row"><span class="ic">▢</span><span class="lb">Orders</span><span class="chev">⌄</span></div>
+<div class="row"><span class="ic">⛟</span><span class="lb">Loads</span><span class="pill">2</span><span class="chev">⌄</span></div>
+<div class="row"><span class="ic">▥</span><span class="lb">Reports</span><span class="chev">⌄</span></div></div>
+<div class="foot"><div class="row"><span class="ic">?</span><span class="lb">Help</span></div></div></div></div>
+<p class="note">Dashboard is first in the slide-out. Tapping it opens the page and closes the menu.</p></figure>
+
+</div></body></html>

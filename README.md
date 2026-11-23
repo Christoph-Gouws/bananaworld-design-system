@@ -124,6 +124,9 @@ exactly as before.
 
 ### Changelog
 
+- **0.15.0** — `AppShell` gains an optional `topItems` (type `AppMenuTopItem`): links drawn above the first heading in
+  the open menu, as an icon with tooltip in the 64 px rail (no flyout), and first in the slide-out. Additive: an app
+  that passes no `topItems` renders exactly the HTML of 0.14.0 (proved against frozen HTML). One new type name.
 - **0.14.0** — `AppShell`, `UserMenu`, `PageHeader`: the shared office app frame (grouped accordion side menu with
   count badges, 64 px icon rail with hover/keyboard flyouts remembered per device, fixed header with breadcrumb,
   tools and a name menu, slide-out menu under 1024 px, one scrolling page area at full width). New names only; two
@@ -348,6 +351,12 @@ The app passes its own menu, words and colours (tokens); the kit reads no router
   a width cap or their own outer padding. The header and menu never move.
 - **`hidden` is the app's word.** Hidden items are never drawn or counted; a heading left with no visible item is not
   shown. Keep the server-side route checks: the menu is presentation only.
+- **Top items (0.15.0).** `topItems={[{ id, label, href, icon, exact?, hidden? }]}` (`AppMenuTopItem`: a foot item plus
+  `exact`) draws links above the first heading: a heading-style row with its icon, no chevron and no count (open menu
+  and slide-out); an icon with its label as tooltip and accessible name, with no flyout (rail). The current one is chosen
+  like a menu item (`aria-current="page"`, the item "on" style) and `hidden` ones are never drawn. Set `exact: true` on a
+  top item whose path prefixes other screens (a Dashboard at `/` or `/dashboard`), or it is marked together with the
+  screen under its heading. Foot items still match the path exactly; that is unchanged. Absent, `[]` or all hidden draws nothing.
 - **Counts.** An item's `count` shows when above 0; a heading shows its own `count` if given, else the sum of its
   visible items. The accessible name reads "Loads 2" (the visible words).
 - **Memory.** Open or rail is kept in `localStorage` under `storageKey` (default `bw.app-shell.menu`), read after mount;

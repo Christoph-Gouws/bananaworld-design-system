@@ -34,7 +34,17 @@ export interface AppMenuFootItem {
   readonly hidden?: boolean;
 }
 
+/** An item above the first heading: a foot item's shape, plus `exact` (current only on an exact path match). */
+export interface AppMenuTopItem extends AppMenuFootItem {
+  readonly exact?: boolean;
+}
+
 export type AppMenuMode = "open" | "rail";
+
+/** Top items the app has not hidden. Absent, empty or all hidden gives []. */
+export function visibleTopItems(items?: readonly AppMenuTopItem[]): AppMenuTopItem[] {
+  return (items ?? []).filter((item) => item.hidden !== true);
+}
 
 export const DEFAULT_MENU_STORAGE_KEY = "bw.app-shell.menu";
 

@@ -13,6 +13,7 @@ import {
   type AppMenuFootItem,
   type AppMenuGroup,
   type AppMenuItem,
+  type AppMenuTopItem,
 } from "./app-menu";
 
 // CR-DESIGN-SYSTEM-032 — INTERNAL (not exported from the barrel; plan D-1). The open side menu:
@@ -101,6 +102,45 @@ function Heading({ group, current }: { group: AppMenuGroup; current: boolean }) 
   );
 }
 
+/** CR-DESIGN-SYSTEM-034 — items above the first heading: a heading's row with no chevron or count. */
+function TopLinks(props: {
+  items: readonly AppMenuTopItem[];
+  pathname: string;
+  onNavigate?: () => void;
+}) {
+  return (
+    <ul className="mb-0.5 flex flex-col gap-0.5">
+      {props.items.map((item) => {
+        const current = isMenuItemCurrent(item, props.pathname);
+        return (
+          <li key={item.id}>
+            <Link
+              href={item.href}
+              aria-current={current ? "page" : undefined}
+              onClick={props.onNavigate}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm no-underline",
+                "text-fg-muted hover:bg-surface-muted hover:text-fg",
+                "focus-visible:outline-none focus-visible:shadow-focus",
+                current &&
+                  "bg-accent-subtle font-semibold text-fg shadow-[inset_3px_0_0_var(--color-accent)]",
+              )}
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-5 w-5 shrink-0 items-center justify-center"
+              >
+                {item.icon}
+              </span>
+              <span className="truncate">{item.label}</span>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function FootLinks(props: {
   items: readonly AppMenuFootItem[];
   pathname: string;
@@ -132,6 +172,8 @@ export interface SideMenuProps {
   /** Already filtered through `visibleMenuGroups`. */
   readonly groups: readonly AppMenuGroup[];
   readonly footItems: readonly AppMenuFootItem[];
+  /** Already filtered through `visibleTopItems`. */
+  readonly topItems: readonly AppMenuTopItem[];
   readonly pathname: string;
   readonly menuLabel: string;
   /** The collapse button (open menu) or the close button (slide-out). */
@@ -159,6 +201,9 @@ export function SideMenu(props: SideMenuProps) {
         {props.headerAction}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto p-2">
+        {props.topItems.length > 0 && (
+          <TopLinks items={props.topItems} pathname={pathname} onNavigate={props.onNavigate} />
+        )}
         <Accordion.Root type="single" collapsible value={open} onValueChange={setOpen}>
           {groups.map((group) => (
             <Accordion.Item key={group.id} value={group.id}>

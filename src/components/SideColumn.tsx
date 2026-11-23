@@ -6,7 +6,7 @@ import { cn } from "../lib";
 import { MenuRail } from "./MenuRail";
 import { SideMenu } from "./SideMenu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
-import type { AppMenuFootItem, AppMenuGroup, AppMenuMode } from "./app-menu";
+import type { AppMenuFootItem, AppMenuGroup, AppMenuMode, AppMenuTopItem } from "./app-menu";
 
 // CR-DESIGN-SYSTEM-032 — INTERNAL. The desktop menu column: the open menu or the 64 px rail.
 // Hidden under 1024 px (the slide-out takes over there).
@@ -31,6 +31,8 @@ export interface SideColumnProps {
   readonly brand: { readonly name: string; readonly mark: ReactNode };
   readonly groups: readonly AppMenuGroup[];
   readonly footItems: readonly AppMenuFootItem[];
+  /** Already filtered through `visibleTopItems`. */
+  readonly topItems: readonly AppMenuTopItem[];
   readonly pathname: string;
   readonly mode: AppMenuMode;
   readonly words: {
@@ -46,6 +48,7 @@ export function SideColumn(props: SideColumnProps) {
   const common = {
     groups: props.groups,
     footItems: props.footItems,
+    topItems: props.topItems,
     pathname: props.pathname,
     menuLabel: words.menu,
   };

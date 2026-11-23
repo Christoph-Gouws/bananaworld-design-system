@@ -391,3 +391,108 @@ describe("layout contract", () => {
     );
   });
 });
+
+// CR-DESIGN-SYSTEM-034 — topItems: a slot above the first heading in all three modes.
+describe("top items", () => {
+  const TOP = [
+    {
+      id: "dash",
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: <svg data-icon="dash" />,
+      exact: true,
+    },
+  ];
+  const ON = "bg-accent-subtle";
+  const BAR = "shadow-[inset_3px_0_0_var(--color-accent)]";
+
+  it("open: before the first heading; icon, no chevron, no aria-expanded, not current elsewhere", () => {
+    render(shell({ topItems: TOP, pathname: "/loads/waiting" }));
+    const nav = within(column()).getByRole("navigation", { name: "Main menu" });
+    const link = within(nav).getByRole("link", { name: "Dashboard" });
+    const heading = within(nav).getByRole("button", { name: /^Loads/ });
+    expect(link.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(link.querySelector("[data-icon=dash]")).not.toBeNull();
+    expect(link.querySelector("svg.lucide-chevron-down")).toBeNull();
+    expect(link).not.toHaveAttribute("aria-expanded");
+    expect(link).not.toHaveAttribute("aria-current");
+    expect(link.className).not.toContain(ON);
+    expect(heading).toHaveAttribute("data-current"); // the heading mark is unaffected
+  });
+
+  it("open: current gets aria-current and the item on style; exact ignores sub-paths", () => {
+    const { unmount } = render(shell({ topItems: TOP, pathname: "/dashboard" }));
+    const link = within(column()).getByRole("link", { name: "Dashboard" });
+    expect(link).toHaveAttribute("aria-current", "page");
+    expect(link.className).toContain(ON);
+    expect(link.className).toContain(BAR);
+    unmount();
+    render(shell({ topItems: TOP, pathname: "/dashboard/x" }));
+    expect(within(column()).getByRole("link", { name: "Dashboard" })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
+  it("open and rail: without exact, a path under the item's path marks it current too", async () => {
+    const loose = [{ ...(TOP[0] as (typeof TOP)[number]), exact: undefined }];
+    const { unmount } = render(shell({ topItems: loose, pathname: "/dashboard/x" }));
+    expect(within(column()).getByRole("link", { name: "Dashboard" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    unmount();
+    window.localStorage.setItem("bw.app-shell.menu", "rail");
+    render(shell({ topItems: loose, pathname: "/dashboard/x" }));
+    expect(await within(column()).findByRole("link", { name: "Dashboard" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
+  it("rail: first focusable item, named by its label, no flyout; ArrowDown reaches the first heading", async () => {
+    const user = userEvent.setup();
+    window.localStorage.setItem("bw.app-shell.menu", "rail");
+    render(shell({ topItems: TOP, pathname: "/dashboard" }));
+    const link = await within(column()).findByRole("link", { name: "Dashboard" });
+    expect(link).toHaveAttribute("aria-current", "page");
+    expect(link.className).toContain(ON);
+    expect(link.className).toContain(BAR);
+    const nav = within(column()).getByRole("navigation", { name: "Main menu" });
+    expect(nav.querySelector("a,button")).toBe(link);
+    await user.tab(); // expand button
+    await user.tab();
+    expect(link).toHaveFocus();
+    expect(screen.queryByRole("link", { name: "Waiting 2" })).toBeNull(); // no flyout opened
+    await user.keyboard("{ArrowDown}");
+    expect(within(column()).getByRole("button", { name: "Loads 2" })).toHaveFocus();
+  });
+
+  it("slide-out: first link in the dialog, current, and choosing it closes the dialog", async () => {
+    const user = userEvent.setup();
+    render(shell({ topItems: TOP, pathname: "/dashboard" }));
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    const dialog = await screen.findByRole("dialog");
+    const link = within(dialog).getAllByRole("link")[0] as HTMLElement;
+    expect(link).toHaveAttribute("aria-current", "page");
+    expect(link.textContent).toBe("Dashboard");
+    link.addEventListener("click", (e) => e.preventDefault());
+    await user.click(link);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("hidden: absent in all three modes, and no list is left behind", async () => {
+    const user = userEvent.setup();
+    const hidden = [{ ...(TOP[0] as (typeof TOP)[number]), hidden: true }];
+    const { unmount } = render(shell({ topItems: hidden }));
+    expect(screen.queryByRole("link", { name: "Dashboard" })).toBeNull();
+    expect(column().querySelectorAll("ul")).toHaveLength(2); // foot list + the Loads accordion list
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    const dialog = await screen.findByRole("dialog");
+    expect(within(dialog).queryByRole("link", { name: "Dashboard" })).toBeNull();
+    unmount();
+    window.localStorage.setItem("bw.app-shell.menu", "rail");
+    render(shell({ topItems: hidden }));
+    await within(column()).findByRole("button", { name: "Loads 2" });
+    expect(screen.queryByRole("link", { name: "Dashboard" })).toBeNull();
+  });
+});
