@@ -1,0 +1,13 @@
+{
+  "files": 6,
+  "lines": 300,
+  "steps": 3,
+  "uiBearing": true,
+  "epicRecommended": false,
+  "epicReason": "",
+  "seams": [
+    "Kit writes the new tile options, attention row and count bubble; packhouse reads after pinning the merged sha",
+    "Kit 0.16.0 package hand-off to DC, CRM, RMS, Org Admin: additive, nothing changes until each app opts in"
+  ],
+  "migrationExpected": false
+}

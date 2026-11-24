@@ -1,9 +1,12 @@
 # Session handover — `bananaworld-design-system`
 
-> Last updated: 2026-11-23, at the close of **CR-DESIGN-SYSTEM-034**.
+> Last updated: 2026-11-24, at the close of **CR-DESIGN-SYSTEM-035**.
 
-## Latest: CR-DESIGN-SYSTEM-034 — `AppShell` `topItems`, a menu slot above the first heading (kit 0.15.0)
-Optional `topItems?: readonly AppMenuTopItem[]` (foot item shape + `exact`): item row in the open menu and slide-out, icon + tooltip in the 64 px rail (a `NavigationMenu.Link` in the List, no flyout). Absent = f5ec58c HTML byte for byte (frozen-HTML specs). 870/870 · mutations 13/13 · Edge proof ALL PASS (42). Archive `runs/change-32/`; rules `runs/change-32/evidence/developer-handover.md`. Owed: CR-BANANAWORLD-PH-016 pins the MERGED sha and passes `topItems` with `exact: true`; DC+CRM re-check not run (`known-issues.md` K-1). Never prettier `index.ts` (299 lines).
+## Latest: CR-DESIGN-SYSTEM-035 — `StatTile` tone / `linkLabel` / `labelCase`, `AttentionList` + `AttentionItem`, `CountBadge` (kit 0.16.0)
+All optional/additive: a StatTile with none of the new props renders its 0.15.0 HTML byte for byte (66 frozen-HTML equalities). `AttentionItem` name = its visible words, title first (axe label-in-name; known-issues K-2). 971/971 · mutations 9/9 · Edge proof ALL PASS (73). Archive `runs/change-33/`; rules `runs/change-33/evidence/developer-handover.md`. Owed: the packhouse pins the MERGED sha; DC+CRM re-check not run (K-1). Barrel `index.ts` is full (299 lines, `runs/change-33/technical-debt.md`); never prettier it.
+
+## Previous: CR-DESIGN-SYSTEM-034 — `AppShell` `topItems` (kit 0.15.0)
+Archive `runs/change-32/`. Owed: CR-BANANAWORLD-PH-016 pins the MERGED sha and passes `topItems` with `exact: true`.
 
 ## Previous: CR-DESIGN-SYSTEM-032 — shared office app frame `AppShell` + `UserMenu` + `PageHeader` (kit 0.14.0)
 Archive `runs/change-30/`; rules `runs/change-30/evidence/developer-handover.md`. Owed: packhouse pins the MERGED sha, supplies EN+PT words.

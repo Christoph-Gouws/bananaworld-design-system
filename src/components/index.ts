@@ -88,7 +88,7 @@ export {
   SheetBody,
   SheetFooter,
 } from "./Sheet";
-export { StatusBadge, type StatusBadgeProps } from "./StatusBadge";
+export { StatusBadge, CountBadge, type StatusBadgeProps, type CountBadgeProps, type CountBadgeTone } from "./StatusBadge";
 export { ColourSwatch, type ColourSwatchProps } from "./ColourSwatch";
 export { Icon, type IconProps, type IconSize } from "./Icon";
 export {
@@ -289,11 +289,11 @@ export {
   type BarChartWords,
   type BarChartTone,
 } from "./BarChart";
-export { StatTile, StatTileRow, type StatTileProps, type StatTileRowProps, type StatTileWords } from "./StatTile";
+export { StatTile, StatTileRow, type StatTileProps, type StatTileRowProps, type StatTileWords, type StatTileTone, type StatTileLabelCase } from "./StatTile";
 export { TruckDiagram, type TruckDiagramProps, type TruckDiagramWords } from "./TruckDiagram"; // CR-DESIGN-SYSTEM-028 (ADDITIVE)
 export { truckDiagramRows, type TruckDiagramCell, type TruckDiagramRow, type TruckDropEnd, type TruckSlot, type TruckSlotState } from "./truck-diagram-layout";
 // CR-DESIGN-SYSTEM-032 — the shared office app frame: menu + rail + header + page area (ADDITIVE; inner parts stay private).
 export { AppShell, type AppShellProps, type AppShellWords } from "./AppShell";
 export { UserMenu, type UserMenuProps, type UserMenuLanguage } from "./UserMenu";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
-export type { AppMenuGroup, AppMenuItem, AppMenuFootItem, AppMenuTopItem } from "./app-menu";
+export type { AppMenuGroup, AppMenuItem, AppMenuFootItem, AppMenuTopItem } from "./app-menu"; export { AttentionList, AttentionItem, type AttentionListProps, type AttentionItemProps, type AttentionItemTone } from "./AttentionItem"; // CR-DESIGN-SYSTEM-035 (ADDITIVE)

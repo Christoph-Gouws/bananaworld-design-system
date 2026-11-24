@@ -1,0 +1,92 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Option A — the shared pieces, as approved (CR-DESIGN-SYSTEM-035)</title><style>
+*{box-sizing:border-box}html,body{margin:0;overflow-x:hidden}body{font:14px/1.45 Inter,"Segoe UI",system-ui,sans-serif;color:#18181b;background:#fafaf9}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1200px;margin:0 auto;padding:20px}
+h1{font-size:22px;margin:0 0 6px}h2{font-size:16px;margin:26px 0 10px}.note{color:#52525b;margin:4px 0 0}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.t{position:relative;display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid #e7e5e4;border-radius:10px;background:#fff;padding:12px 16px;color:#18181b}
+.t.blk{display:block}
+.t .lb{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#52525b}
+.t .lb.up{text-transform:uppercase;letter-spacing:.025em;padding-right:20px}
+.t .ic{display:inline-flex}.t .ic svg{width:16px;height:16px}
+.t .v{display:block;margin-top:4px;font-size:30px;font-weight:700;line-height:1.25;font-variant-numeric:tabular-nums;white-space:nowrap}
+.t .v small{font-size:14px;font-weight:600;color:#52525b}
+.t .s{margin-top:4px;font-size:12px;color:#52525b}
+.t .ft{margin-top:auto;padding-top:8px;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#18181b}
+.t .ft svg{width:14px;height:14px;color:var(--acc)}
+.t .chev{position:absolute;right:8px;top:12px;width:16px;height:16px;color:#71717a}
+.t .rule{position:absolute;left:0;right:0;top:0;height:3px;background:var(--acc)}
+.t.warn{border-color:#f5ac86;background:#fff8ee}.t.warn .ic{color:#ea580c}
+.t.bad{border-color:#ee9393;background:#fff3f3}.t.bad .ic,.t.bad .v{color:#dc2626}
+.t.good{border-color:#8bd1a5;background:#f1fef5}
+.card{background:#fff;border:1px solid #e7e5e4;border-radius:10px;padding:14px 16px;min-width:0}
+.card h3{margin:0 0 6px;font-size:16px;display:flex;align-items:center;gap:8px}
+.cnt{display:inline-flex;align-items:center;border-radius:999px;padding:0 8px;font-size:12px;font-weight:600;line-height:20px;background:#ffedd5;color:#7c2d12}
+.al{list-style:none;margin:0;padding:0}.al li+li{border-top:1px solid #e7e5e4}
+.ai{display:flex;align-items:center;gap:12px;padding:10px 6px;border-radius:6px;color:#18181b}
+.chip{width:32px;height:32px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;background:#f5f5f4;color:#52525b}
+.chip i{width:12px;height:12px;border-radius:3px;background:currentColor}.chip svg{width:16px;height:16px}
+.ai.warn .chip{background:#ffedd5;color:#ea580c}.ai.bad .chip{background:#fee2e2;color:#dc2626}
+.ai .tx{flex:1;min-width:0;display:flex;flex-direction:column}.ai b{font-size:14px;font-weight:600;overflow-wrap:anywhere}.ai small{font-size:12px;color:#52525b}
+.ai .act{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;white-space:nowrap}.ai .act svg{width:14px;height:14px;color:var(--acc)}
+.ph{--acc:#0f766e}.dc{--acc:#fac80a}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.phone{max-width:390px;border:1px solid #d6d3d1;border-radius:14px;padding:12px;background:#fafaf9}
+.phone .tiles{grid-template-columns:1fr 1fr;gap:10px}.phone .t{padding:10px 12px}.phone .t .v{font-size:24px}.phone .ai .act{display:none}
+@media (max-width:900px){.wrap{padding:12px}.tiles{grid-template-columns:1fr 1fr;gap:10px}.t{padding:10px 12px}.t .v{font-size:24px}.cols{grid-template-columns:1fr}}
+@media (max-width:479px){.ai .act{display:none}}
+</style></head><body><div class="wrap">
+<h1>Option A — the shared pieces, as approved</h1>
+<p class="note">The parts your approved dashboard needs, drawn in the packhouse colours. Names and figures are made up. Every box and line opens the screen it names.</p>
+
+<h2>Figure boxes: plain, amber, red, green — normal letters, with "where it leads" at the foot</h2>
+<div class="tiles ph">
+<a class="t" href="#"><span class="lb"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5"/></svg></span>Bunches in</span><span class="v">1 284</span><span class="s">12 fallen bunches</span><span class="ft">End of shift<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="t warn" href="#"><span class="lb"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19"/></svg></span>Waiting to dispatch</span><span class="v">28 <small>pallets</small></span><span class="s">in 2 cold rooms · 6 older than 3 days</span><span class="ft">Cold rooms<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="t bad" href="#"><span class="lb"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></span>Waste today</span><span class="v">4.6%</span><span class="s">1 of 3 packhouses over their level</span><span class="ft">End of shift<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="t good" href="#"><span class="lb"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18v13H3zM3 7l3-4h12l3 4"/></svg></span>Waiting to dispatch</span><span class="v">0 <small>pallets</small></span><span class="s">everything has gone out</span><span class="ft">Cold rooms<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+</div>
+
+<h2>Unchanged: figure boxes as every app shows them today</h2>
+<div class="tiles ph" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+<div class="t blk"><span class="rule"></span><span class="lb up">Pallets</span><span class="v">156 <small>pal.</small></span><span class="s">2 814,00 units</span></div>
+<a class="t blk" href="#"><span class="rule"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg><span class="lb up">Waiting</span><span class="v">7 <small>pal.</small></span><span class="s">2 old</span></a>
+</div>
+<p class="note">Capitals, top line and the small arrow in the corner stay exactly as now unless an app asks for the new look.</p>
+
+<h2>"Needs your attention" card</h2>
+<div class="cols ph">
+<section class="card"><h3>Needs your attention <span class="cnt">3</span></h3>
+<ul class="al">
+<li><a class="ai bad" href="#"><span class="chip"><i></i></span><span class="tx"><b>3 pallets have no pulp temperature</b><small>closed more than 2 hours ago · 1ZZ48-07, -08, -11</small></span><span class="act">Cold rooms<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li>
+<li><a class="ai warn" href="#"><span class="chip"><i></i></span><span class="tx"><b>Batch ZZ47 is still open from Sun 22/11</b><small>started 14:05</small></span><span class="act">Batches<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li>
+<li><a class="ai" href="#"><span class="chip"></span><span class="tx"><b>4 loads for tomorrow have no packhouse yet</b><small>Nelspruit 2, Vryheid 1, Mtuba 1</small></span><span class="act">Weekly board<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li>
+</ul></section>
+<section class="card"><h3>With a picture in the marker <span class="cnt" style="background:#fee2e2;color:#7f1d1d">2</span></h3>
+<ul class="al">
+<li><a class="ai bad" href="#"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span><span class="tx"><b>Test Packhouse A is over its waste level</b><small>5.4% against 4% · managers emailed 10:12</small></span><span class="act">End of shift<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li>
+<li><a class="ai warn" href="#"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="tx"><b>3 loads delivered but not confirmed</b><small>oldest: Z3 PTA Market, dispatched Fri 20/11</small></span><span class="act">Loads to confirm<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li>
+</ul></section>
+</div>
+<p class="note">One tap per line. A screen reader says the headline, then the second line. The count bubble can be grey, amber or red.</p>
+
+<h2>On a phone (390 wide): the words on the right drop away</h2>
+<div class="phone ph">
+<div class="tiles">
+<a class="t" href="#"><span class="lb">Bunches in</span><span class="v">1 284</span><span class="s">12 fallen</span><span class="ft">End of shift<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="t warn" href="#"><span class="lb">Waiting to dispatch</span><span class="v">28</span><span class="s">6 older than 3 days</span><span class="ft">Cold rooms<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+</div>
+<section class="card" style="margin-top:10px"><h3>Needs your attention <span class="cnt">3</span></h3>
+<ul class="al">
+<li><a class="ai bad" href="#"><span class="chip"><i></i></span><span class="tx"><b>3 pallets have no pulp temperature</b><small>closed more than 2 hours ago</small></span><span class="act">Cold rooms</span></a></li>
+<li><a class="ai warn" href="#"><span class="chip"><i></i></span><span class="tx"><b>Batch ZZ47 is still open from Sun 22/11</b><small>started 14:05</small></span><span class="act">Batches</span></a></li>
+</ul></section>
+</div>
+
+<h2>The same pieces in the depot app's yellow colours</h2>
+<div class="cols dc">
+<a class="t warn" href="#"><span class="lb">Waiting to dispatch</span><span class="v">28 <small>pallets</small></span><span class="s">6 older than 3 days</span><span class="ft">Cold rooms<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<section class="card"><ul class="al"><li><a class="ai warn" href="#"><span class="chip"><i></i></span><span class="tx"><b>Batch ZZ47 is still open</b><small>started 14:05</small></span><span class="act">Batches<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li></ul></section>
+</div>
+<p class="note">This is why the "where it leads" words are dark with a coloured arrow: yellow words on white could not be read.</p>
+</div></body></html>

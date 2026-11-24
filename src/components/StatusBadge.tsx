@@ -3,6 +3,7 @@
 import { forwardRef, type HTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../lib";
+import { positiveCount } from "./app-menu";
 
 /**
  * StatusBadge — UX-DS-006.
@@ -94,6 +95,46 @@ export const StatusBadge = forwardRef<HTMLSpanElement, StatusBadgeProps>(functio
         )}
       />
       {resolvedLabel}
+    </span>
+  );
+});
+
+/**
+ * CountBadge — CR-DESIGN-SYSTEM-035. A small number bubble for a card heading ("Needs attention 3").
+ * Not a status: no dot, no capitals. null, undefined, 0, a negative or a non-finite count draws
+ * nothing (the same rule as the menu's count pill, via `positiveCount`). Dark text on a soft fill:
+ * no solid fill passes contrast on both surfaces.
+ */
+export type CountBadgeTone = "default" | "warning" | "danger";
+
+export interface CountBadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
+  count: number | null | undefined;
+  tone?: CountBadgeTone;
+}
+
+const COUNT_TONE = Object.freeze({
+  default: "bg-neutral-subtle text-neutral-fg",
+  warning: "bg-warning-subtle text-warning-fg",
+  danger: "bg-danger-subtle text-danger-fg",
+} as const);
+
+export const CountBadge = forwardRef<HTMLSpanElement, CountBadgeProps>(function CountBadge(
+  { count, tone = "default", className, ...props },
+  ref,
+) {
+  const shown = positiveCount(count);
+  if (shown <= 0 || !Number.isFinite(shown)) return null;
+  return (
+    <span
+      ref={ref}
+      {...props}
+      className={cn(
+        "inline-flex items-center rounded-full px-2 text-xs font-semibold leading-5 tabular-nums",
+        COUNT_TONE[tone] ?? COUNT_TONE.default,
+        className,
+      )}
+    >
+      {String(shown)}
     </span>
   );
 });
