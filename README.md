@@ -124,6 +124,10 @@ exactly as before.
 
 ### Changelog
 
+- **0.16.0** — `StatTile` gains optional `tone` (`warning` / `danger` / `success`), `labelCase="normal"` and, on a
+  linked tile, `linkLabel`. New `AttentionList` + `AttentionItem` (needs-attention rows) and `CountBadge` (a number
+  bubble for a heading). Additive: a `StatTile` that passes none of the new props renders exactly the HTML of 0.15.0
+  (proved against frozen HTML). Three new runtime names, six new type names. CR-DESIGN-SYSTEM-035.
 - **0.15.0** — `AppShell` gains an optional `topItems` (type `AppMenuTopItem`): links drawn above the first heading in
   the open menu, as an icon with tooltip in the 64 px rail (no flyout), and first in the slide-out. Additive: an app
   that passes no `topItems` renders exactly the HTML of 0.14.0 (proved against frozen HTML). One new type name.
@@ -210,6 +214,31 @@ it short — it is never broken or truncated. `null` or `""` draws a dash (read 
 pass no `href` when the viewer may not open the target. A warning belongs in the `sub` words, not colour alone.
 `StatTileRow` is 2-up on phone and tablet and, from `lg`, one column per tile up to four; the tile sets no grid
 itself. Tailwind `content` must scan the package `src/`. Renders on the server.
+
+**Tone, label case and link label (0.16.0, all optional).** `tone="warning" | "danger" | "success"` tints the tile
+(border and soft fill from the theme's own warning / danger / success tokens; the icon is amber for warning, the icon
+and value red for danger; a dash stays subtle). `labelCase="normal"` draws the label exactly as given, with no capitals
+or letter spacing (the kit never re-cases text — pass sentence case). `linkLabel="Cold rooms"` on a linked tile draws
+those words with a small arrow at the foot; the tile stays one link, the words are part of its visible name, and the
+top-right chevron is not drawn. Words stay dark and only the arrow takes the theme accent (accent text is unreadable in
+some themes). A caller's own colour classes on a toned tile are unsupported.
+
+## Attention list and count badge
+
+```tsx
+<h2>Needs your attention <CountBadge count={3} tone="warning" /></h2>
+<AttentionList aria-label="Needs your attention">
+  <AttentionItem href="/waste" tone="danger" title="Waste is over the level" detail="Room 3" actionLabel="Cold rooms" />
+  <AttentionItem href="/aged" tone="warning" title="Pallets waiting over 48 hours" detail="2 pallets" />
+</AttentionList>
+```
+
+Each row is one kit `Link` (one Tab stop) with a tone chip (grey, amber or red; `icon` draws an element in it, else
+warning and danger draw a small square), a bold title, a muted second line and the action words with an arrow on the
+right, hidden under 480 px. The link's name is its visible words, title first (WCAG label in name), so keep `detail` short. Every
+string comes from the app — the kit has no words here. `CountBadge` draws nothing for `null`, `undefined`, 0 or less
+(the same rule as the menu count); it is a plain number on a soft fill, not a status. Use `AttentionItem` only inside
+`AttentionList`.
 
 ## Truck loading picture
 

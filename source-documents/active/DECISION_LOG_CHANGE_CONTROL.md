@@ -5,6 +5,33 @@
 
 ---
 
+## CR-DESIGN-SYSTEM-035 — StatTile tones, a link label and normal-case labels; `AttentionItem`; `CountBadge`
+
+| Field | Value |
+|---|---|
+| Type | CHANGE / DECISION |
+| Date | 2026-11-24 |
+| Raised by | Owner, for the packhouse landing dashboard (CR-BANANAWORLD-PH-016); the look was approved 2026-11-23 |
+| Approved layout · ship mode | **A** · **on-green** |
+
+**Asked.** `StatTile` gains `tone` (default / warning / danger / success), `linkLabel` (words with a small arrow at the foot of a linked tile; one link, accessible name unchanged) and `labelCase` (upper by default / normal). A new `AttentionItem` row for needs-attention lists (one link, tone chip, bold title, muted second line, action with arrow, hairline between rows, action hidden under 480 px). A count badge for a card heading if the kit has none. Additive; existing callers byte-identical; no app changed; minor bump.
+
+**Decided at the plan gate.** Plan approved, layout A, ship on-green. Confirmed with the plan: foot and action words dark with a teal arrow (accent text is unreadable in the DC's yellow) and a soft amber count bubble with a dark number (white on amber fails AA). Warning/danger/success reuse the kit's own tokens through `color-mix`; no token or theme change.
+
+**Clarify questions and answers.** None recorded in the owner responses; none were needed.
+
+**Decided during the build.**
+- D-1 one new file `AttentionItem.tsx` (`AttentionList` + `AttentionItem`); `CountBadge` lives in `StatusBadge.tsx` (StatusBadge does not fit a count: dot, capitals, lifecycle states). It reuses `positiveCount`.
+- D-2 (changed in build) `AttentionItem`'s accessible name is its visible words with the title first, not the title alone: axe `label-content-name-mismatch` (WCAG 2.5.3) failed a title-only name in a real browser — the same finding as CR-DESIGN-SYSTEM-032 D-5. Still one link and one Tab stop. This departs from the brief's "name = title"; recorded for the owner (known-issues K-2).
+- D-3 the new export shares a barrel line so `index.ts` stays at 299 lines; the barrel is now full (technical debt TD-1).
+- Not done: the DC + CRM render re-check (no app clones in the lane; known-issues K-1).
+
+**The contract this creates for consumers.** The packhouse pins the MERGED sha and adopts the parts in its own change, choosing the tone itself. DC, CRM, RMS and Org Admin see nothing until each moves its own pin.
+
+**Outcome.** 971 tests / 46 files (baseline 870); typecheck clean; 66 frozen-HTML equalities for existing StatTile callers; mutation battery 9/9; real Edge proof ALL PASS (73 checks), frames `runs/change-33/evidence/frames/`; version 0.16.0. No consumer pin bumped. Evidence: `runs/change-33/`.
+
+---
+
 ## CR-DESIGN-SYSTEM-032 — the shared office app frame (`AppShell`, `UserMenu`, `PageHeader`)
 
 | Field | Value |
@@ -1372,3 +1399,6 @@ Plan APPROVED, layout **A** (Dashboard directly above the headings, no divider),
 
 ### Outcome
 Built as approved. Full suite 870 pass of 870 (baseline 850, +20), typecheck clean, no dependency change, `pnpm audit --prod --audit-level=high` unchanged from main. Callers that pass no `topItems` (absent, `[]`, only hidden) render the f5ec58c HTML byte for byte in the open menu, rail, slide-out and server render (12 frozen specs). Mutation battery 13 of 13 killed. Real Edge run ALL PASS (42 checks) in packhouse teal and the DC's yellow, with 9 frames. The plan's DC + CRM render check (5.5) was NOT RUN; recorded in `known-issues.md` K-1, not claimed. No consumer pin bumped; CR-BANANAWORLD-PH-016 pins the merged sha. Archive `runs/change-32/`.
+
+### CR-DESIGN-SYSTEM-035 — D-6 (ACCEPTED by owner 2026-11-24, option 2) AttentionItem accessible name
+Owner decision 2026-11-24: option 2, the whole row; build kept as is. Reviewer F1: the plan (D-5) says name = title via aria-labelledby; the build names the link by its whole visible text because real-browser axe `label-content-name-mismatch` (WCAG 2.5.3) fails a title-only name (re-confirmed this round: 8 proof failures when aria-labelledby/describedby were restored; unit-level axe passed). Owner to choose: (1) title-only per plan, (2) visible words (current, CR-032 precedent), (3) title-only with the rule accepted. Recommendation: 2. Card: runs/current/decisions-pending/CR-DESIGN-SYSTEM-035.md.

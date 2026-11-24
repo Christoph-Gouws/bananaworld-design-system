@@ -1,19 +1,19 @@
 # Active unit — `bananaworld-design-system`
 
 > This is a FILE, not a unit folder. It records what is currently in flight.
-> Updated 2026-11-23.
+> Updated 2026-11-24.
 
-## Current: CR-DESIGN-SYSTEM-034 — AppShell top items (kit 0.15.0) — **BUILT, CLOSED OUT, PUSHED**
+## Current: CR-DESIGN-SYSTEM-035 — StatTile tones / link label / label case, AttentionItem, CountBadge (kit 0.16.0) — **BUILT, CLOSED OUT, PUSHED**
 
 | Field | Value |
 |---|---|
-| Unit type | **Change Request**, archived to `runs/change-32/` |
-| Branch | `change/cr-design-system-034`, off `origin/main` @ `f5ec58c` |
+| Unit type | **Change Request**, archived to `runs/change-33/` |
+| Branch | `change/cr-design-system-035`, off `origin/main` @ `306e76f` |
 | Layout · ship mode | **A** · **on-green** |
-| Build status | 870/870; typecheck clean; mutations 13/13; Edge proof ALL PASS (42 checks) |
-| Remaining | Nothing in this repo. CR-BANANAWORLD-PH-016 pins the merged sha |
+| Build status | 971/971; typecheck clean; mutations 9/9; Edge proof ALL PASS (73 checks) |
+| Remaining | Nothing in this repo. The packhouse pins the merged sha |
 
-## Previous: CR-DESIGN-SYSTEM-032 — shared office app frame (kit 0.14.0), `runs/change-30/`; CR-DESIGN-SYSTEM-030 — `PrintPreviewPanel` (kit 0.13.0), `runs/change-28/`; CR-DESIGN-SYSTEM-029 (`runs/change-27/`); -028 — `TruckDiagram` (kit 0.11.0), `runs/change-26/`; -026 — `StatTile` (kit 0.10.0), `runs/change-24/`; -025 `BarChart` (`change-23`)
+## Previous: CR-DESIGN-SYSTEM-034 — AppShell `topItems` (kit 0.15.0), `runs/change-32/`; -032 — shared office app frame (kit 0.14.0), `runs/change-30/`; -030 `PrintPreviewPanel` (`change-28`); -029 (`change-27`); -028 `TruckDiagram` (`change-26`); -026 `StatTile` (`change-24`); -025 `BarChart` (`change-23`)
 
 ## Previous units
 

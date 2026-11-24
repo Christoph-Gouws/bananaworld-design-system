@@ -1,0 +1,114 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CR-DESIGN-SYSTEM-035 — the shared pieces next to your approved drawing</title><style>
+*{box-sizing:border-box}html,body{margin:0;overflow-x:hidden}body{font:14px/1.45 Inter,"Segoe UI",system-ui,sans-serif;color:#18181b;background:#ecebe8}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1320px;margin:0 auto;padding:20px}
+.intro{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:16px 20px;margin-bottom:20px}
+.intro h1{margin:0 0 6px;font-size:22px}.intro p{margin:4px 0}.intro ul{margin:6px 0 0 18px;padding:0}.intro li{margin:3px 0}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.opt{background:#fafaf9;border:1px solid #d6d3d1;border-radius:12px;padding:16px;min-width:0}
+.opt>h2{margin:0 0 4px;font-size:20px}.opt>p{margin:0 0 12px;color:#52525b}
+h3.sec{font-size:14px;margin:16px 0 8px;color:#3f3f46}
+.note{color:#52525b;font-size:13px;margin:8px 0 0}
+/* ---- Option A: the kit parts ---- */
+.a{--acc:#0f766e}
+.a .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.a .t{position:relative;display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid #e7e5e4;border-radius:10px;background:#fff;padding:12px 14px;color:#18181b}
+.a .t.blk{display:block}
+.a .t .lb{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#52525b}
+.a .t .lb.up{text-transform:uppercase;letter-spacing:.025em;padding-right:20px}
+.a .t .ic{display:inline-flex}.a .t .ic svg{width:16px;height:16px}
+.a .t .v{display:block;margin-top:4px;font-size:26px;font-weight:700;line-height:1.25;font-variant-numeric:tabular-nums;white-space:nowrap}
+.a .t .v small{font-size:13px;font-weight:600;color:#52525b}
+.a .t .s{margin-top:4px;font-size:12px;color:#52525b}
+.a .t .ft{margin-top:auto;padding-top:8px;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#18181b}
+.a .t .ft svg{width:14px;height:14px;color:var(--acc);flex:none}
+.a .t .chev{position:absolute;right:8px;top:12px;width:16px;height:16px;color:#71717a}
+.a .t .rule{position:absolute;left:0;right:0;top:0;height:3px;background:var(--acc)}
+.a .t.warn{border-color:#f5ac86;background:#fff8ee}.a .t.warn .ic{color:#ea580c}
+.a .t.bad{border-color:#ee9393;background:#fff3f3}.a .t.bad .ic,.a .t.bad .v{color:#dc2626}
+.a .t.good{border-color:#8bd1a5;background:#f1fef5}
+.a .card{background:#fff;border:1px solid #e7e5e4;border-radius:10px;padding:12px 14px;min-width:0;margin-top:12px}
+.a .card h4{margin:0 0 6px;font-size:15px;display:flex;align-items:center;gap:8px}
+.a .cnt{display:inline-flex;align-items:center;border-radius:999px;padding:0 8px;font-size:12px;font-weight:600;line-height:20px;background:#ffedd5;color:#7c2d12}
+.a .al{list-style:none;margin:0;padding:0}.a .al li+li{border-top:1px solid #e7e5e4}
+.a .ai{display:flex;align-items:center;gap:12px;padding:10px 4px;border-radius:6px}
+.a .chip{width:32px;height:32px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;background:#f5f5f4;color:#52525b}
+.a .chip i{width:12px;height:12px;border-radius:3px;background:currentColor}
+.a .ai.warn .chip{background:#ffedd5;color:#ea580c}.a .ai.bad .chip{background:#fee2e2;color:#dc2626}
+.a .ai .tx{flex:1;min-width:0;display:flex;flex-direction:column}.a .ai b{font-size:14px;font-weight:600;overflow-wrap:anywhere}.a .ai small{font-size:12px;color:#52525b}
+.a .ai .act{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;white-space:nowrap}.a .ai .act svg{width:14px;height:14px;color:var(--acc)}
+.a .dc{--acc:#fac80a}
+/* ---- Reference: the approved drawing (CR-BANANAWORLD-PH-016, 23/11/2026) ---- */
+.ref .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ref .tile{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;color:#57534e;min-height:110px}
+.ref .tile small{font-size:12px;font-weight:600;color:#57534e}.ref .tile b{font-size:24px;color:#1c1917;line-height:1.2}.ref .tile span{font-size:12px}
+.ref .tile em{font-style:normal;font-size:12px;color:#0f766e;font-weight:600;margin-top:auto;padding-top:6px}
+.ref .tile.warn{border-color:#fcd34d;background:#fffbeb}.ref .tile.bad{border-color:#fca5a5;background:#fef2f2}.ref .tile.bad b{color:#b91c1c}.ref .tile.good{border-color:#86efac;background:#f0fdf4}
+.ref .card{background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:12px 14px;min-width:0;margin-top:12px}
+.ref .card h4{margin:0 0 8px;font-size:15px;display:flex;gap:8px;align-items:center}
+.ref .cnt{background:#f59e0b;color:#fff;border-radius:10px;font-size:12px;padding:0 8px}
+.ref .att{display:flex;gap:12px;align-items:center;padding:10px 4px;border-top:1px solid #f0efed}.ref .att:first-of-type{border-top:0}
+.ref .att div{flex:1;min-width:0;display:flex;flex-direction:column}.ref .att small{color:#78716c}.ref .att em{font-style:normal;font-size:12px;color:#0f766e;font-weight:600;white-space:nowrap}
+.ref .dotc{width:30px;height:30px;border-radius:9px;flex:none;background:#f0efed}.ref .att.bad .dotc{background:#fee2e2;box-shadow:inset 0 0 0 9px #fee2e2,inset 0 0 0 30px #dc2626}.ref .att.warn .dotc{background:#fef3c7;box-shadow:inset 0 0 0 9px #fef3c7,inset 0 0 0 30px #d97706}
+@media (max-width:900px){.wrap{padding:10px}.grid{grid-template-columns:1fr}.opt{padding:12px}.opt>h2{font-size:22px}}
+@media (max-width:479px){.a .ai .act,.ref .att em{display:none}.a .t .v,.ref .tile b{font-size:21px}.a .t,.ref .tile{padding:10px 11px}}
+</style></head><body><div class="wrap">
+<section class="intro">
+<h1>The shared pieces for your dashboard, next to the drawing you approved</h1>
+<p>You approved this look on 23/11/2026, so there is <b>one option to confirm</b>, not a choice. On the right is your drawing, for reference only. Names and figures are made up.</p>
+<ul>
+<li>Figure boxes can be amber, red or green, use normal letters, and say where they lead at the foot.</li>
+<li>"Needs your attention" lines get a coloured marker, a bold headline, a quiet second line and where they lead. On a narrow phone the right-hand words drop away.</li>
+<li><b>Two small differences, both for readability:</b> the "where it leads" words are dark with a teal arrow (all-teal words cannot be read in the depot app's yellow), and the count bubble is soft amber with a dark number (white on amber is too faint).</li>
+<li>Amber here is the same warning colour your menu counts already use.</li>
+</ul>
+</section>
+<div class="grid">
+
+<section class="opt a">
+<h2>Option A — Built from the shared pieces (to confirm)</h2>
+<p>What the packhouse dashboard will be able to show once it switches over.</p>
+<h3 class="sec">Figure boxes</h3>
+<div class="tiles">
+<a class="t" href="#"><span class="lb">Bunches in</span><span class="v">1 284</span><span class="s">12 fallen bunches</span><span class="ft">End of shift<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="t warn" href="#"><span class="lb"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19"/></svg></span>Waiting to dispatch</span><span class="v">28 <small>pallets</small></span><span class="s">6 older than 3 days</span><span class="ft">Cold rooms<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="t bad" href="#"><span class="lb"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></span>Waste today</span><span class="v">4.6%</span><span class="s">1 of 3 over their level</span><span class="ft">End of shift<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="t good" href="#"><span class="lb">Waiting to dispatch</span><span class="v">0 <small>pallets</small></span><span class="s">everything has gone out</span><span class="ft">Cold rooms<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+</div>
+<section class="card"><h4>Needs your attention <span class="cnt">3</span></h4>
+<ul class="al">
+<li><a class="ai bad" href="#"><span class="chip"><i></i></span><span class="tx"><b>3 pallets have no pulp temperature</b><small>closed more than 2 hours ago · 1ZZ48-07, -08, -11</small></span><span class="act">Cold rooms<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li>
+<li><a class="ai warn" href="#"><span class="chip"><i></i></span><span class="tx"><b>Batch ZZ47 is still open from Sun 22/11</b><small>started 14:05</small></span><span class="act">Batches<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li>
+<li><a class="ai" href="#"><span class="chip"></span><span class="tx"><b>4 loads for tomorrow have no packhouse yet</b><small>Nelspruit 2, Vryheid 1, Mtuba 1</small></span><span class="act">Weekly board<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a></li>
+</ul></section>
+<h3 class="sec">Unchanged: how every app shows figure boxes today</h3>
+<div class="tiles">
+<div class="t blk"><span class="rule"></span><span class="lb up">Pallets</span><span class="v">156 <small>pal.</small></span><span class="s">2 814,00 units</span></div>
+<a class="t blk" href="#"><span class="rule"></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg><span class="lb up">Waiting</span><span class="v">7 <small>pal.</small></span><span class="s">2 old</span></a>
+</div>
+<h3 class="sec">The same pieces in the depot app's yellow</h3>
+<div class="tiles dc">
+<a class="t warn" href="#"><span class="lb">Waiting to dispatch</span><span class="v">28</span><span class="s">6 older than 3 days</span><span class="ft">Cold rooms<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="t" href="#"><span class="lb">Bunches in</span><span class="v">1 284</span><span class="s">12 fallen</span><span class="ft">End of shift<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+</div>
+<p class="note">The words stay dark so they can be read in every app; only the arrow takes the app's colour.</p>
+</section>
+
+<section class="opt ref">
+<h2>Your approved drawing (reference, not an option)</h2>
+<p>From the packhouse dashboard design you picked on 23/11/2026.</p>
+<h3 class="sec">Figure boxes</h3>
+<div class="tiles">
+<a class="tile" href="#"><small>Bunches in</small><b>1 284</b><span>12 fallen bunches</span><em>End of shift →</em></a>
+<a class="tile warn" href="#"><small>Waiting to dispatch</small><b>28 pallets</b><span>6 older than 3 days</span><em>Cold rooms →</em></a>
+<a class="tile bad" href="#"><small>Waste today</small><b>4.6%</b><span>1 of 3 over their level</span><em>End of shift →</em></a>
+<a class="tile good" href="#"><small>Waiting to dispatch</small><b>0 pallets</b><span>everything has gone out</span><em>Cold rooms →</em></a>
+</div>
+<section class="card"><h4>Needs your attention <span class="cnt">3</span></h4>
+<a class="att bad" href="#"><span class="dotc"></span><div><b>3 pallets have no pulp temperature</b><small>closed more than 2 hours ago · 1ZZ48-07, -08, -11</small></div><em>Cold rooms →</em></a>
+<a class="att warn" href="#"><span class="dotc"></span><div><b>Batch ZZ47 is still open from Sun 22/11</b><small>started 14:05</small></div><em>Batches →</em></a>
+<a class="att" href="#"><span class="dotc"></span><div><b>4 loads for tomorrow have no packhouse yet</b><small>Nelspruit 2, Vryheid 1, Mtuba 1</small></div><em>Weekly board →</em></a>
+</section>
+</section>
+
+</div></div></body></html>
